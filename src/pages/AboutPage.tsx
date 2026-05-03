@@ -167,8 +167,8 @@ export default function AboutPage() {
       <FadeSection className="section bg-light">
         <div className="container">
           <SectionLabel text="Our Journey" />
-          <h2 className="center-text">25+ Years of Building Trust</h2>
-          <p className="section-sub center-text">
+          <h2 className="left-text">25+ Years of Building Trust</h2>
+          <p className="section-subtitle">
             From our founding in Brampton to becoming one of Ontario's most respected contractors.
           </p>
           <div className="timeline">
@@ -190,8 +190,8 @@ export default function AboutPage() {
       <FadeSection className="section">
         <div className="container">
           <SectionLabel text="The People Behind the Work" />
-          <h2 className="center-text">Meet Our Team</h2>
-          <p className="section-sub center-text">
+          <h2 className="left-text">Meet Our Team</h2>
+          <p className="section-subtitle">
             Experienced professionals dedicated to delivering quality on every job site.
           </p>
           <div className="team-grid stagger-cards">
@@ -216,24 +216,64 @@ export default function AboutPage() {
       </FadeSection>
 
       {/* ── Testimonials ──────────────────────────────────── */}
-      <FadeSection className="section testimonials-section bg-light">
+      {/* ── Testimonials ──────────────────────────────────── */}
+      <section className="testimonials-section">
         <div className="container">
-          <SectionLabel text="What Our Clients Say" />
-          <h2 className="center-text">Trusted by Clients Who Value Quality</h2>
-          <div className="cards-3 stagger-cards">
-            {testimonials.map((t, i) => (
-              <article key={t.name} className="testi-card card-hover" style={{ '--stagger-i': i } as React.CSSProperties}>
-                <Stars n={t.stars} />
-                <p className="testi-review">{t.review}</p>
-                <div className="testi-footer">
-                  <strong>{t.name}</strong>
-                  <span className="body-text">{t.role}</span>
+          <SectionLabel text="Testimonials" />
+          <h2 className="left-text">What Our Clients Say</h2>
+          <p className="section-subtitle">
+            Trusted by homeowners, investors, and businesses for quality construction and reliable project delivery.
+          </p>
+        </div>
+
+        <div className="marquee-container">
+          {/* Row 1: Right to Left */}
+          <div className="marquee-track" style={{ '--speed': '50s' } as React.CSSProperties}>
+            {[...testimonials.slice(0, 4), ...testimonials.slice(0, 4)].map((t, i) => (
+              <div key={`t1-${i}`} className="testi-card">
+                <div className="testi-stars">
+                  {Array.from({ length: t.stars }).map((_, si) => (
+                    <span key={si} aria-hidden="true">★</span>
+                  ))}
                 </div>
-              </article>
+                <p className="testi-content">{t.review}</p>
+                <div className="testi-profile">
+                  <div className="testi-avatar">
+                    {t.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div className="testi-info">
+                    <span className="testi-name">{t.name}</span>
+                    <span className="testi-role">{t.role} • {t.company}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Row 2: Left to Right */}
+          <div className="marquee-track reverse" style={{ '--speed': '45s' } as React.CSSProperties}>
+            {[...testimonials.slice(4, 8), ...testimonials.slice(4, 8)].map((t, i) => (
+              <div key={`t2-${i}`} className="testi-card">
+                <div className="testi-stars">
+                  {Array.from({ length: t.stars }).map((_, si) => (
+                    <span key={si} aria-hidden="true">★</span>
+                  ))}
+                </div>
+                <p className="testi-content">{t.review}</p>
+                <div className="testi-profile">
+                  <div className="testi-avatar">
+                    {t.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div className="testi-info">
+                    <span className="testi-name">{t.name}</span>
+                    <span className="testi-role">{t.role} • {t.company}</span>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
-      </FadeSection>
+      </section>
 
       {/* ── CTA ───────────────────────────────────────────── */}
       <FadeSection className="section cta-section">
