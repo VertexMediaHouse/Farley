@@ -20,15 +20,7 @@ export default function Navbar() {
     <header className="header">
       <div className="container nav-inner">
         <Link to="/" className="logo" aria-label="Farley Construction & Development Inc." onClick={close}>
-          <span className="logo-mark" aria-hidden="true">
-            <svg viewBox="0 0 44 44">
-              <path d="M5 34h7V19l10-7 10 7v15h7" />
-              <path d="M14 34V21l8-5.5 8 5.5v13" />
-              <path d="M18 24h8M18 28h8M18 32h8" />
-              <path d="M6 17 22 6l16 11" />
-            </svg>
-          </span>
-          <span className="logo-text">Farley Construction<br />&amp; Development Inc.</span>
+          <img src="/images/logo-1.png" alt="Farley Construction & Development Inc." className="logo-img" />
         </Link>
 
         <nav aria-label="Primary navigation">

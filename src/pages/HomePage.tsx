@@ -1,5 +1,5 @@
 import React from 'react'
-import { Counter, FadeSection, SectionLabel, Stars } from '../utils'
+import { Counter, FadeSection, SectionLabel, Stars, StaggerRow } from '../utils'
 import { stats, testimonials } from '../data'
 
 const services = [
@@ -32,43 +32,23 @@ const benefits = [
   {
     title: 'Expert Craftsmanship',
     copy: 'Skilled teams focused on clean execution.',
-    svg: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="m14.6 5.4 4 4M3 21l5.1-1.2L20.2 7.7a2.8 2.8 0 0 0-4-4L4.1 15.8 3 21Z" />
-        <path d="m12.4 7.6 4 4M3 12h4M4 7l3 3M12 3v4" />
-      </svg>
-    ),
+    svg: <img src="/images/carpentry.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
   },
   {
     title: 'Trusted & Reliable',
     copy: 'Clear timelines and dependable delivery.',
-    svg: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 3 4 7v5.6c0 4.1 3.2 6.8 8 8.4 4.8-1.6 8-4.3 8-8.4V7l-8-4Z" />
-        <path d="m8.2 12.1 2.5 2.5 5.1-5.1" />
-      </svg>
-    ),
+    svg: <img src="/images/trustworthiness (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
   },
   {
     title: 'Safety First',
     copy: 'Safety-focused planning and site practices.',
-    svg: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 3 4.5 6.4v5.2c0 4.6 3.1 7.9 7.5 9.4 4.4-1.5 7.5-4.8 7.5-9.4V6.4L12 3Z" />
-        <path d="M12 8v4.2M12 16h.01" />
-      </svg>
-    ),
+    svg: <img src="/images/shield (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
   },
   {
     title: 'Client Focused',
     copy: 'Responsive support built around your needs.',
-    svg: (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="10" cy="7" r="3" />
-        <path d="M3.5 20a6.5 6.5 0 0 1 13 0" />
-        <path d="M17.5 10.2v5.6M14.7 13h5.6" />
-      </svg>
-    ),
+    svg: <img src="/images/user-avatar.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    
   },
 ]
 
@@ -95,7 +75,7 @@ export default function HomePage() {
               <a href="#services" className="btn btn-glass">Explore Services <span aria-hidden="true">-&gt;</span></a>
             </div>
             <div className="hero-avatars">
-              <img src="/images/img3.jpeg" alt="Customer review avatars" className="review-img" />
+              <img src="/images/image3.png" alt="Customer review avatars" className="review-img" />
               <div className="hero-trust">
                 <span className="trust-top"><span aria-hidden="true">★</span> 5 Verified</span>
                 <span className="trust-bot">Google Reviews</span>
@@ -177,16 +157,16 @@ export default function HomePage() {
         <div className="container">
           <SectionLabel text="Our Process" />
           <h2 className="center-text">A Clear Process. Proven Results.</h2>
-          <div className="process-row">
+          <StaggerRow className="process-row">
             {steps.map((s, i) => (
-              <div key={s.n} className="process-step">
+              <div key={s.n} className="process-step" style={{ '--stagger-i': i } as React.CSSProperties}>
                 <div className="step-num">{s.n}</div>
                 <h3>{s.title}</h3>
                 <p className="body-text">{s.copy}</p>
                 {i < steps.length - 1 && <div className="step-line" />}
               </div>
             ))}
-          </div>
+          </StaggerRow>
         </div>
       </FadeSection>
 
@@ -233,24 +213,63 @@ export default function HomePage() {
         </div>
       </FadeSection>
 
-      <FadeSection className="section testimonials-section">
+      <section className="testimonials-section">
         <div className="container">
-          <SectionLabel text="What Our Clients Say" />
-          <h2 className="center-text">Trusted by Clients Who Value Quality</h2>
-          <div className="cards-3 stagger-cards">
-            {testimonials.map((t, i) => (
-              <article key={t.name} className="testi-card card-hover" style={{ '--stagger-i': i } as React.CSSProperties}>
-                <Stars n={t.stars} />
-                <p className="testi-review">{t.review}</p>
-                <div className="testi-footer">
-                  <strong>{t.name}</strong>
-                  <span className="body-text">{t.role}</span>
+          <SectionLabel text="Testimonials" />
+          <h2 className="left-text">What Our Clients Say</h2>
+          <p className="section-subtitle">
+            Trusted by homeowners, investors, and businesses for quality construction and reliable project delivery.
+          </p>
+        </div>
+
+        <div className="marquee-container">
+          {/* Row 1: Right to Left */}
+          <div className="marquee-track" style={{ '--speed': '50s' } as React.CSSProperties}>
+            {[...testimonials.slice(0, 4), ...testimonials.slice(0, 4)].map((t, i) => (
+              <div key={`t1-${i}`} className="testi-card">
+                <div className="testi-stars">
+                  {Array.from({ length: t.stars }).map((_, si) => (
+                    <span key={si} aria-hidden="true">★</span>
+                  ))}
                 </div>
-              </article>
+                <p className="testi-content">{t.review}</p>
+                <div className="testi-profile">
+                  <div className="testi-avatar">
+                    {t.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div className="testi-info">
+                    <span className="testi-name">{t.name}</span>
+                    <span className="testi-role">{t.role} • {t.company}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Row 2: Left to Right */}
+          <div className="marquee-track reverse" style={{ '--speed': '45s' } as React.CSSProperties}>
+            {[...testimonials.slice(4, 8), ...testimonials.slice(4, 8)].map((t, i) => (
+              <div key={`t2-${i}`} className="testi-card">
+                <div className="testi-stars">
+                  {Array.from({ length: t.stars }).map((_, si) => (
+                    <span key={si} aria-hidden="true">★</span>
+                  ))}
+                </div>
+                <p className="testi-content">{t.review}</p>
+                <div className="testi-profile">
+                  <div className="testi-avatar">
+                    {t.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div className="testi-info">
+                    <span className="testi-name">{t.name}</span>
+                    <span className="testi-role">{t.role} • {t.company}</span>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
-      </FadeSection>
+      </section>
 
       <FadeSection className="section cta-section">
         <div className="container">
