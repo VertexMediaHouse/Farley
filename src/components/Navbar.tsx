@@ -17,7 +17,7 @@ export default function Navbar() {
   const close = () => setOpen(false)
 
   return (
-    <header className="header">
+    <header className={`header${open ? ' header--menu-open' : ''}`}>
       <div className="container nav-inner">
         <Link to="/" className="logo" aria-label="Farley Construction & Development Inc." onClick={close}>
           <img src="/images/logo-1.png" alt="Farley Construction & Development Inc." className="logo-img" />

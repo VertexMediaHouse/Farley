@@ -59,7 +59,50 @@ const projects = [
   { img: '/images/img10.jpeg', tag: 'Painting', title: 'Interior Painting Project', location: 'Toronto, ON' },
 ]
 
+const heroSlides = [
+  { img: '/images/img1.jpeg', alt: 'Drywall workers finishing a ceiling' },
+  { img: '/images/img2.jpeg', alt: 'Construction crew installing drywall panels' },
+  { img: '/images/img4.jpeg', alt: 'Drywall finishing work in progress' },
+  { img: '/images/img5.jpeg', alt: 'Interior drywall repair project' },
+  { img: '/images/img6.jpeg', alt: 'Fresh drywall and finishing work on a construction site' },
+]
+
 export default function HomePage() {
+  const [activeSlide, setActiveSlide] = React.useState(0)
+  const [sliderPaused, setSliderPaused] = React.useState(false)
+  const touchStartX = React.useRef<number | null>(null)
+
+  const showSlide = React.useCallback((index: number) => {
+    setActiveSlide((index + heroSlides.length) % heroSlides.length)
+  }, [])
+
+  const nextSlide = React.useCallback(() => {
+    setActiveSlide((current) => (current + 1) % heroSlides.length)
+  }, [])
+
+  const prevSlide = React.useCallback(() => {
+    setActiveSlide((current) => (current - 1 + heroSlides.length) % heroSlides.length)
+  }, [])
+
+  React.useEffect(() => {
+    if (sliderPaused) return undefined
+    const timer = window.setInterval(nextSlide, 3800)
+    return () => window.clearInterval(timer)
+  }, [nextSlide, sliderPaused])
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartX.current = event.touches[0]?.clientX ?? null
+  }
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartX.current === null) return
+    const delta = touchStartX.current - (event.changedTouches[0]?.clientX ?? touchStartX.current)
+    touchStartX.current = null
+    if (Math.abs(delta) < 36) return
+    if (delta > 0) nextSlide()
+    else prevSlide()
+  }
+
   return (
     <>
       <section id="home" className="hero">
@@ -85,8 +128,48 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div className="hero-img-wrap fade-in-right hero-img-float">
-            <img src="/images/img1.jpeg" alt="Drywall workers finishing a ceiling" className="hero-img" />
+          <div
+            className="hero-img-wrap hero-slider-wrap fade-in-right hero-img-float"
+            onMouseEnter={() => setSliderPaused(true)}
+            onMouseLeave={() => setSliderPaused(false)}
+          >
+            <div
+              className="hero-slider"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              aria-roledescription="carousel"
+              aria-label="Featured construction project images"
+            >
+              {heroSlides.map((slide, index) => (
+                <img
+                  key={slide.img}
+                  src={slide.img}
+                  alt={slide.alt}
+                  className={`hero-img hero-slide${index === activeSlide ? ' hero-slide--active' : ''}`}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  aria-hidden={index !== activeSlide}
+                />
+              ))}
+              <button type="button" className="hero-slider-arrow hero-slider-arrow--prev" onClick={prevSlide} aria-label="Previous image">
+                <span aria-hidden="true">‹</span>
+              </button>
+              <button type="button" className="hero-slider-arrow hero-slider-arrow--next" onClick={nextSlide} aria-label="Next image">
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
+            <div className="hero-slider-dots" aria-label="Hero image navigation">
+              {heroSlides.map((slide, index) => (
+                <button
+                  key={slide.img}
+                  type="button"
+                  className={`hero-slider-dot${index === activeSlide ? ' hero-slider-dot--active' : ''}`}
+                  onClick={() => showSlide(index)}
+                  aria-label={`Show image ${index + 1}`}
+                  aria-current={index === activeSlide}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
