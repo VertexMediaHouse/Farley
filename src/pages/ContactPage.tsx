@@ -2,8 +2,8 @@ import { FadeSection, SectionLabel } from '../utils'
 
 const contactCards = [
   {
-    label: 'support@nutritionist.com',
-    href: 'mailto:support@nutritionist.com',
+    label: 'info@farleyconstruction.ca',
+    href: 'mailto:info@farleyconstruction.ca',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M4 5h16v14H4z" />
@@ -12,8 +12,8 @@ const contactCards = [
     ),
   },
   {
-    label: '+91 00000 00000',
-    href: 'tel:+910000000000',
+    label: '(905) 458-8960',
+    href: 'tel:+19054588960',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7A2 2 0 0 1 22 16.9Z" />
@@ -21,8 +21,8 @@ const contactCards = [
     ),
   },
   {
-    label: 'Some Where in the World',
-    href: 'https://maps.google.com',
+    label: 'Brampton, Ontario, Canada',
+    href: 'https://maps.google.com/?q=Brampton%2C%20Ontario%2C%20Canada',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 21s7-5.1 7-11a7 7 0 0 0-14 0c0 5.9 7 11 7 11Z" />
@@ -115,8 +115,8 @@ export default function ContactPage() {
             <div className="cp-form-grid">
               <label>Full Name<input type="text" placeholder="Your full name" /></label>
               <label>Company Name<input type="text" placeholder="Company or organization" /></label>
-              <label>Email Address<input type="email" placeholder="your email" /></label>
-              <label>Phone Number<input type="tel" placeholder="phone number" /></label>
+              <label>Email Address<input type="email" placeholder="your@email.com" /></label>
+              <label>Phone Number<input type="tel" placeholder="Phone number" /></label>
               <label>Project Type<input type="text" placeholder="Select project type" /></label>
               <label>Budget Range<input type="text" placeholder="Select budget range" /></label>
             </div>

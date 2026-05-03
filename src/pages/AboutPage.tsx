@@ -1,5 +1,5 @@
 import React from 'react'
-import { Counter, FadeSection, SectionLabel, Stars } from '../utils'
+import { Counter, FadeSection, SectionLabel } from '../utils'
 import { stats, testimonials } from '../data'
 
 const trustPoints = [
@@ -39,7 +39,10 @@ export default function AboutPage() {
         <div className="page-hero-bg" aria-hidden="true" />
         <div className="container page-hero-inner">
           <span className="page-hero-kicker">About Farley Construction</span>
-          <h1 className="page-hero-title">Built on Trust.<br />Finished with Precision.</h1>
+          <h1 className="page-hero-title about-hero-title">
+            <span>Built on Trust.</span>
+            <span className="typing-line">Finished with Precision.</span>
+          </h1>
           <p className="page-hero-sub">
             Premium drywall, repair, finishing, painting, construction support, and facility
             maintenance solutions delivered with precision, safety, and integrity.

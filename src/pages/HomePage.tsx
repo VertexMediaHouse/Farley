@@ -1,5 +1,5 @@
 import React from 'react'
-import { Counter, FadeSection, SectionLabel, Stars, StaggerRow } from '../utils'
+import { Counter, FadeSection, SectionLabel, StaggerRow } from '../utils'
 import { stats, testimonials } from '../data'
 
 const services = [
@@ -48,7 +48,7 @@ const benefits = [
     title: 'Client Focused',
     copy: 'Responsive support built around your needs.',
     svg: <img src="/images/user-avatar.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
-    
+
   },
 ]
 
@@ -65,7 +65,10 @@ export default function HomePage() {
       <section id="home" className="hero">
         <div className="container hero-inner">
           <div className="hero-copy fade-in-up">
-            <h1>Drywall Repairs<br />&amp; Finishing</h1>
+            <h1>
+              <span className="hero-title-line">Drywall Repairs</span>
+              <span className="hero-title-line">&amp; Finishing</span>
+            </h1>
             <p className="hero-sub">
               Premium drywall, repair, finishing, painting, construction support, and facility
               maintenance solutions delivered with precision, safety, and integrity.
@@ -107,8 +110,8 @@ export default function HomePage() {
           <div className="about-img-wrap">
             <img src="/images/img2.jpeg" alt="Farley construction team on site" className="about-img" />
             <div className="integrity-badge">
-              <strong>Built on Integrity</strong>
-              <span>25+ Years Serving Ontario</span>
+              <strong>Built on Integrity.</strong>
+              <span>Focused on Excellence.</span>
             </div>
           </div>
           <div className="about-copy">
