@@ -1,0 +1,324 @@
+import React from 'react'
+import { Counter, FadeSection, SectionLabel, Stars } from '../utils'
+import { stats, testimonials } from '../data'
+
+const services = [
+  {
+    img: '/images/img4.jpeg',
+    title: 'Drywall Installation Services',
+    copy: 'From drywall installation to facility maintenance, we provide reliable support for every stage of your project.',
+  },
+  {
+    img: '/images/img5.jpeg',
+    title: 'Drywall Repair Services',
+    copy: 'From drywall installation to facility maintenance, we provide reliable support for every stage of your project.',
+  },
+  {
+    img: '/images/img6.jpeg',
+    title: 'Drywall Painting & Finishing Services',
+    copy: 'From drywall installation to facility maintenance, we provide reliable support for every stage of your project.',
+  },
+]
+
+const steps = [
+  { n: '1', title: 'Consult', copy: 'We discuss your goals, needs, and project requirements.' },
+  { n: '2', title: 'Estimate', copy: 'Detailed transparent estimate with no hidden costs.' },
+  { n: '3', title: 'Planning', copy: 'We plan every detail to ensure smooth execution.' },
+  { n: '4', title: 'Execution', copy: 'Skilled teams deliver top-quality work safely and efficiently.' },
+  { n: '5', title: 'Completion', copy: 'Final walkthrough and complete satisfaction.' },
+]
+
+const benefits = [
+  {
+    title: 'Expert Craftsmanship',
+    copy: 'Skilled teams focused on clean execution.',
+    svg: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m14.6 5.4 4 4M3 21l5.1-1.2L20.2 7.7a2.8 2.8 0 0 0-4-4L4.1 15.8 3 21Z" />
+        <path d="m12.4 7.6 4 4M3 12h4M4 7l3 3M12 3v4" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Trusted & Reliable',
+    copy: 'Clear timelines and dependable delivery.',
+    svg: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 3 4 7v5.6c0 4.1 3.2 6.8 8 8.4 4.8-1.6 8-4.3 8-8.4V7l-8-4Z" />
+        <path d="m8.2 12.1 2.5 2.5 5.1-5.1" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Safety First',
+    copy: 'Safety-focused planning and site practices.',
+    svg: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 3 4.5 6.4v5.2c0 4.6 3.1 7.9 7.5 9.4 4.4-1.5 7.5-4.8 7.5-9.4V6.4L12 3Z" />
+        <path d="M12 8v4.2M12 16h.01" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Client Focused',
+    copy: 'Responsive support built around your needs.',
+    svg: (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="10" cy="7" r="3" />
+        <path d="M3.5 20a6.5 6.5 0 0 1 13 0" />
+        <path d="M17.5 10.2v5.6M14.7 13h5.6" />
+      </svg>
+    ),
+  },
+]
+
+const projects = [
+  { img: '/images/img7.jpeg', tag: 'Retail', title: 'Retail Outlet Build-Out', location: 'Vaughan, ON' },
+  { img: '/images/img8.jpeg', tag: 'Commercial', title: 'Commercial Office Drywall', location: 'Mississauga, ON' },
+  { img: '/images/img9.jpeg', tag: 'Industrial', title: 'Industrial Facility Maintenance', location: 'Brampton, ON' },
+  { img: '/images/img10.jpeg', tag: 'Painting', title: 'Interior Painting Project', location: 'Toronto, ON' },
+]
+
+export default function HomePage() {
+  return (
+    <>
+      <section id="home" className="hero">
+        <div className="container hero-inner">
+          <div className="hero-copy fade-in-up">
+            <h1>Drywall Repairs<br />&amp; Finishing</h1>
+            <p className="hero-sub">
+              Premium drywall, repair, finishing, painting, construction support, and facility
+              maintenance solutions delivered with precision, safety, and integrity.
+            </p>
+            <div className="btn-row">
+              <a href="#contact" className="btn btn-orange">Get a Free Quote <span aria-hidden="true">-&gt;</span></a>
+              <a href="#services" className="btn btn-glass">Explore Services <span aria-hidden="true">-&gt;</span></a>
+            </div>
+            <div className="hero-avatars">
+              <img src="/images/img3.jpeg" alt="Customer review avatars" className="review-img" />
+              <div className="hero-trust">
+                <span className="trust-top"><span aria-hidden="true">★</span> 5 Verified</span>
+                <span className="trust-bot">Google Reviews</span>
+              </div>
+            </div>
+          </div>
+          <div className="hero-img-wrap fade-in-right hero-img-float">
+            <img src="/images/img1.jpeg" alt="Drywall workers finishing a ceiling" className="hero-img" />
+          </div>
+        </div>
+      </section>
+
+      <section className="stats-strip" aria-label="Company statistics">
+        <div className="container stats-grid">
+          {stats.map((s) => (
+            <div key={s.label} className="stat-item">
+              <span className="stat-icon">{s.svg}</span>
+              <div className="stat-text">
+                <strong className="stat-val"><Counter value={s.value} /></strong>
+                <span className="stat-lbl">{s.label}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <FadeSection id="about" className="section">
+        <div className="container two-col">
+          <div className="about-img-wrap">
+            <img src="/images/img2.jpeg" alt="Farley construction team on site" className="about-img" />
+            <div className="integrity-badge">
+              <strong>Built on Integrity</strong>
+              <span>25+ Years Serving Ontario</span>
+            </div>
+          </div>
+          <div className="about-copy">
+            <SectionLabel text="About Farley Construction" />
+            <h2>Building Spaces,<br />Strengthening Communities.</h2>
+            <p className="body-text">
+              With over 25 years of experience, Farley Construction &amp; Development Inc.
+              delivers dependable craftsmanship and reliable service across commercial,
+              retail, and industrial projects.
+            </p>
+            <div className="chip-row stagger-chips">
+              <span className="chip">Licensed &amp; Insured</span>
+              <span className="chip">Safety Focused</span>
+              <span className="chip">Customer Driven</span>
+            </div>
+            <a href="/about" className="btn btn-orange">Learn More About Us <span aria-hidden="true">-&gt;</span></a>
+          </div>
+        </div>
+      </FadeSection>
+
+      <FadeSection id="services" className="section bg-light">
+        <div className="container">
+          <SectionLabel text="Our Services" />
+          <h2 className="center-text">Complete Solutions. Superior Results.</h2>
+          <p className="section-sub center-text">
+            From drywall installation to facility maintenance, we provide reliable support for every stage of your project.
+          </p>
+          <div className="cards-3 stagger-cards">
+            {services.map((s, i) => (
+              <article key={s.title} className="service-card card-hover" style={{ '--stagger-i': i } as React.CSSProperties}>
+                <div className="card-img-wrap">
+                  <img src={s.img} alt={s.title} />
+                </div>
+                <div className="card-body">
+                  <h3>{s.title}</h3>
+                  <p className="body-text">{s.copy}</p>
+                  <a href="#contact" className="btn btn-orange btn-sm">Get a Quote <span aria-hidden="true">-&gt;</span></a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </FadeSection>
+
+      <FadeSection className="section process-section">
+        <div className="container">
+          <SectionLabel text="Our Process" />
+          <h2 className="center-text">A Clear Process. Proven Results.</h2>
+          <div className="process-row">
+            {steps.map((s, i) => (
+              <div key={s.n} className="process-step">
+                <div className="step-num">{s.n}</div>
+                <h3>{s.title}</h3>
+                <p className="body-text">{s.copy}</p>
+                {i < steps.length - 1 && <div className="step-line" />}
+              </div>
+            ))}
+          </div>
+        </div>
+      </FadeSection>
+
+      <FadeSection className="section why-section">
+        <div className="container two-col">
+          <div className="why-copy">
+            <SectionLabel text="Why Choose Us" />
+            <h2>Experience.<br />Reliability.<br />Results.</h2>
+            <p className="body-text">
+              We combine skilled craftsmanship, clear communication, and dependable project execution to deliver work clients can trust.
+            </p>
+            <a href="#contact" className="btn btn-orange">Discuss Your Project <span aria-hidden="true">-&gt;</span></a>
+          </div>
+          <div className="benefit-grid stagger-cards">
+            {benefits.map((b, i) => (
+              <article key={b.title} className="benefit-card card-hover" style={{ '--stagger-i': i } as React.CSSProperties}>
+                <span className="benefit-icon">{b.svg}</span>
+                <h3>{b.title}</h3>
+                <p>{b.copy}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </FadeSection>
+
+      <FadeSection id="projects" className="section project-section">
+        <div className="container">
+          <SectionLabel text="Featured Projects" />
+          <h2>Quality Work. Real Results.</h2>
+          <div className="cards-4 stagger-cards">
+            {projects.map((p, i) => (
+              <article key={p.title} className="project-card card-hover" style={{ '--stagger-i': i } as React.CSSProperties}>
+                <div className="project-img-wrap">
+                  <img src={p.img} alt={p.title} />
+                  <div className="project-overlay">
+                    <span className="proj-tag">{p.tag}</span>
+                    <h3>{p.title}</h3>
+                    <p className="proj-loc">{p.location}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </FadeSection>
+
+      <FadeSection className="section testimonials-section">
+        <div className="container">
+          <SectionLabel text="What Our Clients Say" />
+          <h2 className="center-text">Trusted by Clients Who Value Quality</h2>
+          <div className="cards-3 stagger-cards">
+            {testimonials.map((t, i) => (
+              <article key={t.name} className="testi-card card-hover" style={{ '--stagger-i': i } as React.CSSProperties}>
+                <Stars n={t.stars} />
+                <p className="testi-review">{t.review}</p>
+                <div className="testi-footer">
+                  <strong>{t.name}</strong>
+                  <span className="body-text">{t.role}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </FadeSection>
+
+      <FadeSection className="section cta-section">
+        <div className="container">
+          <div className="cta-banner">
+            <div className="cta-text">
+              <h2>Ready to Start Your Project?</h2>
+              <p className="body-text">
+                Let us build something great together with a team focused on precision, safety, and quality.
+              </p>
+            </div>
+            <a href="#contact" className="btn btn-orange btn-lg">Get Your Free Quote <span aria-hidden="true">-&gt;</span></a>
+          </div>
+        </div>
+      </FadeSection>
+
+      <FadeSection id="contact" className="section contact-section">
+        <div className="container two-col contact-col">
+          <div className="contact-info">
+            <SectionLabel text="Get In Touch" />
+            <h2>Let's Talk About<br />Your Project</h2>
+            <p className="body-text">Tell us what you need and our team will get back to you with next steps.</p>
+            <ul className="contact-list">
+              <li>
+                <span className="ci-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7A2 2 0 0 1 22 16.9Z" /></svg>
+                </span>
+                <div><strong>Phone</strong><span>(905) 458-8960</span></div>
+              </li>
+              <li>
+                <span className="ci-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z" /><path d="m4 7 8 6 8-6" /></svg>
+                </span>
+                <div><strong>Email</strong><span>info@farleyconstruction.ca</span></div>
+              </li>
+              <li>
+                <span className="ci-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M12 21s7-5.1 7-11a7 7 0 0 0-14 0c0 5.9 7 11 7 11Z" /><circle cx="12" cy="10" r="2.5" /></svg>
+                </span>
+                <div><strong>Location</strong><span>Brampton, Ontario, Canada</span></div>
+              </li>
+              <li>
+                <span className="ci-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                </span>
+                <div><strong>Hours</strong><span>Mon - Fri: 7 AM - 5 PM</span></div>
+              </li>
+            </ul>
+          </div>
+          <form className="quote-form" onSubmit={(e) => e.preventDefault()}>
+            <h3 className="form-title">Request a Quote</h3>
+            <div className="form-grid">
+              <label>Full Name<input type="text" placeholder="Your full name" /></label>
+              <label>Company Name<input type="text" placeholder="Company or organization" /></label>
+              <label>Email Address<input type="email" placeholder="your@email.com" /></label>
+              <label>Phone Number<input type="tel" placeholder="Phone number" /></label>
+              <label>Project Type<input type="text" placeholder="Select project type" /></label>
+              <label>Budget Range<input type="text" placeholder="Select budget range" /></label>
+            </div>
+            <label className="msg-label">
+              Message
+              <textarea rows={4} placeholder="Tell us about your project" />
+            </label>
+            <button type="submit" className="btn btn-blue full-btn">
+              Submit Request <span aria-hidden="true" style={{ fontSize: '1.2rem' }}>→</span>
+            </button>
+          </form>
+        </div>
+      </FadeSection>
+    </>
+  )
+}
