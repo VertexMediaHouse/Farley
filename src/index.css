@@ -1276,7 +1276,7 @@ p {
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.026) 0 1px, transparent 1px 72px),
     linear-gradient(135deg, #07182d 0%, #0b2847 100%);
   color: var(--white);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .project-section::before {
@@ -1295,6 +1295,7 @@ p {
   position: relative;
   z-index: 1;
   width: min(1200px, calc(100% - 64px));
+  overflow: visible;
 }
 
 .project-section .sec-label {
@@ -1317,6 +1318,7 @@ p {
 .project-section .cards-4 {
   gap: 24px;
   margin-top: 42px;
+  overflow: visible;
 }
 
 .project-card {
@@ -1325,18 +1327,15 @@ p {
 }
 
 .project-section .project-card {
+  position: relative;
   min-width: 0;
   border-radius: 12px;
   background: #0a192f;
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-.project-section .project-card:hover {
-  transform: translateY(-8px);
-  border-color: rgba(38, 168, 255, 0.3);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  transition: all 0.45s cubic-bezier(0.165, 0.84, 0.44, 1);
+  will-change: transform, box-shadow;
+  z-index: 1;
 }
 
 .project-img-wrap {
@@ -1362,10 +1361,6 @@ p {
   border-radius: 10px 10px 0 0;
 }
 
-.project-card:hover img {
-  transform: scale(1.06);
-}
-
 .project-overlay {
   position: absolute;
   inset: 0;
@@ -1388,30 +1383,6 @@ p {
   color: var(--white);
   background: transparent;
   text-align: left;
-}
-
-.project-section .project-overlay::after {
-  content: "→";
-  position: absolute;
-  right: 20px;
-  bottom: 20px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(38, 168, 255, 0.1);
-  color: #26a8ff;
-  font-size: 1.1rem;
-  opacity: 0;
-  transform: translateX(-10px);
-  transition: all 0.3s ease;
-}
-
-.project-card:hover .project-overlay::after {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 .proj-tag {
@@ -4718,5 +4689,15 @@ a.footer-contact-value:hover {
   #our-story.section {
     padding-top: 58px;
     padding-bottom: 62px;
+  }
+}
+
+/* ── Featured Projects Pop-up Hover Preview ──────────────── */
+@media (min-width: 1025px) {
+  .project-section .stagger-cards .project-card:hover {
+    transform: scale(1.12) translateY(-15px) !important;
+    z-index: 100 !important;
+    border-color: rgba(4, 15, 22, 0.6) !important;
+    /* box-shadow: 0 40px 80px rgba(7, 7, 7, 0.6), 0 0 50px rgba(6, 36, 55, 0.4) !important; */
   }
 }

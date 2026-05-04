@@ -284,7 +284,7 @@ export default function HomePage() {
           <h2>Quality Work. Real Results.</h2>
           <div className="cards-4 stagger-cards">
             {projects.map((p, i) => (
-              <article key={p.title} className="project-card card-hover" style={{ '--stagger-i': i } as React.CSSProperties}>
+              <article key={p.title} className="project-card" style={{ '--stagger-i': i } as React.CSSProperties}>
                 <div className="project-img-wrap">
                   <img src={p.img} alt={p.title} />
                   <div className="project-overlay">
