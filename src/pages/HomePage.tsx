@@ -108,12 +108,12 @@ export default function HomePage() {
       <section id="home" className="hero">
         <div className="container hero-inner">
           <div className="hero-copy fade-in-up">
-            <h1>
-              <span className="hero-title-line">Drywall Repairs</span>
-              <span className="hero-title-line">&amp; Finishing</span>
+            <h1 className="home-hero-title">
+              <span className="hero-title-line typing-line typing-line--first">Drywall Repairs</span>
+              <span className="hero-title-line typing-line typing-line--second">&amp; Finishing</span>
             </h1>
             <p className="hero-sub">
-              Premium drywall, repair, finishing, painting, construction support, and facility
+              Premium drywall, repair, finishing, painting, construction and facility
               maintenance solutions delivered with precision, safety, and integrity.
             </p>
             <div className="btn-row">
