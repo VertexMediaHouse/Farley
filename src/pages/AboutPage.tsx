@@ -17,47 +17,7 @@ const trustPoints = [
   },
 ];
 
-const milestones = [
-  {
-    year: "1999",
-    title: "Founded",
-    copy: "Farley Construction & Development Inc. was established in Brampton, Ontario.",
-  },
-  {
-    year: "2005",
-    title: "Commercial Growth",
-    copy: "Expanded into large-scale commercial and retail fit-out projects across the GTA.",
-  },
-  {
-    year: "2012",
-    title: "500+ Projects",
-    copy: "Reached the milestone of 500 completed projects with zero major safety incidents.",
-  },
-  {
-    year: "2018",
-    title: "Vendor Network",
-    copy: "Built a trusted network of 4,000+ vetted vendors and trade partners province-wide.",
-  },
-  {
-    year: "2024",
-    title: "1,300+ Projects",
-    copy: "Proudly surpassed 1,300 successfully completed projects serving 350+ outlets.",
-  },
-];
 
-const team = [
-  { name: "Farley D.", role: "Founder & CEO", img: "/images/team1.jpeg" },
-  {
-    name: "Operations Lead",
-    role: "Project Management",
-    img: "/images/team2.jpeg",
-  },
-  {
-    name: "Site Supervisor",
-    role: "Field Operations",
-    img: "/images/team3.jpeg",
-  },
-];
 
 export default function AboutPage() {
   return (
@@ -255,66 +215,7 @@ export default function AboutPage() {
         </div>
       </FadeSection>
 
-      {/* ── Our Journey / Timeline [COMMENTED OUT] ──────────────────────────── */}
-      {/* <FadeSection className="section bg-light">
-        <div className="container">
-          <SectionLabel text="Our Journey" />
-          <h2 className="left-text">25+ Years of Building Trust</h2>
-          <p className="section-subtitle">
-            From our founding in Brampton to becoming one of Ontario's most
-            respected contractors.
-          </p>
-          <div className="timeline">
-            {milestones.map((m, i) => (
-              <div
-                key={m.year}
-                className={`timeline-item${i % 2 === 0 ? "" : " timeline-item--right"}`}
-              >
-                <div className="timeline-dot" />
-                <div className="timeline-card">
-                  <span className="timeline-year">{m.year}</span>
-                  <h3>{m.title}</h3>
-                  <p>{m.copy}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </FadeSection> */}
 
-      {/* ── Team [COMMENTED OUT] ──────────────────────────────────────────── */}
-      {/* <FadeSection className="section">
-        <div className="container">
-          <SectionLabel text="The People Behind the Work" />
-          <h2 className="left-text">Meet Our Team</h2>
-          <p className="section-subtitle">
-            Experienced professionals dedicated to delivering quality on every
-            job site.
-          </p>
-          <div className="team-grid stagger-cards">
-            {team.map((member, i) => (
-              <article
-                key={member.name}
-                className="team-card card-hover"
-                style={{ "--stagger-i": i } as React.CSSProperties}
-              >
-                <div className="team-img-wrap">
-                  <div className="team-img-placeholder" aria-hidden="true">
-                    <svg viewBox="0 0 64 64">
-                      <circle cx="32" cy="22" r="12" />
-                      <path d="M8 58c0-13.3 10.7-24 24-24s24 10.7 24 24" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="team-info">
-                  <h3>{member.name}</h3>
-                  <span className="team-role">{member.role}</span>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </FadeSection> */}
 
       {/* ── Testimonials ──────────────────────────────────── */}
       {/* ── Testimonials ──────────────────────────────────── */}
