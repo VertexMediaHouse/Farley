@@ -280,6 +280,7 @@ p {
 
 .logo-img:hover {
   transform: translateY(25px) scale(1.02);
+  
 }
 
 .nav-list {
@@ -2332,20 +2333,34 @@ textarea {
 }
 
 .cp-gallery-track {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: flex;
   gap: 24px;
-  width: min(1200px, calc(100% - 64px));
-  margin: 36px auto 0;
+  width: 100% ;
+  margin: 48px auto 0;
   padding: 0;
+  animation: gallerySlide 40s linear infinite;
+}
+
+@keyframes gallerySlide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.cp-gallery-section:hover .cp-gallery-track {
+  animation-play-state: paused;
 }
 
 .cp-gallery-card {
-  width: 100%;
-  aspect-ratio: 1.95 / 1;
-  padding: 5px;
+  flex: 0 0 20%;
+  min-width: 200px;
+  aspect-ratio: 1.6 / 1;
+  padding: 6px;
   border: 3px solid #071023;
-  border-radius: 11px;
+  border-radius: 14px;
   background: #e5f2fb;
   overflow: hidden;
   box-shadow: 0 10px 20px rgba(6, 16, 37, 0.08);
@@ -2355,7 +2370,7 @@ textarea {
   width: 100%;
   height: 100%;
   border: 2px solid #42a6e6;
-  border-radius: 7px;
+  border-radius: 10px;
   object-fit: cover;
 }
 
@@ -3305,10 +3320,34 @@ a.footer-contact-value:hover {
     heroType 1.55s 0.85s steps(24, end) forwards,
     heroCaret 0.72s step-end 0.85s 4 forwards;
 }
-
-.about-hero .hero-avatars {
-  margin-top: 40px;
+/* 
+.about-hero .page-hero-inner {
+  text-align: center;
+  margin: 0 auto;
 }
+
+.about-hero .page-hero-title {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.about-hero .page-hero-sub {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.about-hero .btn-row {
+  justify-content: center;
+  margin-top: 34px;
+  margin-left: auto;
+  margin-right: auto;
+  width: fit-content;
+} */
+
+/* .about-hero .hero-avatars {
+  margin-top: 40px;
+  justify-content: center;
+} */
 
 .page-hero-sub {
   max-width: 740px;
@@ -3405,6 +3444,18 @@ a.footer-contact-value:hover {
 
 #our-story .about-copy .body-text {
   max-width: 560px;
+  text-align: justify;
+}
+
+#our-story .sec-label {
+  display: block;
+  margin-bottom: 15px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #1682d9;
+  font-size: 0.68rem;
+  letter-spacing: 0.11em;
 }
 
 /* ── About 2×2 photo grid ───────────────────────────── */
@@ -3595,7 +3646,7 @@ a.footer-contact-value:hover {
 
 .trust-copy .sec-label {
   display: block;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   padding: 0;
   border-radius: 0;
   background: transparent;
@@ -3682,8 +3733,8 @@ a.footer-contact-value:hover {
 }
 
 /* ═══════════════════════════════════════════════════════
-   ABOUT PAGE — Timeline
-═══════════════════════════════════════════════════════ */
+   ABOUT PAGE — Timeline [COMMENTED OUT]
+═══════════════════════════════════════════════════════
 .timeline {
   position: relative;
   margin-top: 52px;
@@ -3768,10 +3819,11 @@ a.footer-contact-value:hover {
   color: var(--muted);
   line-height: 1.6;
 }
+*/
 
 /* ═══════════════════════════════════════════════════════
-   ABOUT PAGE — Team
-═══════════════════════════════════════════════════════ */
+   ABOUT PAGE — Team [COMMENTED OUT]
+═══════════════════════════════════════════════════════
 .team-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -3841,6 +3893,7 @@ a.footer-contact-value:hover {
   color: var(--muted);
   font-weight: 600;
 }
+*/
 
 /* ─── Responsive: About page ────────────────────────── */
 @media (max-width: 860px) {

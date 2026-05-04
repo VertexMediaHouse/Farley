@@ -137,8 +137,8 @@ export default function ContactPage() {
           <h2>Our Work Samples</h2>
         </div>
         <div className="cp-gallery-track">
-          {galleryImages.map((src, index) => (
-            <figure key={src} className="cp-gallery-card">
+          {[...galleryImages, ...galleryImages].map((src, index) => (
+            <figure key={`${src}-${index}`} className="cp-gallery-card">
               <img src={src} alt={`Construction work sample ${index + 1}`} />
             </figure>
           ))}

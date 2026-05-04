@@ -225,10 +225,10 @@ export default function AboutPage() {
               <br />
               walkthrough.
             </h2>
-            <p className="trust-intro">
+            {/* <p className="trust-intro">
               This page makes Farley feel organized, experienced, and safe to
               hire. The layout uses trust points and clean visuals.
-            </p>
+            </p> */}
             <div className="trust-list">
               {trustPoints.map((point, i) => (
                 <article
@@ -255,8 +255,8 @@ export default function AboutPage() {
         </div>
       </FadeSection>
 
-      {/* ── Our Journey / Timeline ────────────────────────── */}
-      <FadeSection className="section bg-light">
+      {/* ── Our Journey / Timeline [COMMENTED OUT] ──────────────────────────── */}
+      {/* <FadeSection className="section bg-light">
         <div className="container">
           <SectionLabel text="Our Journey" />
           <h2 className="left-text">25+ Years of Building Trust</h2>
@@ -280,10 +280,10 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
-      </FadeSection>
+      </FadeSection> */}
 
-      {/* ── Team ──────────────────────────────────────────── */}
-      <FadeSection className="section">
+      {/* ── Team [COMMENTED OUT] ──────────────────────────────────────────── */}
+      {/* <FadeSection className="section">
         <div className="container">
           <SectionLabel text="The People Behind the Work" />
           <h2 className="left-text">Meet Our Team</h2>
@@ -314,7 +314,7 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
-      </FadeSection>
+      </FadeSection> */}
 
       {/* ── Testimonials ──────────────────────────────────── */}
       {/* ── Testimonials ──────────────────────────────────── */}
