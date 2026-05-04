@@ -65,11 +65,13 @@ export default function Footer() {
 
       <div className="footer-bar">
         <div className="container footer-bar-inner">
-          <p>© {new Date().getFullYear()} Farley Construction &amp; Development Inc. All Rights Reserved.</p>
+          <p>
+            © {new Date().getFullYear()} Farley Construction &amp; Development Inc. All Rights Reserved.
+          </p>
           <ul className="footer-legal">
-            <li><a href="#" rel="noopener noreferrer">Privacy</a></li>
-            <li><a href="#" rel="noopener noreferrer">Terms</a></li>
-            <li><Link to="/contact">Contact</Link></li>
+            <span className="footer-credits">
+              Developed by <a href="https://hetang-madhu.vercel.app/" target="_blank" rel="noopener noreferrer">Hetang Madhu</a> &amp; <a href="https://vertexmediahouse.com/" target="_blank" rel="noopener noreferrer">Dhrumil Sanghvi</a>
+            </span>
           </ul>
         </div>
       </div>
