@@ -266,7 +266,8 @@ p {
 }
 
 .logo-img {
-  height: clamp(60px, 10vw, 165px);
+  height: clamp(40px, 5vw, 65px);
+  margin-top: -40px;
   width: auto;
   display: block;
   object-fit: contain;
@@ -1683,18 +1684,6 @@ p {
   color: var(--white);
 }
 
-.cta-section .cta-banner::after {
-  content: "";
-  position: absolute;
-  right: 116px;
-  top: 50%;
-  width: 164px;
-  height: 164px;
-  border: 42px solid rgba(255, 255, 255, 0.07);
-  border-radius: 999px;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
 
 .cta-section .cta-text {
   position: relative;
@@ -2414,7 +2403,7 @@ textarea {
 
 .footer-logo {
   display: block;
-  width: min(360px, 100%);
+  width: min(300px, 90%);
   height: 88px;
   margin-bottom: 1rem;
   overflow: hidden;
@@ -2426,6 +2415,8 @@ textarea {
   width: 100.5%;
   max-width: none;
   height: auto;
+  margin-left: 25px;
+  margin-top: 25px;
   transform: translate(-8.2%, -27.9%);
   filter: none;
 }
