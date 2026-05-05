@@ -18,7 +18,7 @@ export default function Footer() {
           <ul className="footer-links">
             <li><Link to="/">Home</Link></li>
             <li><Link to="/about">About Us</Link></li>
-            <li><a href="/#services">Services</a></li>
+            <li><Link to="/services">Services</Link></li>
             <li><Link to="/contact">Contact Us</Link></li>
           </ul>
         </nav>
@@ -26,9 +26,9 @@ export default function Footer() {
         <div className="footer-col">
           <h4>Services</h4>
           <ul className="footer-links">
-            <li><a href="/#services">Drywall Installation</a></li>
-            <li><a href="/#services">Drywall Repair</a></li>
-            <li><a href="/#services">Drywall Painting &amp; Finishing</a></li>
+            <li><Link to="/services">Drywall Installation</Link></li>
+            <li><Link to="/services">Drywall Repair</Link></li>
+            <li><Link to="/services">Drywall Painting &amp; Finishing</Link></li>
           </ul>
         </div>
 

@@ -36,9 +36,9 @@ export default function Navbar() {
               </NavLink>
             </li>
             <li>
-              <a href="/#services" className="nav-link" onClick={close}>
-                Services <span aria-hidden="true">▼</span>
-              </a>
+              <NavLink to="/services" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={close}>
+                Services
+              </NavLink>
             </li>
             <li>
               <NavLink to="/contact" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={close}>

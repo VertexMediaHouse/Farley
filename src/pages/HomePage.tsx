@@ -118,7 +118,7 @@ export default function HomePage() {
             </p>
             <div className="btn-row">
               <a href="#contact" className="btn btn-orange">Get a Free Quote <span aria-hidden="true">-&gt;</span></a>
-              <a href="#services" className="btn btn-glass">Explore Services <span aria-hidden="true">-&gt;</span></a>
+              <a href="/services" className="btn btn-glass">Explore Services <span aria-hidden="true">-&gt;</span></a>
             </div>
             <div className="hero-avatars">
               <img src="/images/image3.png" alt="Customer review avatars" className="review-img" />

@@ -40,7 +40,7 @@ export default function AboutPage() {
             <a href="/#contact" className="btn btn-orange">
               Get a Free Quote <span aria-hidden="true">-&gt;</span>
             </a>
-            <a href="/#services" className="btn btn-glass">
+            <a href="/services" className="btn btn-glass">
               Explore Services <span aria-hidden="true">-&gt;</span>
             </a>
           </div>
@@ -107,7 +107,7 @@ export default function AboutPage() {
               <a href="/#contact" className="btn btn-orange">
                 Discuss Your Project <span aria-hidden="true">-&gt;</span>
               </a>
-              <a href="/#services" className="btn btn-outline-dark">
+              <a href="/services" className="btn btn-outline-dark">
                 Explore Services <span aria-hidden="true">-&gt;</span>
               </a>
             </div>
