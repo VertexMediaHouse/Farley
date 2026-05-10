@@ -481,7 +481,7 @@ p {
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 70px),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 70px),
     linear-gradient(105deg, #3AABF0 0%, #3AABF0 54%, #3a72bd 100%);
-  padding: 72px 0 126px;
+  padding: 72px 0 100px;
 }
 
 .hero::before {
@@ -503,8 +503,8 @@ p {
 }
 
 .hero-copy {
-  padding-top: 8px;
-  padding-bottom: 12px;
+  padding-top: 1px;
+  padding-bottom: 0;
 }
 
 .hero h1 {
@@ -2044,6 +2044,27 @@ textarea {
   padding-inline: 20px;
   background: var(--orange);
   box-shadow: 0 10px 24px rgba(255, 134, 28, 0.24);
+  transition: none;
+  overflow: visible;
+}
+
+.contact-section .full-btn::before {
+  display: none;
+}
+
+.contact-section .full-btn:hover {
+  background: var(--orange);
+  transform: none;
+  box-shadow: 0 10px 24px rgba(255, 134, 28, 0.24);
+  filter: none;
+}
+
+.contact-section .full-btn:hover::before {
+  display: none;
+}
+
+.contact-section .full-btn:active {
+  transform: none;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2342,8 +2363,29 @@ textarea {
   margin-top: 0;
   border-radius: 7px;
   padding-inline: 19px;
-  background: #3AABF0;
+  background: #3AABF0 !important;
   font-size: 0.88rem;
+  transition: none !important;
+  overflow: visible !important;
+}
+
+.cp-submit::before {
+  display: none !important;
+}
+
+.cp-submit:hover {
+  background: #3AABF0 !important;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.cp-submit:hover::before {
+  display: none !important;
+}
+
+.cp-submit:active {
+  transform: none !important;
 }
 
 .cp-gallery-section {
@@ -3306,6 +3348,7 @@ a.footer-contact-value:hover {
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 64px),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 64px),
     linear-gradient(105deg, #3AABF0 0%, #3AABF0 54%, #3a72bd 100%);
+    padding: 72px 0 92px;
 }
 
 .page-hero-bg {
@@ -3450,8 +3493,9 @@ a.footer-contact-value:hover {
   font-size: 0.74rem;
 }
 
-/* ── About stats ────────── */
-.about-stats {
+/* ── About & Services stats (below page heroes) ────────── */
+.about-stats,
+.services-stats {
   position: relative;
   z-index: 20;
   /* High z-index to float over both sections */
@@ -3463,18 +3507,20 @@ a.footer-contact-value:hover {
   background: transparent;
 }
 
-.about-stats .stats-grid {
+.about-stats .stats-grid,
+.services-stats .stats-grid {
   min-height: 110px;
   max-width: 1100px;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: #080f20;
-  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+  /* box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6); */
   display: grid;
   align-items: center;
 }
 
-.about-stats .stat-item {
+.about-stats .stat-item,
+.services-stats .stat-item {
   min-height: 52px;
   grid-template-columns: 40px 1fr;
   gap: 16px;
@@ -3482,16 +3528,19 @@ a.footer-contact-value:hover {
   border-right-color: rgba(255, 255, 255, 0.38);
 }
 
-.about-stats .stat-icon {
+.about-stats .stat-icon,
+.services-stats .stat-icon {
   width: 34px;
   height: 34px;
 }
 
-.about-stats .stat-val {
+.about-stats .stat-val,
+.services-stats .stat-val {
   font-size: 1.42rem;
 }
 
-.about-stats .stat-lbl {
+.about-stats .stat-lbl,
+.services-stats .stat-lbl {
   font-size: 0.66rem;
 }
 
@@ -3985,11 +4034,13 @@ a.footer-contact-value:hover {
     font-size: clamp(2.4rem, 9vw, 3.5rem);
   }
 
-  .about-stats {
+  .about-stats,
+  .services-stats {
     margin-top: -38px;
   }
 
-  .about-stats .stat-item {
+  .about-stats .stat-item,
+  .services-stats .stat-item {
     padding: 18px 24px;
   }
 
@@ -4151,11 +4202,13 @@ a.footer-contact-value:hover {
     gap: 10px;
   }
 
-  .about-stats {
+  .about-stats,
+  .services-stats {
     margin-top: -30px;
   }
 
-  .about-stats .stats-grid {
+  .about-stats .stats-grid,
+  .services-stats .stats-grid {
     min-height: auto;
   }
 
@@ -4236,11 +4289,13 @@ a.footer-contact-value:hover {
   }
 
   .stats-grid,
-  .about-stats .stats-grid {
+  .about-stats .stats-grid,
+  .services-stats .stats-grid {
     width: min(100%, calc(100vw - 36px));
   }
 
-  .about-stats .stat-item {
+  .about-stats .stat-item,
+  .services-stats .stat-item {
     padding-inline: clamp(18px, 4vw, 30px);
   }
 
@@ -4387,7 +4442,8 @@ a.footer-contact-value:hover {
   }
 
   .stat-item,
-  .about-stats .stat-item {
+  .about-stats .stat-item,
+  .services-stats .stat-item {
     grid-template-columns: 40px 1fr;
     gap: 14px;
     padding: 18px;
@@ -4516,6 +4572,7 @@ a.footer-contact-value:hover {
   .review-img {
     width: 96px;
     height: 39px;
+    
   }
 
   .trust-top,
@@ -4555,7 +4612,8 @@ a.footer-contact-value:hover {
   }
 
   .stats-grid,
-  .about-stats .stats-grid {
+  .about-stats .stats-grid,
+  .services-stats .stats-grid {
     width: calc(100vw - 36px);
   }
 
@@ -4743,12 +4801,14 @@ a.footer-contact-value:hover {
   }
 
   .stats-grid,
-  .about-stats .stats-grid {
+  .about-stats .stats-grid,
+  .services-stats .stats-grid {
     width: calc(100vw - 28px);
   }
 
   .stat-item,
-  .about-stats .stat-item {
+  .about-stats .stat-item,
+  .services-stats .stat-item {
     grid-template-columns: 34px 1fr;
     padding: 16px 14px;
   }
@@ -4800,15 +4860,43 @@ a.footer-contact-value:hover {
   }
 }
 
-/* Services page */
+/* Services page — tighter hero than default .page-hero */
+.page-hero.services-hero {
+  align-items: stretch;
+  justify-content: flex-start;
+  min-height: unset;
+}
+
 .services-hero {
   flex-direction: column;
   align-items: stretch;
-  padding-bottom: 108px;
+  min-height: unset;
+  padding: clamp(32px, 3.5vw, 46px) 0 clamp(38px, 4.5vw, 54px);
   background:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 64px),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 64px),
     linear-gradient(105deg, #3AABF0 0%, #3AABF0 54%, #3a72bd 100%);
+    
+}
+
+.services-hero .page-hero-kicker {
+  margin-bottom: 5px;
+}
+
+.services-hero .page-hero-title {
+  font-size: clamp(2rem, 4vw, 3.15rem);
+  line-height: 1.08;
+  margin-bottom: 16px;
+}
+
+.services-hero .page-hero-sub {
+  font-size: 0.9rem;
+  line-height: 1.58;
+}
+
+.services-hero .btn-row {
+  margin-top: 13px;
+  margin-bottom: 60px;
 }
 
 .services-hero-bg {
@@ -4818,8 +4906,8 @@ a.footer-contact-value:hover {
 .services-hero-inner {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  align-items: center;
-  gap: clamp(44px, 5vw, 72px);
+  align-items: start;
+  gap: clamp(24px, 3.5vw, 52px);
 }
 
 .services-hero-copy {
@@ -4845,12 +4933,12 @@ a.footer-contact-value:hover {
 .services-hero-visual {
   position: relative;
   justify-self: end;
-  width: min(100%, 520px);
+  width: min(100%, 400px);
 }
 
 .services-hero-collage {
   position: relative;
-  min-height: 560px;
+  min-height: 0;
 }
 
 .services-collage-main,
@@ -4858,23 +4946,23 @@ a.footer-contact-value:hover {
   margin: 0;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 24px 60px rgba(2, 9, 22, 0.34);
+  box-shadow: 0 18px 44px rgba(2, 9, 22, 0.28);
 }
 
 .services-collage-main {
   width: 100%;
-  height: 540px;
+  height: clamp(252px, 28vw, 336px);
   margin-left: 0;
-  border-radius: 28px;
+  border-radius: 20px;
 }
 
 .services-collage-side {
   position: absolute;
-  left: -20px;
-  bottom: 34px;
-  width: min(52%, 248px);
-  height: 250px;
-  border-radius: 22px;
+  left: -64px;
+  bottom: 18px;
+  width: min(46%, 188px);
+  height: clamp(118px, 14vw, 158px);
+  border-radius: 16px;
 }
 
 .services-collage-main img,
@@ -4886,60 +4974,27 @@ a.footer-contact-value:hover {
 
 .services-hero-badge {
   position: absolute;
-  right: 24px;
-  bottom: 24px;
+  right: -55px;
+  bottom: -25px;
   display: grid;
-  gap: 6px;
-  max-width: 270px;
-  padding: 18px 20px;
+  gap: 4px;
+  max-width: 240px;
+  padding: 12px 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
+  border-radius: 14px;
   background: rgba(7, 16, 35, 0.88);
   color: var(--white);
-  box-shadow: 0 20px 50px rgba(2, 9, 22, 0.28);
+  box-shadow: 0 14px 36px rgba(2, 9, 22, 0.24);
 }
 
 .services-hero-badge strong {
-  font-size: 0.98rem;
+  font-size: 0.88rem;
 }
 
 .services-hero-badge span {
   color: rgba(255, 255, 255, 0.72);
-  font-size: 0.82rem;
-  line-height: 1.5;
-}
-
-.services-hero-stats {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  width: min(1100px, 100%);
-  margin-top: 40px;
-}
-
-.services-hero-stat {
-  display: grid;
-  gap: 8px;
-  padding: 22px 24px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
-  background: rgba(8, 15, 32, 0.88);
-  color: var(--white);
-  box-shadow: 0 20px 36px rgba(6, 16, 37, 0.2);
-}
-
-.services-hero-stat strong {
-  color: var(--blue);
-  font-size: 1.8rem;
-  font-weight: 900;
-}
-
-.services-hero-stat span {
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 0.84rem;
-  line-height: 1.55;
+  font-size: 0.76rem;
+  line-height: 1.45;
 }
 
 .services-overview-section {
@@ -5353,7 +5408,7 @@ a.footer-contact-value:hover {
   .services-hero-inner,
   .services-sector-layout {
     grid-template-columns: 1fr;
-    gap: 40px;
+    gap: 28px;
   }
 
   .services-hero-copy,
@@ -5396,35 +5451,31 @@ a.footer-contact-value:hover {
 
 @media (max-width: 860px) {
   .services-hero {
-    padding-bottom: 88px;
+    padding: 34px 0 42px;
   }
 
   .services-hero-collage {
-    min-height: auto;
-    padding-bottom: 118px;
+    min-height: 0;
+    padding-bottom: 76px;
   }
 
   .services-collage-main {
     width: 100%;
-    height: clamp(320px, 70vw, 460px);
+    height: clamp(220px, 50vw, 320px);
     margin-left: 0;
   }
 
   .services-collage-side {
-    left: 14px;
+    left: 12px;
     bottom: 0;
-    width: min(52%, 220px);
-    height: 190px;
+    width: min(44%, 168px);
+    height: clamp(108px, 26vw, 142px);
   }
 
   .services-hero-badge {
-    right: 12px;
-    bottom: 18px;
-    max-width: 240px;
-  }
-
-  .services-hero-stats {
-    grid-template-columns: 1fr;
+    right: 10px;
+    bottom: 12px;
+    max-width: 220px;
   }
 
   .services-gallery-grid {
@@ -5462,22 +5513,22 @@ a.footer-contact-value:hover {
 
 @media (max-width: 560px) {
   .services-hero {
-    padding-bottom: 72px;
+    padding: 32px 0 40px;
   }
 
   .services-hero-title {
-    font-size: clamp(2.2rem, 10vw, 2.9rem);
+    font-size: clamp(1.95rem, 9vw, 2.65rem);
   }
 
   .services-collage-main {
-    height: 300px;
-    border-radius: 18px;
+    height: clamp(220px, 62vw, 280px);
+    border-radius: 16px;
   }
 
   .services-collage-side {
-    width: 160px;
-    height: 140px;
-    border-radius: 16px;
+    width: 132px;
+    height: 112px;
+    border-radius: 14px;
   }
 
   .services-hero-badge {

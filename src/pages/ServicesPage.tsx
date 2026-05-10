@@ -1,6 +1,6 @@
 import React from 'react'
-import { FadeSection, SectionLabel, StaggerRow } from '../utils'
-import { servicesPageData } from '../data'
+import { Counter, FadeSection, SectionLabel, StaggerRow } from '../utils'
+import { servicesPageData, stats } from '../data'
 
 export default function ServicesPage() {
   return (
@@ -44,13 +44,18 @@ export default function ServicesPage() {
             </div>
           </div>
         </div>
+      </section>
 
-        <div className="container services-hero-stats" aria-label="Services page statistics">
-          {servicesPageData.heroStats.map((stat) => (
-            <article key={stat.label} className="services-hero-stat">
-              <strong>{stat.value}</strong>
-              <span>{stat.label}</span>
-            </article>
+      <section className="stats-strip services-stats" aria-label="Company statistics">
+        <div className="container stats-grid">
+          {stats.map((s) => (
+            <div key={s.label} className="stat-item">
+              <span className="stat-icon">{s.svg}</span>
+              <div className="stat-text">
+                <strong className="stat-val"><Counter value={s.value} /></strong>
+                <span className="stat-lbl">{s.label}</span>
+              </div>
+            </div>
           ))}
         </div>
       </section>

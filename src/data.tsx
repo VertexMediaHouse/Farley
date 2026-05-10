@@ -22,6 +22,13 @@ export const stats = [
   },
 ]
 
+export const featuredProjects = [
+  { img: '/images/img7.jpeg', tag: 'Retail', title: 'Retail Outlet Build-Out', location: 'Vaughan, ON' },
+  { img: '/images/img8.jpeg', tag: 'Commercial', title: 'Commercial Office Drywall', location: 'Mississauga, ON' },
+  { img: '/images/img9.jpeg', tag: 'Industrial', title: 'Industrial Facility Maintenance', location: 'Brampton, ON' },
+  { img: '/images/img10.jpeg', tag: 'Painting', title: 'Interior Painting Project', location: 'Toronto, ON' },
+]
+
 export const testimonials = [
   { name: 'Michael T.', role: 'Retail Developer', company: 'T-Square Realty', stars: 5, review: 'Farley Construction exceeded expectations. Their attention to detail and quality of work were outstanding.' },
   { name: 'Sarah L.', role: 'Property Manager', company: 'Skyline Props', stars: 5, review: 'Reliable, on time, and on budget. We have trusted Farley for multiple projects across our portfolio.' },
@@ -34,11 +41,6 @@ export const testimonials = [
 ]
 
 export const servicesPageData = {
-  heroStats: [
-    { value: '25+', label: 'Years of dependable site delivery' },
-    { value: '1300+', label: 'Projects completed across sectors' },
-    { value: '4000+', label: 'Vendor and trade network support' },
-  ],
   serviceCards: [
     {
       title: 'Texture Match',

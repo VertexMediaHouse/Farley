@@ -125,7 +125,7 @@ export default function ContactPage() {
               <textarea rows={5} placeholder="Tell us about your project" />
             </label>
             <button type="submit" className="btn btn-blue cp-submit">
-              Submit Request <span aria-hidden="true">-&gt;</span>
+              Submit Request <span aria-hidden="true">→</span>
             </button>
           </form>
         </div>

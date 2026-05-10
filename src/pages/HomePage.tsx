@@ -1,6 +1,6 @@
 import React from 'react'
 import { Counter, FadeSection, SectionLabel, StaggerRow } from '../utils'
-import { stats, testimonials } from '../data'
+import { featuredProjects, stats, testimonials } from '../data'
 
 const services = [
   {
@@ -50,13 +50,6 @@ const benefits = [
     svg: <img src="/images/user-avatar.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
 
   },
-]
-
-const projects = [
-  { img: '/images/img7.jpeg', tag: 'Retail', title: 'Retail Outlet Build-Out', location: 'Vaughan, ON' },
-  { img: '/images/img8.jpeg', tag: 'Commercial', title: 'Commercial Office Drywall', location: 'Mississauga, ON' },
-  { img: '/images/img9.jpeg', tag: 'Industrial', title: 'Industrial Facility Maintenance', location: 'Brampton, ON' },
-  { img: '/images/img10.jpeg', tag: 'Painting', title: 'Interior Painting Project', location: 'Toronto, ON' },
 ]
 
 const heroSlides = [
@@ -283,7 +276,7 @@ export default function HomePage() {
           <SectionLabel text="Featured Projects" />
           <h2>Quality Work. Real Results.</h2>
           <div className="cards-4 stagger-cards">
-            {projects.map((p, i) => (
+            {featuredProjects.map((p, i) => (
               <article key={p.title} className="project-card" style={{ '--stagger-i': i } as React.CSSProperties}>
                 <div className="project-img-wrap">
                   <img src={p.img} alt={p.title} />
