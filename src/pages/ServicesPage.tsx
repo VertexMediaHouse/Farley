@@ -142,7 +142,7 @@ export default function ServicesPage() {
       <FadeSection className="section services-process-section">
         <div className="container">
           <SectionLabel text="How We Work" />
-          <h2 className="center-text">A compact process that keeps projects clear and moving.</h2>
+          <h2 className="center-text">A lean workflow that ensures clarity and sustains project momentum.</h2>
           <StaggerRow className="services-process-grid">
             {servicesPageData.processSteps.map((step, index) => (
               <article key={step.title} className="services-process-card" style={{ '--stagger-i': index } as React.CSSProperties}>

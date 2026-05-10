@@ -5001,6 +5001,27 @@ a.footer-contact-value:hover {
   background: var(--white);
 }
 
+/* Services page section kicker — align with site blue (#3AABF0), not default orange .sec-label */
+.services-overview-section .sec-label,
+.services-detail-section .sec-label,
+.services-sector-section .sec-label,
+.services-process-section .sec-label,
+.services-gallery-section .sec-label {
+  display: block;
+  margin-bottom: 15px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #3aabf0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+}
+
+.services-process-section .sec-label {
+  text-align: center;
+}
+
 .services-overview-sub {
   margin-inline: 0;
 }
@@ -5370,8 +5391,15 @@ a.footer-contact-value:hover {
 }
 
 .services-cta-copy .sec-label {
-  color: #ffbf7d;
-  background: rgba(255, 255, 255, 0.08);
+  display: block;
+  margin-bottom: 15px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #3aabf0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
 }
 
 .services-cta-copy h2,
