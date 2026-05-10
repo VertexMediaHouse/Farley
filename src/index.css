@@ -267,7 +267,7 @@ p {
 
 .logo-img {
   height: clamp(40px, 5vw, 65px);
-  margin-top: -40px;
+  margin-top: -30px;
   width: auto;
   display: block;
   object-fit: contain;
@@ -435,7 +435,11 @@ p {
   align-items: center;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(8, 32, 61, 0.96), rgba(52, 111, 188, 0.95)),
+  linear-gradient(
+    90deg,
+    rgba(39, 168, 220, 0.96),
+    rgba(15, 133, 184, 0.95)
+  ),
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 70px),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 70px);
   padding: 72px 0 126px;
@@ -943,7 +947,11 @@ p {
   background:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 72px),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.028) 0 1px, transparent 1px 72px),
-    linear-gradient(135deg, #07182d 0%, #0b2847 100%);
+      linear-gradient(
+    90deg,
+    rgba(39, 168, 220, 0.96),
+    rgba(15, 133, 184, 0.95)
+  );
   color: var(--white);
   overflow: hidden;
 }
@@ -1082,7 +1090,7 @@ p {
   padding: 0;
   border-radius: 0;
   background: transparent;
-  color: #1682d9;
+  color: #3AABF0;
   text-align: center;
   font-size: 0.72rem;
   letter-spacing: 0.11em;
@@ -1279,7 +1287,11 @@ p {
   background:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 72px),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.026) 0 1px, transparent 1px 72px),
-    linear-gradient(135deg, #07182d 0%, #0b2847 100%);
+      linear-gradient(
+    90deg,
+    rgba(39, 168, 220, 0.96),
+    rgba(15, 133, 184, 0.95)
+  );
   color: var(--white);
   overflow: visible;
 }
@@ -1309,7 +1321,7 @@ p {
   padding: 0;
   border-radius: 0;
   background: transparent;
-  color: #26a8ff;
+  color: white;
   font-size: 0.66rem;
   font-weight: 900;
   letter-spacing: 0.11em;
@@ -1460,7 +1472,7 @@ p {
   padding: 0;
   border-radius: 0;
   background: transparent;
-  color: #1682d9;
+  color: #3AABF0;
   font-size: 0.72rem;
   letter-spacing: 0.11em;
 }
@@ -1596,7 +1608,7 @@ p {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #08225a 100%);
+  background: linear-gradient(135deg, #3AABF0 0%, #3AABF0 100%);
   color: var(--white);
   display: flex;
   align-items: center;
@@ -1673,6 +1685,8 @@ p {
   overflow: hidden;
 }
 
+
+/* for Ready to Start Your Project? */
 .cta-section .cta-banner {
   min-height: 190px;
   padding: 40px 56px;
@@ -1680,7 +1694,7 @@ p {
   border-radius: 18px;
   background:
     radial-gradient(circle at 79% 50%, rgba(47, 174, 255, 0.18) 0 82px, rgba(47, 174, 255, 0.11) 83px 132px, transparent 133px),
-    linear-gradient(105deg, #07182d 0%, #0e3865 58%, #1c8bd8 100%);
+    linear-gradient(105deg, #3AABF0 0%, #2898E3  58%, #1C8BD8  100%);
   color: var(--white);
 }
 
@@ -1743,7 +1757,7 @@ p {
   padding: 0;
   border-radius: 0;
   background: transparent;
-  color: #1682d9;
+  color: #3AABF0;
   font-size: 0.72rem;
   letter-spacing: 0.11em;
 }

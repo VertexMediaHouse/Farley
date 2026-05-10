@@ -20,7 +20,7 @@ export default function Navbar() {
     <header className={`header${open ? ' header--menu-open' : ''}`}>
       <div className="container nav-inner">
         <Link to="/" className="logo" aria-label="Farley Construction & Development Inc." onClick={close}>
-          <img src="/images/logo.png" alt="Farley Construction & Development Inc." className="logo-img" />
+          <img src="/images/logo1.png" alt="Farley Construction & Development Inc." className="logo-img" />
         </Link>
 
         <nav aria-label="Primary navigation">
@@ -49,7 +49,7 @@ export default function Navbar() {
         </nav>
 
         <div className="nav-right">
-          <Link to="/contact" className="btn btn-blue btn-sm" onClick={close}>Get Quote</Link>
+          <Link to="/contact" className="btn btn-blue" onClick={close}>Get Quote</Link>
           <button
             className={`hamburger${open ? ' hamburger--open' : ''}`}
             onClick={() => setOpen(v => !v)}
