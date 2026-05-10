@@ -153,7 +153,7 @@ export default function ContactPage() {
               <p>Let us build something great together with a team focused on precision, safety, and quality.</p>
             </div>
             <a href="https://farleyconstruction.ca" target="_blank" rel="noopener noreferrer" className="btn btn-orange btn-lg">
-              Our Main Website <span aria-hidden="true">-&gt;</span>
+              Our Main Website <span aria-hidden="true">→</span>
             </a>
           </div>
         </div>

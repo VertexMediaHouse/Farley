@@ -21,10 +21,10 @@ export default function ServicesPage() {
             </p>
             <div className="btn-row">
               <a href="/contact" className="btn btn-orange">
-                Request a Quote <span aria-hidden="true">-&gt;</span>
+                Request a Quote <span aria-hidden="true">→</span>
               </a>
               <a href="#services-gallery" className="btn btn-glass">
-                View Our Work <span aria-hidden="true">-&gt;</span>
+                View Our Work <span aria-hidden="true">→</span>
               </a>
             </div>
           </div>
@@ -195,7 +195,7 @@ export default function ServicesPage() {
             </div>
             <div className="services-cta-actions">
               <a href="/contact" className="btn btn-orange btn-lg">
-                Discuss Your Project <span aria-hidden="true">-&gt;</span>
+                Discuss Your Project <span aria-hidden="true">→</span>
               </a>
               <a href="tel:+19054588960" className="services-cta-link">(905) 458-8960</a>
               <a href="mailto:info@farleyconstruction.ca" className="services-cta-link">info@farleyconstruction.ca</a>

@@ -421,17 +421,20 @@ p {
   .nav-right>.btn {
     display: none;
   }
+
+  .header .logo-img {
+    margin-top: 10px;
+  }
 }
 
 @media (max-width: 560px) {
-  .header {
-    height: 70px;
+  .logo-img {
+    height: clamp(72px, 22vw, 86px);
+    transform: translateY(4px);
   }
 
-  .logo-img {
-    height: 90px;
-    /* Perfectly sized for mobile */
-    transform: translateY(10px);
+  .header .logo-img:hover {
+    transform: translateY(4px) scale(1.02);
   }
 
   .about-hero-title .typing-line {
@@ -3115,6 +3118,7 @@ a.footer-contact-value:hover {
     position: sticky;
     top: 0;
     z-index: 100;
+    overflow: visible;
   }
 
   .header.header--menu-open {
@@ -3122,8 +3126,10 @@ a.footer-contact-value:hover {
   }
 
   .nav-inner {
+    position: relative;
     flex-wrap: nowrap;
-    padding: 14px 0;
+    align-items: center;
+    padding: 10px 0 14px;
   }
 
   .hamburger {
@@ -3137,7 +3143,7 @@ a.footer-contact-value:hover {
   .nav-list {
     display: none;
     position: absolute;
-    top: 68px;
+    top: 100%;
     left: 0;
     right: 0;
     z-index: 99;
@@ -3147,10 +3153,6 @@ a.footer-contact-value:hover {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     padding: 8px 0 12px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-  }
-
-  .header.header--menu-open .nav-list {
-    top: 78px;
   }
 
   .nav-list--open {
@@ -4034,6 +4036,23 @@ a.footer-contact-value:hover {
     font-size: clamp(2.4rem, 9vw, 3.5rem);
   }
 
+  .about-hero .page-hero-title {
+    max-width: 100%;
+    line-height: 1.14;
+    font-size: clamp(1.95rem, 6.8vw + 0.85rem, 3.35rem);
+  }
+
+  .about-hero-title .typing-line {
+    width: auto;
+    max-width: 100%;
+    overflow: visible;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    border-right: 0;
+    white-space: normal;
+    animation: none;
+  }
+
   .about-stats,
   .services-stats {
     margin-top: -38px;
@@ -4196,6 +4215,11 @@ a.footer-contact-value:hover {
 
   .page-hero-title {
     font-size: 2.35rem;
+  }
+
+  .about-hero .page-hero-title {
+    font-size: clamp(1.6rem, 9.2vw, 2.35rem);
+    line-height: 1.15;
   }
 
   .page-hero .btn-row {
@@ -4541,6 +4565,10 @@ a.footer-contact-value:hover {
     border-right: 0;
     white-space: normal;
     animation: none;
+  }
+
+  .home-hero-title .typing-line--second {
+    visibility: visible;
   }
 
   .hero-sub,

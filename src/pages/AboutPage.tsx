@@ -38,10 +38,10 @@ export default function AboutPage() {
           </p>
           <div className="btn-row">
             <a href="/#contact" className="btn btn-orange">
-              Get a Free Quote <span aria-hidden="true">-&gt;</span>
+              Get a Free Quote <span aria-hidden="true">→</span>
             </a>
             <a href="/services" className="btn btn-glass">
-              Explore Services <span aria-hidden="true">-&gt;</span>
+              Explore Services <span aria-hidden="true">→</span>
             </a>
           </div>
           <div className="hero-avatars">
@@ -105,10 +105,10 @@ export default function AboutPage() {
             </p>
             <div className="btn-row" style={{ marginTop: "28px" }}>
               <a href="/#contact" className="btn btn-orange">
-                Discuss Your Project <span aria-hidden="true">-&gt;</span>
+                Discuss Your Project <span aria-hidden="true">→</span>
               </a>
               <a href="/services" className="btn btn-outline-dark">
-                Explore Services <span aria-hidden="true">-&gt;</span>
+                Explore Services <span aria-hidden="true">→</span>
               </a>
             </div>
           </div>
@@ -314,7 +314,7 @@ export default function AboutPage() {
               </p>
             </div>
             <a href="/#contact" className="btn btn-orange btn-lg">
-              Get Your Free Quote <span aria-hidden="true">-&gt;</span>
+              Get Your Free Quote <span aria-hidden="true">→</span>
             </a>
           </div>
         </div>

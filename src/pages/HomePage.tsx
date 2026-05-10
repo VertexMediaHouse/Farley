@@ -110,8 +110,8 @@ export default function HomePage() {
               maintenance solutions delivered with precision, safety, and integrity.
             </p>
             <div className="btn-row">
-              <a href="#contact" className="btn btn-orange">Get a Free Quote <span aria-hidden="true">-&gt;</span></a>
-              <a href="/services" className="btn btn-glass">Explore Services <span aria-hidden="true">-&gt;</span></a>
+              <a href="#contact" className="btn btn-orange">Get a Free Quote <span aria-hidden="true">→</span></a>
+              <a href="/services" className="btn btn-glass">Explore Services <span aria-hidden="true">→</span></a>
             </div>
             <div className="hero-avatars">
               <img src="/images/image3.png" alt="Customer review avatars" className="review-img" />
@@ -203,7 +203,7 @@ export default function HomePage() {
               <span className="chip">Safety Focused</span>
               <span className="chip">Customer Driven</span>
             </div>
-            <a href="/about" className="btn btn-orange">Learn More About Us <span aria-hidden="true">-&gt;</span></a>
+            <a href="/about" className="btn btn-orange">Learn More About Us <span aria-hidden="true">→</span></a>
           </div>
         </div>
       </FadeSection>
@@ -224,7 +224,7 @@ export default function HomePage() {
                 <div className="card-body">
                   <h3>{s.title}</h3>
                   <p className="body-text">{s.copy}</p>
-                  <a href="#contact" className="btn btn-orange btn-sm">Get a Quote <span aria-hidden="true">-&gt;</span></a>
+                  <a href="#contact" className="btn btn-orange btn-sm">Get a Quote <span aria-hidden="true">→</span></a>
                 </div>
               </article>
             ))}
@@ -257,7 +257,7 @@ export default function HomePage() {
             <p className="body-text">
               We combine skilled craftsmanship, clear communication, and dependable project execution to deliver work clients can trust.
             </p>
-            <a href="#contact" className="btn btn-orange">Discuss Your Project <span aria-hidden="true">-&gt;</span></a>
+            <a href="#contact" className="btn btn-orange">Discuss Your Project <span aria-hidden="true">→</span></a>
           </div>
           <div className="benefit-grid stagger-cards">
             {benefits.map((b, i) => (
@@ -359,7 +359,7 @@ export default function HomePage() {
                 Let us build something great together with a team focused on precision, safety, and quality.
               </p>
             </div>
-            <a href="#contact" className="btn btn-orange btn-lg">Get Your Free Quote <span aria-hidden="true">-&gt;</span></a>
+            <a href="#contact" className="btn btn-orange btn-lg">Get Your Free Quote <span aria-hidden="true">→</span></a>
           </div>
         </div>
       </FadeSection>
