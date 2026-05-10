@@ -41,37 +41,37 @@ export const servicesPageData = {
   ],
   serviceCards: [
     {
-      title: 'Drywall Installation',
+      title: 'Texture Match',
       copy: 'Clean installs for tenant improvements, new layouts, and commercial build-outs.',
       image: '/images/img4.jpeg',
       tags: ['Commercial', 'Retail', 'Clean Execution'],
     },
     {
-      title: 'Drywall Repair',
+      title: 'All Cracks Repaired',
       copy: 'Fast patching and restoration work that blends neatly into existing spaces.',
       image: '/images/img5.jpeg',
       tags: ['Fast Turnaround', 'Interior Repairs', 'Minimal Disruption'],
     },
     {
-      title: 'Taping & Finishing',
+      title: 'Non-Asbestos Acoustic Ceiling Removal/Acoustic Re-texture',
       copy: 'Smooth joints, sharp corners, and detail-driven finishing for ready-to-paint surfaces.',
       image: '/images/img6.jpeg',
       tags: ['Level Finish', 'Detail Focused', 'Ready for Paint'],
     },
     {
-      title: 'Painting Services',
+      title: 'Patchwork Specialist',
       copy: 'Interior painting support that helps projects look polished, complete, and client-ready.',
       image: '/images/img10.jpeg',
       tags: ['Interior Work', 'Fresh Finish', 'Professional Crews'],
     },
     {
-      title: 'Construction Support',
+      title: 'Hang, Tape, Texture',
       copy: 'Practical field support for fit-outs, renovations, and active commercial projects.',
       image: '/images/img8.jpeg',
       tags: ['Fit-Outs', 'Renovations', 'Coordinated Delivery'],
     },
     {
-      title: 'Facility Maintenance',
+      title: 'Hand-Textures or smooth finish',
       copy: 'Ongoing maintenance and repair support to keep high-traffic spaces operational.',
       image: '/images/img9.jpeg',
       tags: ['Operational Sites', 'Ongoing Support', 'Reliable Scheduling'],
