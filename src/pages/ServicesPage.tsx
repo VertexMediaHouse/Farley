@@ -112,10 +112,10 @@ export default function ServicesPage() {
             </p>
             <div className="btn-row">
               <a href="/contact" className="btn btn-orange">
-                Request a Quote <span aria-hidden="true">→</span>
+              Get a Free Estimate<span aria-hidden="true">→</span>
               </a>
               <a href="#services-gallery" className="btn btn-glass">
-                View Our Work <span aria-hidden="true">→</span>
+              Call Now<span aria-hidden="true">→</span>
               </a>
             </div>
           </div>

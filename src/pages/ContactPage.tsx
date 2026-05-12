@@ -64,10 +64,10 @@ export default function ContactPage() {
       <section className="cp-hero">
         <div className="cp-hero-rings" aria-hidden="true" />
         <div className="container cp-hero-inner">
-          <span className="cp-kicker">Contact Us</span>
+          <span className="page-hero-kicker">Contact Us</span>
           <h1>Get a Free Estimate</h1>
           <p className="cp-hero-lead">
-            Drywall repair, ceiling repair, patchwork, and interior maintenance for residential and commercial spaces.
+          Drywall repair, ceiling repair, patchwork, and interior maintenance for residential and commercial properties
           </p>
           <p className="cp-hero-subtext">
             Reach out today for a free estimate and clear next steps, with fast response times and reliable communication from start to finish.

@@ -54,15 +54,15 @@ const benefits = [
   },
   {
     title: 'Ceiling Drywall Repair',
-    svg: <img src="/images/shield (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/drywall (1).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
   },
   {
     title: 'Hole in Wall Repair',
-    svg: <img src="/images/user-avatar.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/worker.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
   },
   {
     title: 'Drywall Crack Repair',
-    svg: <img src="/images/carpentry.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/drywall (2).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
   },
   {
     title: 'Hang, Tape & Texture',
@@ -78,11 +78,11 @@ const benefits = [
   },
   {
     title: 'Property Maintenance Support',
-    svg: <img src="/images/carpentry.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/property (2).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
   },
   {
     title: 'Fast & Reliable Turnaround',
-    svg: <img src="/images/trustworthiness (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/clock (5).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
   },
 ]
 
@@ -219,6 +219,7 @@ export default function HomePage() {
         <div className="container two-col">
           <div className="about-img-wrap">
             <img src="/images/img2.jpeg" alt="Farley construction team on site" className="about-img" />
+
             <div className="integrity-badge">
               <strong>Built on Integrity.</strong>
               <span>Focused on Excellence.</span>
@@ -226,16 +227,38 @@ export default function HomePage() {
           </div>
           <div className="about-copy">
             <SectionLabel text="About Farley Construction" />
-            <h2>Building Spaces,<br />Strengthening Communities.</h2>
+            <h2 className="about-split-h2">
+              <span className="about-h2-top">Reliable Drywall Repair</span>
+              <span className="about-h2-bottom">
+                <span className="about-h2-amp">&amp;</span> Property Maintenance Services.
+              </span>
+            </h2>
             <p className="body-text">
-              With over 25 years of experience, Farley Construction &amp; Development Inc.
-              delivers dependable craftsmanship and reliable service across commercial,
-              retail, and industrial projects.
+              We specialize in drywall repair, drywall installation, texture matching, ceiling repair, patchwork,
+              and interior maintenance services for residential and commercial properties.
             </p>
-            <div className="chip-row stagger-chips">
-              <span className="chip">Licensed &amp; Insured</span>
-              <span className="chip">Safety Focused</span>
-              <span className="chip">Customer Driven</span>
+            <div className="about-clients-block">
+              <p className="about-clients-label">We proudly work with:</p>
+              <div className="about-client-pills">
+                {[
+                  { label: 'Homeowners',                icon: '🏠' },
+                  { label: 'Property Managers',         icon: '🏢' },
+                  { label: 'Commercial Facilities',     icon: '🏗️' },
+                  { label: 'Retail Spaces',             icon: '🛍️' },
+                  { label: 'Offices',                   icon: '💼' },
+                  { label: 'Apartment Complexes',       icon: '🏘️' },
+                  { label: 'Real Estate Professionals', icon: '🤝' },
+                ].map((c, i) => (
+                  <span
+                    key={c.label}
+                    className="about-client-pill"
+                    style={{ '--pill-i': i } as React.CSSProperties}
+                  >
+                    <span className="pill-icon" aria-hidden="true">{c.icon}</span>
+                    {c.label}
+                  </span>
+                ))}
+              </div>
             </div>
             <a href="/about" className="btn btn-orange">Learn More About Us <span aria-hidden="true">→</span></a>
           </div>
@@ -254,9 +277,6 @@ export default function HomePage() {
               We provide professional drywall repair, texture matching, installation, and finishing for residential and commercial spaces — delivering clean, reliable results built to last
               </p>
             </div>
-            <p className="services-trust-line">
-              Fast response · Clean work · Texture matching · Small jobs welcome
-            </p>
           </header>
           <div className="cards-3 stagger-cards services-cards-grid">
             {services.map((s, i) => (

@@ -36,10 +36,10 @@ export default function AboutPage() {
           </p>
           <div className="btn-row">
             <a href="/#contact" className="btn btn-orange">
-              Get a Free Quote <span aria-hidden="true">→</span>
+              Get a Free Estimate <span aria-hidden="true">→</span>
             </a>
             <a href="/services" className="btn btn-glass">
-              Explore Services <span aria-hidden="true">→</span>
+              Call Now <span aria-hidden="true">→</span>
             </a>
           </div>
           <div className="hero-avatars">
