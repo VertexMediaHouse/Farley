@@ -65,10 +65,12 @@ export default function ContactPage() {
         <div className="cp-hero-rings" aria-hidden="true" />
         <div className="container cp-hero-inner">
           <span className="cp-kicker">Contact Us</span>
-          <h1>Get a Free Quote</h1>
-          <p>
-            Premium drywall, repair, finishing, painting, construction support, and facility
-            maintenance solutions delivered with precision, safety, and integrity.
+          <h1>Get a Free Estimate</h1>
+          <p className="cp-hero-lead">
+            Drywall repair, ceiling repair, patchwork, and interior maintenance for residential and commercial spaces.
+          </p>
+          <p className="cp-hero-subtext">
+            Reach out today for a free estimate and clear next steps, with fast response times and reliable communication from start to finish.
           </p>
         </div>
       </section>
@@ -117,15 +119,15 @@ export default function ContactPage() {
               <label>Company Name<input type="text" placeholder="Company or organization" /></label>
               <label>Email Address<input type="email" placeholder="your@email.com" /></label>
               <label>Phone Number<input type="tel" placeholder="Phone number" /></label>
-              <label>Project Type<input type="text" placeholder="Select project type" /></label>
-              <label>Budget Range<input type="text" placeholder="Select budget range" /></label>
+              <label>Property Type<input type="text" placeholder="Select property type" /></label>
+              <label>Service Needed<input type="text" placeholder="Select service needed" /></label>
             </div>
             <label className="cp-message-label">
-              Message
-              <textarea rows={5} placeholder="Tell us about your project" />
+            Project Details
+              <textarea rows={5} placeholder="Tell us about your project details" />
             </label>
             <button type="submit" className="btn btn-blue cp-submit">
-              Submit Request <span aria-hidden="true">→</span>
+            Request Your Free Estimate Today<span aria-hidden="true">→</span>
             </button>
           </form>
         </div>

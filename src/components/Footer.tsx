@@ -23,12 +23,15 @@ export default function Footer() {
           </ul>
         </nav>
 
-        <div className="footer-col">
+        <div className="footer-col footer-col--services">
           <h4>Services</h4>
-          <ul className="footer-links">
-            <li><Link to="/services">Drywall Installation</Link></li>
+          <ul className="footer-links footer-links--services">
             <li><Link to="/services">Drywall Repair</Link></li>
-            <li><Link to="/services">Drywall Painting &amp; Finishing</Link></li>
+            <li><Link to="/services">Drywall Installation &amp; Finishing</Link></li>
+            <li><Link to="/services">Ceiling Repair &amp; Texture Matching</Link></li>
+            <li><Link to="/services">Patchwork &amp; Small Repairs</Link></li>
+            <li><Link to="/services">Interior Painting &amp; Surface Prep</Link></li>
+            <li><Link to="/services">Residential &amp; Commercial Maintenance</Link></li>
           </ul>
         </div>
 
@@ -70,7 +73,7 @@ export default function Footer() {
           </p>
           <ul className="footer-legal">
             <span className="footer-credits">
-              Developed by <a href="https://hetang-madhu.vercel.app/" target="_blank" rel="noopener noreferrer">Hetang Madhu</a> &amp; <a href="https://vertexmediahouse.com/" target="_blank" rel="noopener noreferrer">Dhrumil Sanghvi</a>
+              Developed by  <a href="https://vertexmediahouse.com/" target="_blank" rel="noopener noreferrer">Vertexmediahouse</a>
             </span>
           </ul>
         </div>

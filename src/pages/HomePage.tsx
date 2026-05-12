@@ -5,50 +5,84 @@ import { featuredProjects, stats, testimonials } from '../data'
 const services = [
   {
     img: '/images/img4.jpeg',
-    title: 'Drywall Installation Services',
-    copy: 'From drywall installation to facility maintenance, we provide reliable support for every stage of your project.',
+    title: 'Drywall Repair',
+    copy: 'Repairing holes, cracks, dents, water damage, and damaged drywall surfaces.',
   },
   {
     img: '/images/img5.jpeg',
-    title: 'Drywall Repair Services',
-    copy: 'From drywall installation to facility maintenance, we provide reliable support for every stage of your project.',
+    title: 'Drywall Installation & Finishing',
+    copy: 'Complete hang, tape, mud, texture, and smooth finish services.',
   },
   {
     img: '/images/img6.jpeg',
-    title: 'Drywall Painting & Finishing Services',
-    copy: 'From drywall installation to facility maintenance, we provide reliable support for every stage of your project.',
+    title: 'Ceiling Repair & Texture Matching',
+    copy: 'Ceiling drywall repair, texture blending, and acoustic ceiling repair.',
+  },
+  {
+    img: '/images/img4.jpeg',
+    title: 'Patchwork & Small Repairs',
+    copy: 'Professional drywall patch repair and wall restoration services.',
+  },
+  {
+    img: '/images/img5.jpeg',
+    title: 'Interior Painting & Surface Prep',
+    copy: 'Painting, prep work, touch-ups, and finishing services.',
+  },
+  {
+    img: '/images/img6.jpeg',
+    title: 'Residential & Commercial Maintenance',
+    copy: 'General interior maintenance and repair support for homes and businesses.',
   },
 ]
 
 const steps = [
-  { n: '1', title: 'Consult', copy: 'We discuss your goals, needs, and project requirements.' },
-  { n: '2', title: 'Estimate', copy: 'Detailed transparent estimate with no hidden costs.' },
-  { n: '3', title: 'Planning', copy: 'We plan every detail to ensure smooth execution.' },
-  { n: '4', title: 'Execution', copy: 'Skilled teams deliver top-quality work safely and efficiently.' },
-  { n: '5', title: 'Completion', copy: 'Final walkthrough and complete satisfaction.' },
+  { n: '1', title: 'Contact Us', copy: 'Call or request a free estimate online.' },
+  { n: '2', title: 'Inspection', copy: 'We review the project and provide clear recommendations.' },
+  { n: '3', title: 'Estimate', copy: 'Receive a detailed quote for drywall repair or maintenance work.' },
+  { n: '4', title: 'Scheduling', copy: 'Fast scheduling and dependable communication.' },
+  { n: '5', title: 'Completion', copy: 'Clean, professional results completed on time.' },
 ]
 
 const benefits = [
   {
-    title: 'Expert Craftsmanship',
-    copy: 'Skilled teams focused on clean execution.',
+    title: 'Texture Matching ',
     svg: <img src="/images/carpentry.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
   },
   {
-    title: 'Trusted & Reliable',
-    copy: 'Clear timelines and dependable delivery.',
+    title: 'Drywall Patch Repair',
     svg: <img src="/images/trustworthiness (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
   },
   {
-    title: 'Safety First',
-    copy: 'Safety-focused planning and site practices.',
+    title: 'Ceiling Drywall Repair',
     svg: <img src="/images/shield (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
   },
   {
-    title: 'Client Focused',
-    copy: 'Responsive support built around your needs.',
+    title: 'Hole in Wall Repair',
     svg: <img src="/images/user-avatar.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
-
+  },
+  {
+    title: 'Drywall Crack Repair',
+    svg: <img src="/images/carpentry.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+  },
+  {
+    title: 'Hang, Tape & Texture',
+    svg: <img src="/images/trustworthiness (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+  },
+  {
+    title: 'Hand Textures & Smooth Finish',
+    svg: <img src="/images/shield (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+  },
+  {
+    title: 'Residential & Commercial Service',
+    svg: <img src="/images/user-avatar.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+  },
+  {
+    title: 'Property Maintenance Support',
+    svg: <img src="/images/carpentry.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+  },
+  {
+    title: 'Fast & Reliable Turnaround',
+    svg: <img src="/images/trustworthiness (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
   },
 ]
 
@@ -101,17 +135,17 @@ export default function HomePage() {
       <section id="home" className="hero">
         <div className="container hero-inner">
           <div className="hero-copy fade-in-up">
+            <p className="hero-eyebrow">Residential &amp; Commercial</p>
             <h1 className="home-hero-title">
               <span className="hero-title-line typing-line typing-line--first">Drywall Repairs</span>
-              <span className="hero-title-line typing-line typing-line--second">&amp; Finishing</span>
+              <span className="hero-title-line typing-line typing-line--second">Specialists</span>
             </h1>
             <p className="hero-sub">
-              Premium drywall, repair, finishing, painting, construction and facility
-              maintenance solutions delivered with precision, safety, and integrity.
+            Professional drywall repair, texture matching, ceiling repair, patchwork,  drywall installation, and interior maintenance services for homes, offices, retail spaces, apartments, and commercial properties.
             </p>
             <div className="btn-row">
-              <a href="#contact" className="btn btn-orange">Get a Free Quote <span aria-hidden="true">→</span></a>
-              <a href="/services" className="btn btn-glass">Explore Services <span aria-hidden="true">→</span></a>
+              <a href="#contact" className="btn btn-orange">Get a Free Estimate<span aria-hidden="true">→</span></a>
+              <a href="/services" className="btn btn-glass">Call Now<span aria-hidden="true">→</span></a>
             </div>
             <div className="hero-avatars">
               <img src="/images/image3.png" alt="Customer review avatars" className="review-img" />
@@ -210,12 +244,21 @@ export default function HomePage() {
 
       <FadeSection id="services" className="section bg-light">
         <div className="container">
-          <SectionLabel text="Our Services" />
-          <h2 className="center-text">Complete Solutions. Superior Results.</h2>
-          <p className="section-sub center-text">
-            From drywall installation to facility maintenance, we provide reliable support for every stage of your project.
-          </p>
-          <div className="cards-3 stagger-cards">
+          <header className="services-section-head">
+            <SectionLabel text="Our Services" light />
+            <div className="services-section-lead">
+              <h2 className="services-section-title">
+                Complete Drywall &amp; Interior Repair Services.
+              </h2>
+              <p className="services-intro">
+              We provide professional drywall repair, texture matching, installation, and finishing for residential and commercial spaces — delivering clean, reliable results built to last
+              </p>
+            </div>
+            <p className="services-trust-line">
+              Fast response · Clean work · Texture matching · Small jobs welcome
+            </p>
+          </header>
+          <div className="cards-3 stagger-cards services-cards-grid">
             {services.map((s, i) => (
               <article key={s.title} className="service-card card-hover" style={{ '--stagger-i': i } as React.CSSProperties}>
                 <div className="card-img-wrap">
@@ -223,8 +266,10 @@ export default function HomePage() {
                 </div>
                 <div className="card-body">
                   <h3>{s.title}</h3>
-                  <p className="body-text">{s.copy}</p>
-                  <a href="#contact" className="btn btn-orange btn-sm">Get a Quote <span aria-hidden="true">→</span></a>
+                  <p className="body-text service-card-desc">{s.copy}</p>
+                  <a href="/services" className="btn btn-orange service-card-cta">
+                    Learn More <span aria-hidden="true">→</span>
+                  </a>
                 </div>
               </article>
             ))}
@@ -253,10 +298,18 @@ export default function HomePage() {
         <div className="container two-col">
           <div className="why-copy">
             <SectionLabel text="Why Choose Us" />
-            <h2>Experience.<br />Reliability.<br />Results.</h2>
+            <h2>Drywall Services<br />Built Around<br />Your Needs.</h2>
             <p className="body-text">
-              We combine skilled craftsmanship, clear communication, and dependable project execution to deliver work clients can trust.
+            From patch repairs and texture matching to complete finishing work, we deliver the drywall services property owners rely on most
             </p>
+            <div className="why-trust-chips">
+              {['Fast Response', 'Clean Work',  'Small Jobs Welcome'].map((label) => (
+                <span key={label} className="why-trust-chip">
+                  <svg aria-hidden="true" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="8" fill="#3AABF0" /><path d="M4.5 8.5l2.5 2.5 4.5-5" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  {label}
+                </span>
+              ))}
+            </div>
             <a href="#contact" className="btn btn-orange">Discuss Your Project <span aria-hidden="true">→</span></a>
           </div>
           <div className="benefit-grid stagger-cards">
@@ -264,7 +317,6 @@ export default function HomePage() {
               <article key={b.title} className="benefit-card card-hover" style={{ '--stagger-i': i } as React.CSSProperties}>
                 <span className="benefit-icon">{b.svg}</span>
                 <h3>{b.title}</h3>
-                <p>{b.copy}</p>
               </article>
             ))}
           </div>
@@ -356,10 +408,10 @@ export default function HomePage() {
             <div className="cta-text">
               <h2>Ready to Start Your Project?</h2>
               <p className="body-text">
-                Let us build something great together with a team focused on precision, safety, and quality.
+              Whether you need drywall patch repair, ceiling drywall repair, texture matching, or general interior maintenance services, we’re ready to help.
               </p>
             </div>
-            <a href="#contact" className="btn btn-orange btn-lg">Get Your Free Quote <span aria-hidden="true">→</span></a>
+            <a href="#contact" className="btn btn-orange btn-lg">Request a Free Estimate <span aria-hidden="true">→</span></a>
           </div>
         </div>
       </FadeSection>
@@ -404,15 +456,15 @@ export default function HomePage() {
               <label>Company Name<input type="text" placeholder="Company or organization" /></label>
               <label>Email Address<input type="email" placeholder="your@email.com" /></label>
               <label>Phone Number<input type="tel" placeholder="Phone number" /></label>
-              <label>Project Type<input type="text" placeholder="Select project type" /></label>
-              <label>Budget Range<input type="text" placeholder="Select budget range" /></label>
+              <label>Property Type<input type="text" placeholder="Select property type" /></label>
+              <label>Service Needed<input type="text" placeholder="Select service needed" /></label>
             </div>
             <label className="msg-label">
-              Message
-              <textarea rows={4} placeholder="Tell us about your project" />
+            Project Details
+              <textarea rows={4} placeholder="Tell us about your project details" />
             </label>
             <button type="submit" className="btn btn-blue full-btn">
-              Submit Request <span aria-hidden="true" style={{ fontSize: '1.2rem' }}>→</span>
+              Request Your Free Estimate Today <span aria-hidden="true" style={{ fontSize: '1.2rem' }}>→</span>
             </button>
           </form>
         </div>

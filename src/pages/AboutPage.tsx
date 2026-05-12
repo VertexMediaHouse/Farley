@@ -32,9 +32,7 @@ export default function AboutPage() {
             <span className="typing-line">Finished with Precision.</span>
           </h1>
           <p className="page-hero-sub">
-            Premium drywall, repair, finishing, painting, construction support,
-            and facility maintenance solutions delivered with precision, safety,
-            and integrity.
+          We provide professional drywall repair, drywall installation, patchwork, ceiling repair, texture matching, and interior maintenance services for residential and commercial properties.
           </p>
           <div className="btn-row">
             <a href="/#contact" className="btn btn-orange">
@@ -309,12 +307,11 @@ export default function AboutPage() {
             <div className="cta-text">
               <h2>Ready to Start Your Project?</h2>
               <p className="body-text">
-                Let us build something great together with a team focused on
-                precision, safety, and quality.
+              Whether you need drywall patch repair, ceiling drywall repair, texture matching, or general interior maintenance services, we’re ready to help.
               </p>
             </div>
             <a href="/#contact" className="btn btn-orange btn-lg">
-              Get Your Free Quote <span aria-hidden="true">→</span>
+              Get Your Free Estimate <span aria-hidden="true">→</span>
             </a>
           </div>
         </div>

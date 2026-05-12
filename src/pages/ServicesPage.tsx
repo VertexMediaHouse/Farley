@@ -1,6 +1,97 @@
 import React from 'react'
 import { Counter, FadeSection, SectionLabel, StaggerRow } from '../utils'
-import { servicesPageData, stats } from '../data'
+import { featuredProjects, servicesPageData, stats, testimonials } from '../data'
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
+
+function ServiceSpotlight({
+  detail,
+  index,
+}: {
+  detail: (typeof servicesPageData.serviceDetails)[number]
+  index: number
+}) {
+  const spotlightRef = React.useRef<HTMLElement | null>(null)
+  const cardRef = React.useRef<HTMLElement | null>(null)
+  const isReversed = index % 2 === 1
+
+  React.useEffect(() => {
+    const spotlight = spotlightRef.current
+    const card = cardRef.current
+    if (!spotlight || !card) return
+
+    let frame = 0
+
+    const update = () => {
+      frame = 0
+
+      if (window.innerWidth <= 900) {
+        card.style.setProperty('--service-reveal', '1')
+        card.style.setProperty('--service-shift', '0')
+        card.classList.add('is-active')
+        return
+      }
+
+      const rect = spotlight.getBoundingClientRect()
+      const viewportHeight = window.innerHeight || 1
+      const centerOffset = rect.top + rect.height / 2 - viewportHeight / 2
+      const normalized = clamp(centerOffset / (viewportHeight * 0.72), -1, 1)
+      const reveal = clamp(1 - Math.abs(normalized), 0, 1)
+
+      card.style.setProperty('--service-reveal', reveal.toFixed(3))
+      card.style.setProperty('--service-shift', normalized.toFixed(3))
+      card.classList.toggle('is-active', reveal > 0.56)
+    }
+
+    const requestUpdate = () => {
+      if (frame) return
+      frame = window.requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', requestUpdate, { passive: true })
+    window.addEventListener('resize', requestUpdate)
+
+    return () => {
+      window.removeEventListener('scroll', requestUpdate)
+      window.removeEventListener('resize', requestUpdate)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
+  }, [])
+
+  return (
+    <section ref={spotlightRef} className="services-spotlight">
+      <div className="services-spotlight-stage">
+        <article
+          ref={cardRef}
+          className={`services-detail-row${isReversed ? ' services-detail-row--reverse' : ''}`}
+          style={
+            {
+              '--service-reveal': 0,
+              '--service-shift': 1,
+              '--image-dir': isReversed ? 1 : -1,
+              '--text-dir': isReversed ? -1 : 1,
+            } as React.CSSProperties
+          }
+        >
+          <div className="services-detail-media">
+            <img src={detail.image} alt={detail.title} />
+          </div>
+          <div className="services-detail-copy">
+            <SectionLabel text={`Featured Service 0${index + 1}`} />
+            <h2>{detail.title}</h2>
+            <p className="body-text">{detail.intro}</p>
+            <ul className="services-deliverable-list">
+              {detail.deliverables.map((item, itemIndex) => (
+                <li key={item} style={{ '--stagger-i': itemIndex } as React.CSSProperties}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+  )
+}
 
 export default function ServicesPage() {
   return (
@@ -60,7 +151,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      <FadeSection className="section services-overview-section">
+      {/* <FadeSection className="section services-overview-section">
         <div className="container">
           <SectionLabel text="Service Categories" />
           <h2>Practical field support for spaces that need to look finished and stay operational.</h2>
@@ -87,36 +178,15 @@ export default function ServicesPage() {
             ))}
           </div>
         </div>
-      </FadeSection>
+      </FadeSection> */}
 
-      <FadeSection className="section services-detail-section">
+      <section className="section services-detail-section">
         <div className="container services-detail-stack">
           {servicesPageData.serviceDetails.map((detail, index) => (
-            <section
-              key={detail.title}
-              className={`services-detail-row${index % 2 === 1 ? ' services-detail-row--reverse' : ''}`}
-            >
-              <div className="services-detail-media">
-                <img src={detail.image} alt={detail.title} />
-              </div>
-              <div className="services-detail-copy">
-                <SectionLabel text={`Featured Service 0${index + 1}`} />
-                <h2>{detail.title}</h2>
-                <p className="body-text">{detail.intro}</p>
-                <ul className="services-deliverable-list">
-                  {detail.deliverables.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-                <div className="services-trust-note">
-                  <strong>Trust note</strong>
-                  <span>{detail.trustNote}</span>
-                </div>
-              </div>
-            </section>
+            <ServiceSpotlight key={detail.title} detail={detail} index={index} />
           ))}
         </div>
-      </FadeSection>
+      </section>
 
       <FadeSection className="section services-sector-section">
         <div className="container services-sector-layout">
@@ -164,30 +234,89 @@ export default function ServicesPage() {
         </div>
       </FadeSection>
 
-      <FadeSection id="services-gallery" className="section services-gallery-section">
+      <FadeSection id="services-gallery" className="section project-section">
         <div className="container">
-          <SectionLabel text="Selected Work" />
-          <h2>Project visuals that show the level of finish clients expect from Farley.</h2>
-        </div>
-        <div className="container services-gallery-grid">
-          {servicesPageData.gallery.map((item, index) => (
-            <article key={`${item.title}-${index}`} className={`services-gallery-card services-gallery-card--${(index % 4) + 1}`}>
-              <img src={item.image} alt={item.title} />
-              <div className="services-gallery-overlay">
-                <span>{item.tag}</span>
-                <h3>{item.title}</h3>
-              </div>
-            </article>
-          ))}
+          <SectionLabel text="Featured Projects" />
+          <h2>Quality Work. Real Results.</h2>
+          <div className="cards-4 stagger-cards">
+            {featuredProjects.map((p, i) => (
+              <article key={p.title} className="project-card" style={{ '--stagger-i': i } as React.CSSProperties}>
+                <div className="project-img-wrap">
+                  <img src={p.img} alt={p.title} />
+                  <div className="project-overlay">
+                    <span className="proj-tag">{p.tag}</span>
+                    <h3>{p.title}</h3>
+                    <p className="proj-loc">{p.location}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </FadeSection>
+
+      <section className="testimonials-section">
+        <div className="container">
+          <SectionLabel text="Testimonials" />
+          <h2 className="left-text">What Our Clients Say</h2>
+          <p className="section-subtitle">
+            Trusted by homeowners, investors, and businesses for quality construction and reliable project delivery.
+          </p>
+        </div>
+
+        <div className="marquee-container">
+          <div className="marquee-track" style={{ '--speed': '50s' } as React.CSSProperties}>
+            {[...testimonials.slice(0, 4), ...testimonials.slice(0, 4)].map((t, i) => (
+              <div key={`t1-${i}`} className="testi-card">
+                <div className="testi-stars">
+                  {Array.from({ length: t.stars }).map((_, si) => (
+                    <span key={si} aria-hidden="true">★</span>
+                  ))}
+                </div>
+                <p className="testi-content">{t.review}</p>
+                <div className="testi-profile">
+                  <div className="testi-avatar">
+                    {t.name.split(' ').map((n) => n[0]).join('')}
+                  </div>
+                  <div className="testi-info">
+                    <span className="testi-name">{t.name}</span>
+                    <span className="testi-role">{t.role} • {t.company}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="marquee-track reverse" style={{ '--speed': '45s' } as React.CSSProperties}>
+            {[...testimonials.slice(4, 8), ...testimonials.slice(4, 8)].map((t, i) => (
+              <div key={`t2-${i}`} className="testi-card">
+                <div className="testi-stars">
+                  {Array.from({ length: t.stars }).map((_, si) => (
+                    <span key={si} aria-hidden="true">★</span>
+                  ))}
+                </div>
+                <p className="testi-content">{t.review}</p>
+                <div className="testi-profile">
+                  <div className="testi-avatar">
+                    {t.name.split(' ').map((n) => n[0]).join('')}
+                  </div>
+                  <div className="testi-info">
+                    <span className="testi-name">{t.name}</span>
+                    <span className="testi-role">{t.role} • {t.company}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <FadeSection className="section services-cta-section">
         <div className="container">
           <div className="services-cta-banner">
             <div className="services-cta-copy">
               <SectionLabel text="Next Step" />
-              <h2>Need drywall, finishing, repair, or maintenance support for an upcoming project?</h2>
+              <h2>Need drywall, finishing or maintenance support for an upcoming project?</h2>
               <p>
                 Talk with Farley about your scope, timeline, and site conditions, and we will
                 help you move toward a cleaner handoff.
