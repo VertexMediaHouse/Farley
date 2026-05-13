@@ -4,34 +4,40 @@ import { featuredProjects, stats, testimonials } from '../data'
 
 const services = [
   {
-    img: '/images/img4.jpeg',
+    img: '/images/img14.jpeg',
     title: 'Drywall Repair',
     copy: 'Repairing holes, cracks, dents, water damage, and damaged drywall surfaces.',
+    href: '/services#drywall-repair',
   },
   {
-    img: '/images/img5.jpeg',
+    img: '/images/img13.jpeg',
     title: 'Drywall Installation & Finishing',
     copy: 'Complete hang, tape, mud, texture, and smooth finish services.',
+    href: '/services#drywall-installation-finishing',
   },
   {
-    img: '/images/img6.jpeg',
+    img: '/images/img20.jpeg',
     title: 'Ceiling Repair & Texture Matching',
     copy: 'Ceiling drywall repair, texture blending, and acoustic ceiling repair.',
+    href: '/services#ceiling-repair-texture-matching',
   },
   {
-    img: '/images/img4.jpeg',
+    img: '/images/img12.jpeg',
     title: 'Patchwork & Small Repairs',
     copy: 'Professional drywall patch repair and wall restoration services.',
+    href: '/services#patchwork-small-repairs',
   },
   {
     img: '/images/img5.jpeg',
     title: 'Interior Painting & Surface Prep',
     copy: 'Painting, prep work, touch-ups, and finishing services.',
+    href: '/services#interior-painting-surface-prep',
   },
   {
-    img: '/images/img6.jpeg',
+    img: '/images/img17.jpeg',
     title: 'Residential & Commercial Maintenance',
     copy: 'General interior maintenance and repair support for homes and businesses.',
+    href: '/services#residential-commercial-maintenance',
   },
 ]
 
@@ -145,7 +151,7 @@ export default function HomePage() {
             </p>
             <div className="btn-row">
               <a href="#contact" className="btn btn-orange">Get a Free Estimate<span aria-hidden="true">→</span></a>
-              <a href="/services" className="btn btn-glass">Call Now<span aria-hidden="true">→</span></a>
+              <a href="tel:+19497924283" className="btn btn-glass">Call Now<span aria-hidden="true">→</span></a>
             </div>
             <div className="hero-avatars">
               <img src="/images/image3.png" alt="Customer review avatars" className="review-img" />
@@ -287,7 +293,7 @@ export default function HomePage() {
                 <div className="card-body">
                   <h3>{s.title}</h3>
                   <p className="body-text service-card-desc">{s.copy}</p>
-                  <a href="/services" className="btn btn-orange service-card-cta">
+                  <a href={s.href} className="btn btn-orange service-card-cta">
                     Learn More <span aria-hidden="true">→</span>
                   </a>
                 </div>
@@ -390,7 +396,6 @@ export default function HomePage() {
                   </div>
                   <div className="testi-info">
                     <span className="testi-name">{t.name}</span>
-                    <span className="testi-role">{t.role} • {t.company}</span>
                   </div>
                 </div>
               </div>
@@ -413,7 +418,6 @@ export default function HomePage() {
                   </div>
                   <div className="testi-info">
                     <span className="testi-name">{t.name}</span>
-                    <span className="testi-role">{t.role} • {t.company}</span>
                   </div>
                 </div>
               </div>
@@ -447,19 +451,19 @@ export default function HomePage() {
                 <span className="ci-icon" aria-hidden="true">
                   <img src="/images/telephone.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </span>
-                <div><strong>Phone</strong><span>(905) 458-8960</span></div>
+                <div><strong>Phone</strong><span>(949) 792-4283</span></div>
               </li>
               <li>
                 <span className="ci-icon" aria-hidden="true">
                   <img src="/images/mail (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </span>
-                <div><strong>Email</strong><span>info@farleyconstruction.ca</span></div>
+                <div><strong>Email</strong><span>andrew@farleycdinc.com</span></div>
               </li>
               <li>
                 <span className="ci-icon" aria-hidden="true">
                   <img src="/images/location (6).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </span>
-                <div><strong>Location</strong><span>Brampton, Ontario, Canada</span></div>
+                <div><strong>Location</strong><span>27401 Los Altos<br />Mission Viejo, CA 92691</span></div>
               </li>
               <li>
                 <span className="ci-icon" aria-hidden="true">

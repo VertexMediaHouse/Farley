@@ -30,14 +30,14 @@ export const featuredProjects = [
 ]
 
 export const testimonials = [
-  { name: 'Michael T.', role: 'Retail Developer', company: 'T-Square Realty', stars: 5, review: 'Farley Construction exceeded expectations. Their attention to detail and quality of work were outstanding.' },
-  { name: 'Sarah L.', role: 'Property Manager', company: 'Skyline Props', stars: 5, review: 'Reliable, on time, and on budget. We have trusted Farley for multiple projects across our portfolio.' },
-  { name: 'James R.', role: 'General Contractor', company: 'BuildRight Inc.', stars: 5, review: 'Their drywall and finishing work is second to none. Highly recommend for any commercial project.' },
-  { name: 'David K.', role: 'Facility Manager', company: 'TechHub North', stars: 5, review: 'Exceptional maintenance support. They handled our facility repairs with zero downtime for our operations.' },
-  { name: 'Elena G.', role: 'Interior Designer', company: 'Studio G', stars: 5, review: 'The precision in their finishing work made my design truly come to life. A pleasure to collaborate with.' },
-  { name: 'Robert P.', role: 'Homeowner', company: 'Residential', stars: 5, review: 'Transformed our basement into a beautiful living space. The team was clean, polite, and very professional.' },
-  { name: 'Lisa M.', role: 'Operations Director', company: 'Global Logistics', stars: 5, review: 'Fast, efficient, and great communication. They are our go-to for all our warehouse partition needs.' },
-  { name: 'Kevin B.', role: 'Project Lead', company: 'Retail Solutions', stars: 5, review: 'Handled our retail rollout across 10 locations perfectly. Their consistency is what sets them apart.' },
+  { name: 'Miles Gray.',  stars: 5, review: 'Farley Construction exceeded expectations. Their attention to detail and quality of work were outstanding.' },
+  { name: 'Jeffrey Milbrandt.',  stars: 5, review: 'Reliable, on time, and on budget. We have trusted Farley for multiple projects across our portfolio.' },
+  { name: 'Daniel L.',  stars: 5, review: 'Their drywall and finishing work is second to none. Highly recommend for any commercial project.' },
+  { name: 'Tristan Hamber.',  stars: 5, review: 'Exceptional maintenance support. They handled our facility repairs with zero downtime for our operations.' },
+  { name: 'Annette Rodrigue.',  stars: 5, review: 'The precision in their finishing work made my design truly come to life. A pleasure to collaborate with.' },
+  { name: 'Robert P.',stars: 5, review: 'Transformed our basement into a beautiful living space. The team was clean, polite, and very professional.' },
+  { name: 'Lisa M.',  stars: 5, review: 'Fast, efficient, and great communication. They are our go-to for all our warehouse partition needs.' },
+  { name: 'Kevin B.',  stars: 5, review: 'Handled our retail rollout across 10 locations perfectly. Their consistency is what sets them apart.' },
 ]
 
 export const servicesPageData = {
@@ -83,7 +83,7 @@ export const servicesPageData = {
     {
       title: 'Drywall Repair',
       intro: 'We provide professional drywall repair services for damaged walls and ceilings, including drywall crack repair, hole in wall repair, dents, water damage, and surface restoration.',
-      image: '/images/img5.jpeg',
+      image: '/images/img14.jpeg',
       deliverables: ['Drywall patch repair', 'Wall repair services', 'Water damage repair', 'Crack repair', 'Texture matching'],
     },
     {
@@ -95,13 +95,13 @@ export const servicesPageData = {
     {
       title: 'Ceiling Repair & Texture Matching',
       intro: 'Professional ceiling drywall repair and texture matching services.',
-      image: '/images/img12.jpeg',
+      image: '/images/img20.jpeg',
       deliverables: ['Ceiling crack repair', 'Ceiling drywall repair', 'Popcorn ceiling texture repair', 'Acoustic ceiling repair', 'Texture blending'],
     },
     {
       title: 'Patchwork & Small Repairs',
       intro: 'Small drywall repairs completed with clean workmanship and seamless texture matching.',
-      image: '/images/img4.jpeg',
+      image: '/images/img12.jpeg',
       deliverables: ['Patch repairs', 'Small drywall jobs', 'Touch-up repairs', 'Wall restoration', 'Surface repairs'],
     },
     {
@@ -113,7 +113,7 @@ export const servicesPageData = {
     {
       title: 'Residential & Commercial Maintenance',
       intro: 'Interior maintenance and repair services for residential and commercial properties.',
-      image: '/images/img9.jpeg',
+      image: '/images/img17.jpeg',
       deliverables: ['General maintenance', 'Interior repairs', 'Commercial maintenance', 'Property maintenance services', 'Tenant improvement support'],
     },
   ],

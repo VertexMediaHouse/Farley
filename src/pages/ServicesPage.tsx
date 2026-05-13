@@ -7,9 +7,11 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 function ServiceSpotlight({
   detail,
   index,
+  id,
 }: {
   detail: (typeof servicesPageData.serviceDetails)[number]
   index: number
+  id: string
 }) {
   const spotlightRef = React.useRef<HTMLElement | null>(null)
   const cardRef = React.useRef<HTMLElement | null>(null)
@@ -60,7 +62,7 @@ function ServiceSpotlight({
   }, [])
 
   return (
-    <section ref={spotlightRef} className="services-spotlight">
+    <section ref={spotlightRef} id={id} className="services-spotlight">
       <div className="services-spotlight-stage">
         <article
           ref={cardRef}
@@ -114,7 +116,7 @@ export default function ServicesPage() {
               <a href="/contact" className="btn btn-orange">
               Get a Free Estimate<span aria-hidden="true">→</span>
               </a>
-              <a href="#services-gallery" className="btn btn-glass">
+              <a href="tel:+19497924283" className="btn btn-glass">
               Call Now<span aria-hidden="true">→</span>
               </a>
             </div>
@@ -183,7 +185,12 @@ export default function ServicesPage() {
       <section className="section services-detail-section">
         <div className="container services-detail-stack">
           {servicesPageData.serviceDetails.map((detail, index) => (
-            <ServiceSpotlight key={detail.title} detail={detail} index={index} />
+            <ServiceSpotlight
+              key={detail.title}
+              detail={detail}
+              index={index}
+              id={detail.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}
+            />
           ))}
         </div>
       </section>
@@ -280,7 +287,6 @@ export default function ServicesPage() {
                   </div>
                   <div className="testi-info">
                     <span className="testi-name">{t.name}</span>
-                    <span className="testi-role">{t.role} • {t.company}</span>
                   </div>
                 </div>
               </div>
@@ -302,7 +308,6 @@ export default function ServicesPage() {
                   </div>
                   <div className="testi-info">
                     <span className="testi-name">{t.name}</span>
-                    <span className="testi-role">{t.role} • {t.company}</span>
                   </div>
                 </div>
               </div>
@@ -316,7 +321,7 @@ export default function ServicesPage() {
           <div className="services-cta-banner">
             <div className="services-cta-copy">
               <SectionLabel text="Next Step" />
-              <h2>Need drywall, finishing or maintenance support for an upcoming project?</h2>
+              <h2>Need drywall or interior repair support for your next project?</h2>
               <p>
                 Talk with Farley about your scope, timeline, and site conditions, and we will
                 help you move toward a cleaner handoff.
@@ -326,8 +331,8 @@ export default function ServicesPage() {
               <a href="/contact" className="btn btn-orange btn-lg">
                 Discuss Your Project <span aria-hidden="true">→</span>
               </a>
-              <a href="tel:+19054588960" className="services-cta-link">(905) 458-8960</a>
-              <a href="mailto:info@farleyconstruction.ca" className="services-cta-link">info@farleyconstruction.ca</a>
+              <a href="tel:+19497924283" className="services-cta-link">(949) 792-4283</a>
+              <a href="mailto:andrew@farleycdinc.com" className="services-cta-link">andrew@farleycdinc.com</a>
             </div>
           </div>
         </div>

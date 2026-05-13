@@ -26,12 +26,12 @@ export default function Footer() {
         <div className="footer-col footer-col--services">
           <h4>Services</h4>
           <ul className="footer-links footer-links--services">
-            <li><Link to="/services">Drywall Repair</Link></li>
-            <li><Link to="/services">Drywall Installation &amp; Finishing</Link></li>
-            <li><Link to="/services">Ceiling Repair &amp; Texture Matching</Link></li>
-            <li><Link to="/services">Patchwork &amp; Small Repairs</Link></li>
-            <li><Link to="/services">Interior Painting &amp; Surface Prep</Link></li>
-            <li><Link to="/services">Residential &amp; Commercial Maintenance</Link></li>
+            <li><Link to="/services#drywall-repair">Drywall Repair</Link></li>
+            <li><Link to="/services#drywall-installation-finishing">Drywall Installation &amp; Finishing</Link></li>
+            <li><Link to="/services#ceiling-repair-texture-matching">Ceiling Repair &amp; Texture Matching</Link></li>
+            <li><Link to="/services#patchwork-small-repairs">Patchwork &amp; Small Repairs</Link></li>
+            <li><Link to="/services#interior-painting-surface-prep">Interior Painting &amp; Surface Prep</Link></li>
+            <li><Link to="/services#residential-commercial-maintenance">Residential &amp; Commercial Maintenance</Link></li>
           </ul>
         </div>
 
@@ -40,7 +40,7 @@ export default function Footer() {
           <ul className="footer-links">
             <li><a href="#" rel="noopener noreferrer">Privacy Policy</a></li>
             <li>
-              <a href="https://farleyconstruction.ca" target="_blank" rel="noopener noreferrer">
+              <a href="https://farleycdinc.com/" target="_blank" rel="noopener noreferrer">
                 Main Website
               </a>
             </li>
@@ -52,15 +52,15 @@ export default function Footer() {
           <div className="footer-contact-rows">
             <div className="footer-contact-row">
               <span className="footer-contact-label">Phone</span>
-              <a className="footer-contact-value" href="tel:+19054588960">(905) 458-8960</a>
+              <a className="footer-contact-value" href="tel:+19497924283">(949) 792-4283</a>
             </div>
             <div className="footer-contact-row">
               <span className="footer-contact-label">Email</span>
-              <a className="footer-contact-value" href="mailto:info@farleyconstruction.ca">info@farleyconstruction.ca</a>
+              <a className="footer-contact-value" href="mailto:andrew@farleycdinc.com">andrew@farleycdinc.com</a>
             </div>
             <div className="footer-contact-row">
               <span className="footer-contact-label">Location</span>
-              <span className="footer-contact-value">Brampton, ON, Canada</span>
+              <span className="footer-contact-value">27401 Los Altos<br />Mission Viejo, CA 92691</span>
             </div>
           </div>
         </div>

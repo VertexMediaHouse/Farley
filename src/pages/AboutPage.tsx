@@ -38,7 +38,7 @@ export default function AboutPage() {
             <a href="/#contact" className="btn btn-orange">
               Get a Free Estimate <span aria-hidden="true">→</span>
             </a>
-            <a href="/services" className="btn btn-glass">
+            <a href="tel:+19497924283" className="btn btn-glass">
               Call Now <span aria-hidden="true">→</span>
             </a>
           </div>
@@ -253,9 +253,6 @@ export default function AboutPage() {
                     </div>
                     <div className="testi-info">
                       <span className="testi-name">{t.name}</span>
-                      <span className="testi-role">
-                        {t.role} • {t.company}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -288,9 +285,6 @@ export default function AboutPage() {
                     </div>
                     <div className="testi-info">
                       <span className="testi-name">{t.name}</span>
-                      <span className="testi-role">
-                        {t.role} • {t.company}
-                      </span>
                     </div>
                   </div>
                 </div>

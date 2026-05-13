@@ -2,8 +2,8 @@ import { FadeSection, SectionLabel } from '../utils'
 
 const contactCards = [
   {
-    label: 'info@farleyconstruction.ca',
-    href: 'mailto:info@farleyconstruction.ca',
+    label: 'andrew@farleycdinc.com',
+    href: 'mailto:andrew@farleycdinc.com',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M4 5h16v14H4z" />
@@ -12,8 +12,8 @@ const contactCards = [
     ),
   },
   {
-    label: '(905) 458-8960',
-    href: 'tel:+19054588960',
+    label: '(949) 792-4283',
+    href: 'tel:+19497924283',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7A2 2 0 0 1 22 16.9Z" />
@@ -21,8 +21,9 @@ const contactCards = [
     ),
   },
   {
-    label: 'Brampton, Ontario, Canada',
-    href: 'https://maps.google.com/?q=Brampton%2C%20Ontario%2C%20Canada',
+    label: '27401 Los Altos,',
+    sublabel: 'Mission Viejo, CA 92691',
+    href: 'https://maps.google.com/?q=27401+Los+Altos,+Mission+Viejo,+CA+92691',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 21s7-5.1 7-11a7 7 0 0 0-14 0c0 5.9 7 11 7 11Z" />
@@ -80,7 +81,10 @@ export default function ContactPage() {
           {contactCards.map((card) => (
             <a key={card.label} href={card.href} className="cp-contact-card" target={card.href.startsWith('http') ? '_blank' : undefined} rel={card.href.startsWith('http') ? 'noopener noreferrer' : undefined}>
               <span className="cp-contact-icon">{card.icon}</span>
-              <strong>{card.label}</strong>
+              <strong>
+                {card.label}
+                {'sublabel' in card && <><br />{(card as typeof card & { sublabel: string }).sublabel}</>}
+              </strong>
             </a>
           ))}
         </div>
@@ -154,7 +158,7 @@ export default function ContactPage() {
               <h2>Do you want to know more<br />about the company?</h2>
               <p>Let us build something great together with a team focused on precision, safety, and quality.</p>
             </div>
-            <a href="https://farleyconstruction.ca" target="_blank" rel="noopener noreferrer" className="btn btn-orange btn-lg">
+            <a href="https://farleycdinc.com/" target="_blank" rel="noopener noreferrer" className="btn btn-orange btn-lg">
               Our Main Website <span aria-hidden="true">→</span>
             </a>
           </div>
