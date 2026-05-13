@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { Counter, FadeSection, SectionLabel, StaggerRow } from '../utils'
 import { featuredProjects, stats, testimonials } from '../data'
 
@@ -266,7 +267,7 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <a href="/about" className="btn btn-orange">Learn More About Us <span aria-hidden="true">→</span></a>
+            <Link to="/about" className="btn btn-orange">Learn More About Us <span aria-hidden="true">→</span></Link>
           </div>
         </div>
       </FadeSection>
@@ -293,9 +294,9 @@ export default function HomePage() {
                 <div className="card-body">
                   <h3>{s.title}</h3>
                   <p className="body-text service-card-desc">{s.copy}</p>
-                  <a href={s.href} className="btn btn-orange service-card-cta">
+                  <Link to={s.href} className="btn btn-orange service-card-cta">
                     Learn More <span aria-hidden="true">→</span>
-                  </a>
+                  </Link>
                 </div>
               </article>
             ))}

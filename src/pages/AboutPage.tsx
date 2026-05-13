@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Counter, FadeSection, SectionLabel } from "../utils";
 import { stats, testimonials } from "../data";
 
@@ -102,12 +103,12 @@ export default function AboutPage() {
               clean communication, and results that last.
             </p>
             <div className="btn-row" style={{ marginTop: "28px" }}>
-              <a href="/#contact" className="btn btn-orange">
+              <Link to="/contact" className="btn btn-orange">
                 Discuss Your Project <span aria-hidden="true">→</span>
-              </a>
-              <a href="/services" className="btn btn-outline-dark">
+              </Link>
+              <Link to="/services" className="btn btn-outline-dark">
                 Explore Services <span aria-hidden="true">→</span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

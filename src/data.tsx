@@ -89,7 +89,7 @@ export const servicesPageData = {
     {
       title: 'Drywall Installation & Finishing',
       intro: 'Complete drywall installation and finishing services for residential and commercial projects.',
-      image: '/images/img11.jpeg',
+      image: '/images/img13.jpeg',
       deliverables: ['Hang, tape & texture', 'Smooth finish', 'Hand textures', 'Drywall finishing', 'New drywall installation'],
     },
     {

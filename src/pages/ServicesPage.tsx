@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { Counter, FadeSection, SectionLabel, StaggerRow } from '../utils'
 import { featuredProjects, servicesPageData, stats, testimonials } from '../data'
 
@@ -113,9 +114,9 @@ export default function ServicesPage() {
               and polished results.
             </p>
             <div className="btn-row">
-              <a href="/contact" className="btn btn-orange">
+              <Link to="/contact" className="btn btn-orange">
               Get a Free Estimate<span aria-hidden="true">→</span>
-              </a>
+              </Link>
               <a href="tel:+19497924283" className="btn btn-glass">
               Call Now<span aria-hidden="true">→</span>
               </a>
@@ -328,9 +329,9 @@ export default function ServicesPage() {
               </p>
             </div>
             <div className="services-cta-actions">
-              <a href="/contact" className="btn btn-orange btn-lg">
+              <Link to="/contact" className="btn btn-orange btn-lg">
                 Discuss Your Project <span aria-hidden="true">→</span>
-              </a>
+              </Link>
               <a href="tel:+19497924283" className="services-cta-link">(949) 792-4283</a>
               <a href="mailto:andrew@farleycdinc.com" className="services-cta-link">andrew@farleycdinc.com</a>
             </div>
