@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { FadeSection, SectionLabel } from '../utils'
 import SuccessModal from '../components/SuccessModal'
 
