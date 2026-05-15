@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Counter, FadeSection, SectionLabel, StaggerRow } from '../utils'
+import SuccessModal from '../components/SuccessModal'
 import { featuredProjects, stats, testimonials } from '../data'
 
 const services = [
@@ -104,6 +105,7 @@ const heroSlides = [
 export default function HomePage() {
   const [activeSlide, setActiveSlide] = React.useState(0)
   const [sliderPaused, setSliderPaused] = React.useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
   const touchStartX = React.useRef<number | null>(null)
 
   const showSlide = React.useCallback((index: number) => {
@@ -148,7 +150,7 @@ export default function HomePage() {
               <span className="hero-title-line typing-line typing-line--second">Specialists</span>
             </h1>
             <p className="hero-sub">
-            Professional drywall repair, texture matching, ceiling repair, patchwork,  drywall installation, and interior maintenance services for homes, offices, retail spaces, apartments, and commercial properties.
+              Professional drywall repair, texture matching, ceiling repair, patchwork,  drywall installation, and interior maintenance services for homes, offices, retail spaces, apartments, and commercial properties.
             </p>
             <div className="btn-row">
               <a href="#contact" className="btn btn-orange">Get a Free Estimate<span aria-hidden="true">→</span></a>
@@ -248,12 +250,12 @@ export default function HomePage() {
               <p className="about-clients-label">We proudly work with:</p>
               <div className="about-client-pills">
                 {[
-                  { label: 'Homeowners',                icon: '🏠' },
-                  { label: 'Property Managers',         icon: '🏢' },
-                  { label: 'Commercial Facilities',     icon: '🏗️' },
-                  { label: 'Retail Spaces',             icon: '🛍️' },
-                  { label: 'Offices',                   icon: '💼' },
-                  { label: 'Apartment Complexes',       icon: '🏘️' },
+                  { label: 'Homeowners', icon: '🏠' },
+                  { label: 'Property Managers', icon: '🏢' },
+                  { label: 'Commercial Facilities', icon: '🏗️' },
+                  { label: 'Retail Spaces', icon: '🛍️' },
+                  { label: 'Offices', icon: '💼' },
+                  { label: 'Apartment Complexes', icon: '🏘️' },
                   { label: 'Real Estate Professionals', icon: '🤝' },
                 ].map((c, i) => (
                   <span
@@ -281,7 +283,7 @@ export default function HomePage() {
                 Complete Drywall &amp; Interior Repair Services.
               </h2>
               <p className="services-intro">
-              We provide professional drywall repair, texture matching, installation, and finishing for residential and commercial spaces — delivering clean, reliable results built to last
+                We provide professional drywall repair, texture matching, installation, and finishing for residential and commercial spaces — delivering clean, reliable results built to last
               </p>
             </div>
           </header>
@@ -327,10 +329,10 @@ export default function HomePage() {
             <SectionLabel text="Why Choose Us" />
             <h2>Drywall Services<br />Built Around<br />Your Needs.</h2>
             <p className="body-text">
-            From patch repairs and texture matching to complete finishing work, we deliver the drywall services property owners rely on most
+              From patch repairs and texture matching to complete finishing work, we deliver the drywall services property owners rely on most
             </p>
             <div className="why-trust-chips">
-              {['Fast Response', 'Clean Work',  'Small Jobs Welcome'].map((label) => (
+              {['Fast Response', 'Clean Work', 'Small Jobs Welcome'].map((label) => (
                 <span key={label} className="why-trust-chip">
                   <svg aria-hidden="true" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="8" fill="#3AABF0" /><path d="M4.5 8.5l2.5 2.5 4.5-5" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   {label}
@@ -433,7 +435,7 @@ export default function HomePage() {
             <div className="cta-text">
               <h2>Ready to Start Your Project?</h2>
               <p className="body-text">
-              Whether you need drywall patch repair, ceiling drywall repair, texture matching, or general interior maintenance services, we’re ready to help.
+                Whether you need drywall patch repair, ceiling drywall repair, texture matching, or general interior maintenance services, we’re ready to help.
               </p>
             </div>
             <a href="#contact" className="btn btn-orange btn-lg">Request a Free Estimate <span aria-hidden="true">→</span></a>
@@ -474,26 +476,56 @@ export default function HomePage() {
               </li>
             </ul>
           </div>
-          <form className="quote-form" onSubmit={(e) => e.preventDefault()}>
-            <h3 className="form-title">Request a Quote</h3>
-            <div className="form-grid">
-              <label>Full Name<input type="text" placeholder="Your full name" /></label>
-              <label>Company Name<input type="text" placeholder="Company or organization" /></label>
-              <label>Email Address<input type="email" placeholder="your@email.com" /></label>
-              <label>Phone Number<input type="tel" placeholder="Phone number" /></label>
-              <label>Property Type<input type="text" placeholder="Select property type" /></label>
-              <label>Service Needed<input type="text" placeholder="Select service needed" /></label>
+          <form
+            className="cp-form"
+            onSubmit={async (e) => {
+              e.preventDefault()
+
+              const form = e.currentTarget
+
+              const formData = new FormData()
+
+              formData.append('entry.415223274', form.fullName.value)
+              formData.append('entry.1096735123', form.companyName.value)
+              formData.append('entry.715839994', form.email.value)
+              formData.append('entry.1507681476', form.phone.value)
+              formData.append('entry.738519468', form.propertyType.value)
+              formData.append('entry.2083865356', form.serviceNeeded.value)
+              formData.append('entry.4913284', form.projectDetails.value)
+
+              await fetch(
+                'https://docs.google.com/forms/d/e/1FAIpQLScYT08-Ck8LXE9IIbPppSWM0IBnKrH1Qs3sjSDcaAD6X-WgrQ/formResponse',
+                {
+                  method: 'POST',
+                  mode: 'no-cors',
+                  body: formData,
+                }
+              )
+
+              setShowSuccess(true)
+              form.reset()
+            }}>
+            <h2>Request a Quote</h2>
+            <div className="cp-form-grid">
+              <label>Full Name<input type="text" placeholder="Your full name" name="fullName" /></label>
+              <label>Company Name<input type="text" placeholder="Company or organization" name="companyName" /></label>
+              <label>Email Address<input type="email" placeholder="your@email.com" name="email" /></label>
+              <label>Phone Number<input type="tel" placeholder="Phone number" name="phone" /></label>
+              <label>Property Type<input type="text" placeholder="Select property type" name="propertyType" /></label>
+              <label>Service Needed<input type="text" placeholder="Select service needed" name="serviceNeeded" /></label>
             </div>
-            <label className="msg-label">
-            Project Details
-              <textarea rows={4} placeholder="Tell us about your project details" />
+            <label className="cp-message-label">
+              Project Details
+              <textarea rows={5} placeholder="Tell us about your project details" name="projectDetails" />
             </label>
-            <button type="submit" className="btn btn-blue full-btn">
-              Request Your Free Estimate Today <span aria-hidden="true" style={{ fontSize: '1.2rem' }}>→</span>
+            <button type="submit" className="btn btn-blue cp-submit">
+              Request Your Free Estimate Today<span aria-hidden="true">→</span>
             </button>
           </form>
         </div>
       </FadeSection>
+
+      <SuccessModal isOpen={showSuccess} onClose={() => setShowSuccess(false)} />
     </>
   )
 }

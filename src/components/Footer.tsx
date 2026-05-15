@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="container footer-inner">
         <div className="footer-brand">
           <Link to="/" className="logo footer-logo" aria-label="Farley Construction & Development Inc.">
-            <img src="/images/logo1.png" alt="Farley Construction & Development Inc." className="logo-img" />
+            <img src="/images/logo.png" alt="Farley Construction & Development Inc." className="logo-img" />
           </Link>
           <p className="footer-lead">
             Building strong. Finishing right. Delivering dependable construction, drywall, repair, and maintenance solutions.
@@ -38,7 +38,6 @@ export default function Footer() {
         <div className="footer-col">
           <h4>Other Links</h4>
           <ul className="footer-links">
-            <li><a href="#" rel="noopener noreferrer">Privacy Policy</a></li>
             <li>
               <a href="https://farleycdinc.com/" target="_blank" rel="noopener noreferrer">
                 Main Website
@@ -73,7 +72,7 @@ export default function Footer() {
           </p>
           <ul className="footer-legal">
             <span className="footer-credits">
-              Developed by  <a href="https://vertexmediahouse.com/" target="_blank" rel="noopener noreferrer">Vertexmediahouse</a>
+              Made With ❤️ by <a href="https://vertexmediahouse.com/" target="_blank" rel="noopener noreferrer">Vertexmediahouse</a>
             </span>
           </ul>
         </div>

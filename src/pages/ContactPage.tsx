@@ -1,4 +1,6 @@
+import React, { useState } from 'react'
 import { FadeSection, SectionLabel } from '../utils'
+import SuccessModal from '../components/SuccessModal'
 
 const contactCards = [
   {
@@ -60,6 +62,7 @@ const galleryImages = [
 ]
 
 export default function ContactPage() {
+  const [showSuccess, setShowSuccess] = useState(false)
   return (
     <>
       <section className="cp-hero">
@@ -68,7 +71,7 @@ export default function ContactPage() {
           <span className="page-hero-kicker">Contact Us</span>
           <h1>Get a Free Estimate</h1>
           <p className="cp-hero-lead">
-          Drywall repair, ceiling repair, patchwork, and interior maintenance for residential and commercial properties
+            Drywall repair, ceiling repair, patchwork, and interior maintenance for residential and commercial properties
           </p>
           <p className="cp-hero-subtext">
             Reach out today for a free estimate and clear next steps, with fast response times and reliable communication from start to finish.
@@ -116,22 +119,50 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <form className="cp-form" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="cp-form"
+            onSubmit={async (e) => {
+              e.preventDefault()
+
+              const form = e.currentTarget
+
+              const formData = new FormData()
+
+              formData.append('entry.415223274', form.fullName.value)
+              formData.append('entry.1096735123', form.companyName.value)
+              formData.append('entry.715839994', form.email.value)
+              formData.append('entry.1507681476', form.phone.value)
+              formData.append('entry.738519468', form.propertyType.value)
+              formData.append('entry.2083865356', form.serviceNeeded.value)
+              formData.append('entry.4913284', form.projectDetails.value)
+
+              await fetch(
+                'https://docs.google.com/forms/d/e/1FAIpQLScYT08-Ck8LXE9IIbPppSWM0IBnKrH1Qs3sjSDcaAD6X-WgrQ/formResponse',
+                {
+                  method: 'POST',
+                  mode: 'no-cors',
+                  body: formData,
+                }
+              )
+
+              setShowSuccess(true)
+              form.reset()
+            }}>
             <h2>Request a Quote</h2>
             <div className="cp-form-grid">
-              <label>Full Name<input type="text" placeholder="Your full name" /></label>
-              <label>Company Name<input type="text" placeholder="Company or organization" /></label>
-              <label>Email Address<input type="email" placeholder="your@email.com" /></label>
-              <label>Phone Number<input type="tel" placeholder="Phone number" /></label>
-              <label>Property Type<input type="text" placeholder="Select property type" /></label>
-              <label>Service Needed<input type="text" placeholder="Select service needed" /></label>
+              <label>Full Name<input type="text" placeholder="Your full name" name="fullName" /></label>
+              <label>Company Name<input type="text" placeholder="Company or organization" name="companyName" /></label>
+              <label>Email Address<input type="email" placeholder="your@email.com" name="email" /></label>
+              <label>Phone Number<input type="tel" placeholder="Phone number" name="phone" /></label>
+              <label>Property Type<input type="text" placeholder="Select property type" name="propertyType" /></label>
+              <label>Service Needed<input type="text" placeholder="Select service needed" name="serviceNeeded" /></label>
             </div>
             <label className="cp-message-label">
-            Project Details
-              <textarea rows={5} placeholder="Tell us about your project details" />
+              Project Details
+              <textarea rows={5} placeholder="Tell us about your project details" name="projectDetails" />
             </label>
             <button type="submit" className="btn btn-blue cp-submit">
-            Request Your Free Estimate Today<span aria-hidden="true">→</span>
+              Request Your Free Estimate Today<span aria-hidden="true">→</span>
             </button>
           </form>
         </div>
@@ -164,6 +195,8 @@ export default function ContactPage() {
           </div>
         </div>
       </FadeSection>
+
+      <SuccessModal isOpen={showSuccess} onClose={() => setShowSuccess(false)} />
     </>
   )
 }
