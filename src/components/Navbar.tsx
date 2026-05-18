@@ -18,6 +18,13 @@ export default function Navbar() {
 
   return (
     <header className={`header${open ? ' header--menu-open' : ''}`}>
+      {open && (
+        <div 
+          className="menu-overlay" 
+          onClick={close}
+          aria-hidden="true"
+        />
+      )}
       <div className="container nav-inner">
         <Link to="/" className="logo" aria-label="Farley Construction & Development Inc." onClick={close}>
           <img src="/images/logo1.png" alt="Farley Construction & Development Inc." className="logo-img" />

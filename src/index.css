@@ -370,6 +370,7 @@ height: clamp(60px, 8vw, 100px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
   cursor: pointer;
+  position: relative;
   z-index: 101;
 }
 
@@ -424,6 +425,20 @@ height: clamp(60px, 8vw, 100px);
 
   .header .logo-img {
     margin-top: 10px;
+  }
+
+  .menu-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 98;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 }
 
