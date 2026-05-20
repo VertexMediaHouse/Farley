@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Counter, FadeSection, SectionLabel, StaggerRow } from '../utils'
 import SuccessModal from '../components/SuccessModal'
 import { featuredProjects, stats, testimonials } from '../data'
+import { calculateEstimate } from '../services/estimateEngine'
+import type { EstimateResult } from '../types/estimate'
 
 const services = [
   {
@@ -94,49 +96,383 @@ const benefits = [
   },
 ]
 
-const heroSlides = [
-  { img: '/images/img1.jpeg', alt: 'Drywall workers finishing a ceiling' },
-  { img: '/images/img2.jpeg', alt: 'Construction crew installing drywall panels' },
-  { img: '/images/img4.jpeg', alt: 'Drywall finishing work in progress' },
-  { img: '/images/img5.jpeg', alt: 'Interior drywall repair project' },
-  { img: '/images/img6.jpeg', alt: 'Fresh drywall and finishing work on a construction site' },
-]
+interface FormAnswers {
+  length: string;
+  width: string;
+  height: string;
+  address: string;
+  services: {
+    drywall: boolean;
+    paint: boolean;
+    trim: boolean;
+  };
+  [key: string]: any;
+}
+
+const initialAnswers: FormAnswers = {
+  length: '',
+  width: '',
+  height: '',
+  address: '',
+  services: {
+    drywall: false,
+    paint: false,
+    trim: false,
+  },
+};
 
 export default function HomePage() {
-  const [activeSlide, setActiveSlide] = React.useState(0)
-  const [sliderPaused, setSliderPaused] = React.useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
-  const touchStartX = React.useRef<number | null>(null)
+  const [currentStepIndex, setCurrentStepIndex] = useState(0)
+  const [answers, setAnswers] = useState<FormAnswers>(initialAnswers)
+  const [estimate, setEstimate] = useState<EstimateResult | null>(null)
 
-  const showSlide = React.useCallback((index: number) => {
-    setActiveSlide((index + heroSlides.length) % heroSlides.length)
-  }, [])
+  useEffect(() => {
+    (function (C: any, A: string, L: string) {
+      let p = function (a: any, ar: any) { a.q.push(ar); };
+      let d = C.document;
+      C.Cal = C.Cal || function () {
+        let cal = C.Cal;
+        let ar = arguments;
+        if (!cal.loaded) {
+          cal.ns = {};
+          cal.q = cal.q || [];
+          d.head.appendChild(d.createElement("script")).src = A;
+          cal.loaded = true;
+        }
+        if (ar[0] === L) {
+          const api = function () { p(api, arguments); };
+          const namespace = ar[1];
+          api.q = api.q || [];
+          if (typeof namespace === "string") {
+            cal.ns[namespace] = cal.ns[namespace] || api;
+            p(cal.ns[namespace], ar);
+            p(cal, ["initNamespace", namespace]);
+          } else p(cal, ar);
+          return;
+        }
+        p(cal, ar);
+      };
+    })(window as any, "https://app.cal.com/embed/embed.js", "init");
 
-  const nextSlide = React.useCallback(() => {
-    setActiveSlide((current) => (current + 1) % heroSlides.length)
-  }, [])
+    const Cal = (window as any).Cal;
+    if (Cal) {
+      Cal("init", "15min", { origin: "https://app.cal.com" });
+      Cal.ns["15min"]("ui", { "hideEventTypeDetails": false, "layout": "month_view" });
+    }
+  }, []);
 
-  const prevSlide = React.useCallback(() => {
-    setActiveSlide((current) => (current - 1 + heroSlides.length) % heroSlides.length)
-  }, [])
-
-  React.useEffect(() => {
-    if (sliderPaused) return undefined
-    const timer = window.setInterval(nextSlide, 3800)
-    return () => window.clearInterval(timer)
-  }, [nextSlide, sliderPaused])
-
-  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    touchStartX.current = event.touches[0]?.clientX ?? null
+  const handleTextChange = (field: string, value: string) => {
+    setAnswers((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
-    if (touchStartX.current === null) return
-    const delta = touchStartX.current - (event.changedTouches[0]?.clientX ?? touchStartX.current)
-    touchStartX.current = null
-    if (Math.abs(delta) < 36) return
-    if (delta > 0) nextSlide()
-    else prevSlide()
+  const handleServiceToggle = (service: 'drywall' | 'paint' | 'trim') => {
+    setAnswers((prev) => ({
+      ...prev,
+      services: {
+        ...prev.services,
+        [service]: !prev.services[service],
+      },
+    }))
+  }
+
+  const handleOptionSelect = (field: string, value: string) => {
+    setAnswers((prev) => ({ ...prev, [field]: value }))
+  }
+
+  // Calculate dynamic steps based on current selected services & answers
+  const getDynamicSteps = () => {
+    const stepsList: any[] = []
+
+    // 1. Drywall questions (Drywall first)
+    if (answers.services.drywall) {
+      stepsList.push({
+        id: 'drywall_has_dims',
+        title: 'Do you have dimensions of areas needing drywall?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+
+      if (answers.drywall_has_dims === 'Yes') {
+        stepsList.push({
+          id: 'drywall_dims',
+          title: 'Please Provide Dimensions',
+          type: 'textarea',
+          placeholder: 'Provide dimensions (e.g., Room 1: 10x12 wall, Ceiling: 12x14)...',
+        })
+      }
+
+      stepsList.push({
+        id: 'drywall_areas',
+        title: 'What areas need drywall?',
+        type: 'radio',
+        options: ['Wall', 'Ceiling', 'Both'],
+      })
+
+      stepsList.push({
+        id: 'drywall_texture',
+        title: 'What kind of texture do you want?',
+        type: 'radio',
+        options: ['Orange Peel', 'Smooth', 'Other'],
+      })
+
+      stepsList.push({
+        id: 'drywall_ceiling_height',
+        title: 'Ceiling height?',
+        type: 'text',
+        placeholder: 'e.g. 8 feet, 10 feet...',
+      })
+
+      stepsList.push({
+        id: 'drywall_insulation',
+        title: 'Do you need insulation installed?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+
+      stepsList.push({
+        id: 'drywall_popcorn',
+        title: 'Do you need popcorn ceiling scraping ($2.50/sqft)?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+
+      stepsList.push({
+        id: 'drywall_skim',
+        title: 'Do you need a Level 4 skim coat finish ($4.50/sqft)?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+
+      stepsList.push({
+        id: 'drywall_patch',
+        title: 'Do you need patchwork or hole repairs ($3.00/sqft cleanup)?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+
+      if (answers.drywall_patch === 'Yes') {
+        stepsList.push({
+          id: 'drywall_patch_area',
+          title: 'Approximate patchwork / hole repair area (sqft):',
+          type: 'text',
+          placeholder: 'e.g. 20 (enter approximate area in square feet)',
+        })
+      }
+
+      stepsList.push({
+        id: 'drywall_demo',
+        title: 'Do you need demolition of existing sheetrock?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+
+      if (answers.drywall_demo === 'Yes') {
+        stepsList.push({
+          id: 'drywall_haul_away',
+          title: '(Recommended) Add Haul-Away logistics service for demolition debris ($300)?',
+          type: 'radio',
+          options: ['Yes', 'No'],
+        })
+      }
+
+      stepsList.push({
+        id: 'drywall_electrical',
+        title: 'Do you need electrical fixture installation?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+
+      if (answers.drywall_electrical === 'Yes') {
+        stepsList.push({
+          id: 'elec_fan_qty',
+          title: 'How many bathroom fans need installation ($250 each)?',
+          type: 'text',
+          placeholder: 'e.g. 1 (enter 0 if none)',
+        })
+        stepsList.push({
+          id: 'elec_can_qty',
+          title: 'How many 4" or 6" LED can lights need installation ($220 each)?',
+          type: 'text',
+          placeholder: 'e.g. 4 (enter 0 if none)',
+        })
+        stepsList.push({
+          id: 'elec_surface_qty',
+          title: 'How many surface mount lights need installation ($150 each)?',
+          type: 'text',
+          placeholder: 'e.g. 2 (enter 0 if none)',
+        })
+      }
+    }
+
+    // 2. Paint questions
+    if (answers.services.paint) {
+      stepsList.push({
+        id: 'paint_needed',
+        title: 'Do you need painting services?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+
+      stepsList.push({
+        id: 'paint_type',
+        title: 'What type of painting service would you like?',
+        type: 'radio',
+        options: ['Touch-up painting', 'Corner-to-corner painting', 'Other'],
+      })
+
+      if (answers.paint_type === 'Touch-up painting') {
+        stepsList.push({
+          id: 'paint_touch_up_area',
+          title: 'Please enter the approximate touch-up area (sqft):',
+          type: 'text',
+          placeholder: 'e.g. 30 (enter approximate area in square feet)',
+        })
+      }
+
+      if (answers.paint_type === 'Corner-to-corner painting') {
+        stepsList.push({
+          id: 'paint_corner_has_dims',
+          title: 'Do you have the dimensions of the areas to be painted?',
+          type: 'radio',
+          options: ['Yes', 'No'],
+        })
+
+        if (answers.paint_corner_has_dims === 'Yes') {
+          stepsList.push({
+            id: 'paint_dims',
+            title: 'Please Provide Dimensions',
+            type: 'textarea',
+            placeholder: 'Provide painting dimensions (e.g., Walls: 400 sq ft, 2 coats)...',
+          })
+        }
+      }
+
+      stepsList.push({
+        id: 'paint_has_paint',
+        title: 'Do you already have the paint?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+
+      stepsList.push({
+        id: 'paint_color_selected',
+        title: 'Do you have a paint colour selected?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+    }
+
+    // 3. Trim questions
+    if (answers.services.trim) {
+      stepsList.push({
+        id: 'trim_install',
+        title: 'Do you need baseboard or trim installation ($5/linear ft)?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+
+      stepsList.push({
+        id: 'trim_paint',
+        title: 'Do you need baseboard or trim painted ($10/linear ft)?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+
+      stepsList.push({
+        id: 'trim_crown',
+        title: 'Do you need crown molding installation ($7/linear ft)?',
+        type: 'radio',
+        options: ['Yes', 'No'],
+      })
+    }
+
+    // 4. Last page questions
+    stepsList.push({
+      id: 'additional_info',
+      title: 'Is there anything else you would like us to know about your project?',
+      type: 'textarea',
+      placeholder: 'Please include any additional details, special requests, access instructions, timelines, or concerns.',
+    })
+
+    stepsList.push({
+      id: 'has_photos',
+      title: 'Do you have photos of the work area to upload for final manual review?',
+      type: 'radio',
+      options: ['Yes', 'No'],
+    })
+
+    return stepsList
+  }
+
+  const dynamicSteps = getDynamicSteps()
+  const totalSteps = 2 + dynamicSteps.length
+  const isLastStep = currentStepIndex === totalSteps - 1
+
+  const isStepValid = () => {
+    if (currentStepIndex === 0) {
+      return (
+        answers.length.trim() !== '' &&
+        answers.width.trim() !== '' &&
+        answers.height.trim() !== '' &&
+        answers.address.trim() !== ''
+      )
+    }
+
+    if (currentStepIndex === 1) {
+      return answers.services.drywall || answers.services.paint || answers.services.trim
+    }
+
+    const currentDynamicStep = dynamicSteps[currentStepIndex - 2]
+    if (!currentDynamicStep) return false
+
+    const val = answers[currentDynamicStep.id]
+    if (currentDynamicStep.type === 'radio') {
+      return val !== undefined && val !== ''
+    }
+
+    if (currentDynamicStep.id === 'additional_info') {
+      return true // Optional
+    }
+
+    if (currentDynamicStep.type === 'text' || currentDynamicStep.type === 'textarea') {
+      return val !== undefined && val.trim() !== ''
+    }
+
+    return true
+  }
+
+  const handleNext = () => {
+    if (isStepValid()) {
+      setCurrentStepIndex((prev) => prev + 1)
+    }
+  }
+
+  const handlePrev = () => {
+    setCurrentStepIndex((prev) => Math.max(0, prev - 1))
+  }
+
+  const handleSubmit = () => {
+    if (isStepValid()) {
+      console.log('Wizard estimate request answers submitted:', answers)
+      const result = calculateEstimate(answers)
+      setEstimate(result)
+
+      try {
+        sessionStorage.setItem('fcd_estimate_data', JSON.stringify({ answers, estimate: result }))
+      } catch (e) {
+        console.error('Failed to store estimate in sessionStorage', e)
+      }
+
+      window.open('/estimate', '_blank')
+      setShowSuccess(true)
+    }
+  }
+
+  const handleReset = () => {
+    setAnswers(initialAnswers)
+    setCurrentStepIndex(0)
+    setEstimate(null)
   }
 
   return (
@@ -164,49 +500,342 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div
-            className="hero-img-wrap hero-slider-wrap fade-in-right hero-img-float"
-            onMouseEnter={() => setSliderPaused(true)}
-            onMouseLeave={() => setSliderPaused(false)}
-          >
-            <div
-              className="hero-slider"
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
-              aria-roledescription="carousel"
-              aria-label="Featured construction project images"
-            >
-              {heroSlides.map((slide, index) => (
-                <img
-                  key={slide.img}
-                  src={slide.img}
-                  alt={slide.alt}
-                  className={`hero-img hero-slide${index === activeSlide ? ' hero-slide--active' : ''}`}
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                  decoding="async"
-                  aria-hidden={index !== activeSlide}
-                />
-              ))}
-              <button type="button" className="hero-slider-arrow hero-slider-arrow--prev" onClick={prevSlide} aria-label="Previous image">
-                <span aria-hidden="true">‹</span>
-              </button>
-              <button type="button" className="hero-slider-arrow hero-slider-arrow--next" onClick={nextSlide} aria-label="Next image">
-                <span aria-hidden="true">›</span>
-              </button>
-            </div>
-            <div className="hero-slider-dots" aria-label="Hero image navigation">
-              {heroSlides.map((slide, index) => (
-                <button
-                  key={slide.img}
-                  type="button"
-                  className={`hero-slider-dot${index === activeSlide ? ' hero-slider-dot--active' : ''}`}
-                  onClick={() => showSlide(index)}
-                  aria-label={`Show image ${index + 1}`}
-                  aria-current={index === activeSlide}
-                />
-              ))}
-            </div>
+          
+          <div className="hero-img-wrap fade-in-right hero-img-float">
+            {!estimate ? (
+              <div className="estimate-wizard-card">
+                <div className="wizard-header">
+                  <h3>Estimate Calculator</h3>
+                  <span className="step-indicator">Step {currentStepIndex + 1} of {totalSteps}</span>
+                </div>
+
+                <div className="wizard-progress-bar">
+                  <div 
+                    className="wizard-progress-fill" 
+                    style={{ width: `${((currentStepIndex + 1) / totalSteps) * 100}%` }}
+                  />
+                </div>
+
+                <div className="wizard-content">
+                  {currentStepIndex === 0 && (
+                    <div className="wizard-step-pane active">
+                      <h4 className="wizard-step-title">Enter Room Dimensions &amp; Address</h4>
+                      <p className="wizard-step-subtitle">Provide basic dimensions to start your estimate.</p>
+                      
+                      <div className="dimensions-grid">
+                        <div className="input-group">
+                          <label htmlFor="length">Room Length</label>
+                          <div className="input-with-unit">
+                            <input 
+                              id="length"
+                              type="number" 
+                              placeholder="e.g. 15"
+                              value={answers.length}
+                              onChange={e => handleTextChange('length', e.target.value)}
+                            />
+                            <span className="unit-label">ft</span>
+                          </div>
+                        </div>
+
+                        <div className="input-group">
+                          <label htmlFor="width">Room Width</label>
+                          <div className="input-with-unit">
+                            <input 
+                              id="width"
+                              type="number" 
+                              placeholder="e.g. 12"
+                              value={answers.width}
+                              onChange={e => handleTextChange('width', e.target.value)}
+                            />
+                            <span className="unit-label">ft</span>
+                          </div>
+                        </div>
+
+                        <div className="input-group">
+                          <label htmlFor="height">Ceiling Height</label>
+                          <div className="input-with-unit">
+                            <input 
+                              id="height"
+                              type="number" 
+                              placeholder="e.g. 9"
+                              value={answers.height}
+                              onChange={e => handleTextChange('height', e.target.value)}
+                            />
+                            <span className="unit-label">ft</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="input-group">
+                        <label htmlFor="address">Project Address</label>
+                        <input 
+                          id="address"
+                          type="text" 
+                          placeholder="Street Address, City, State, ZIP"
+                          value={answers.address}
+                          onChange={e => handleTextChange('address', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {currentStepIndex === 1 && (
+                    <div className="wizard-step-pane active">
+                      <h4 className="wizard-step-title">What services do you need?</h4>
+                      <p className="wizard-step-subtitle">Select all services that apply to your project.</p>
+                      
+                      <div className="services-selection-grid">
+                        <button 
+                          type="button"
+                          className={`service-select-card${answers.services.drywall ? ' selected' : ''}`}
+                          onClick={() => handleServiceToggle('drywall')}
+                        >
+                          <span className="service-card-icon">🧱</span>
+                          <div className="service-card-text">
+                            <strong>Drywall Services</strong>
+                            <span>Hanging, taping, patchwork &amp; repair</span>
+                          </div>
+                          <div className="custom-checkbox">
+                            {answers.services.drywall && <span className="checkmark">✓</span>}
+                          </div>
+                        </button>
+
+                        <button 
+                          type="button"
+                          className={`service-select-card${answers.services.paint ? ' selected' : ''}`}
+                          onClick={() => handleServiceToggle('paint')}
+                        >
+                          <span className="service-card-icon">🎨</span>
+                          <div className="service-card-text">
+                            <strong>Painting Services</strong>
+                            <span>Surface preparation, touch-ups &amp; painting</span>
+                          </div>
+                          <div className="custom-checkbox">
+                            {answers.services.paint && <span className="checkmark">✓</span>}
+                          </div>
+                        </button>
+
+                        <button 
+                          type="button"
+                          className={`service-select-card${answers.services.trim ? ' selected' : ''}`}
+                          onClick={() => handleServiceToggle('trim')}
+                        >
+                          <span className="service-card-icon">🪵</span>
+                          <div className="service-card-text">
+                            <strong>Trim &amp; Baseboard</strong>
+                            <span>Installation and painting services</span>
+                          </div>
+                          <div className="custom-checkbox">
+                            {answers.services.trim && <span className="checkmark">✓</span>}
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentStepIndex >= 2 && dynamicSteps[currentStepIndex - 2] && (
+                    <div className="wizard-step-pane active">
+                      <h4 className="wizard-step-title">{dynamicSteps[currentStepIndex - 2].title}</h4>
+                      {dynamicSteps[currentStepIndex - 2].placeholder && (
+                        <p className="wizard-step-subtitle">{dynamicSteps[currentStepIndex - 2].placeholder}</p>
+                      )}
+
+                      <div className="dynamic-input-container">
+                        {dynamicSteps[currentStepIndex - 2].type === 'radio' && (
+                          <div className="radio-options-list">
+                            {dynamicSteps[currentStepIndex - 2].options?.map((option: string) => {
+                              const stepId = dynamicSteps[currentStepIndex - 2].id
+                              const isSelected = answers[stepId] === option || (option === 'Other' && answers[stepId]?.startsWith('Other:'))
+                              
+                              return (
+                                <div key={option} className="radio-option-card-wrapper">
+                                  <button
+                                    type="button"
+                                    className={`radio-option-card${isSelected ? ' selected' : ''}`}
+                                    onClick={() => {
+                                      if (option === 'Other') {
+                                        handleOptionSelect(stepId, 'Other: ')
+                                      } else {
+                                        handleOptionSelect(stepId, option)
+                                      }
+                                    }}
+                                  >
+                                    <span className="radio-indicator">
+                                      {isSelected && <span className="radio-dot" />}
+                                    </span>
+                                    <span className="radio-label-text">{option}</span>
+                                  </button>
+                                  
+                                  {option === 'Other' && isSelected && (
+                                    <div className="other-input-container">
+                                      <input
+                                        type="text"
+                                        className="theme-text-input other-text-input"
+                                        placeholder="Please specify..."
+                                        value={answers[stepId]?.replace('Other: ', '') || ''}
+                                        onChange={e => handleOptionSelect(stepId, `Other: ${e.target.value}`)}
+                                        autoFocus
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+
+                        {dynamicSteps[currentStepIndex - 2].type === 'text' && (
+                          <div className="input-group">
+                            <input
+                              type="text"
+                              className="theme-text-input"
+                              placeholder="Type your answer here..."
+                              value={answers[dynamicSteps[currentStepIndex - 2].id] || ''}
+                              onChange={e => handleTextChange(dynamicSteps[currentStepIndex - 2].id, e.target.value)}
+                            />
+                          </div>
+                        )}
+
+                        {dynamicSteps[currentStepIndex - 2].type === 'textarea' && (
+                          <div className="input-group">
+                            <textarea
+                              className="theme-textarea"
+                              rows={4}
+                              placeholder="Provide additional details here..."
+                              value={answers[dynamicSteps[currentStepIndex - 2].id] || ''}
+                              onChange={e => handleTextChange(dynamicSteps[currentStepIndex - 2].id, e.target.value)}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="wizard-actions">
+                  <button
+                    type="button"
+                    className="btn btn-glass"
+                    disabled={currentStepIndex === 0}
+                    onClick={handlePrev}
+                  >
+                    ← Back
+                  </button>
+
+                  {isLastStep ? (
+                    <button
+                      type="button"
+                      className="btn btn-orange wizard-submit-btn"
+                      disabled={!isStepValid()}
+                      onClick={handleSubmit}
+                    >
+                      Submit Estimate →
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn-blue"
+                      disabled={!isStepValid()}
+                      onClick={handleNext}
+                    >
+                      Next Step →
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="estimate-wizard-card success-wizard-card" style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+                padding: '40px 30px',
+                gap: '24px',
+                minHeight: '480px'
+              }}>
+                <div style={{
+                  width: '72px',
+                  height: '72px',
+                  borderRadius: '50%',
+                  background: 'rgba(47, 174, 255, 0.1)',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: '2.2rem',
+                  color: 'var(--blue)'
+                }}>
+                  🎉
+                </div>
+                
+                <div>
+                  <h3 style={{
+                    fontSize: '1.4rem',
+                    fontWeight: 800,
+                    color: 'var(--ink)',
+                    marginBottom: '10px'
+                  }}>
+                    Your Estimate is Ready!
+                  </h3>
+                  <p style={{
+                    color: '#667085',
+                    fontSize: '0.92rem',
+                    lineHeight: '1.5',
+                    maxWidth: '320px',
+                    margin: '0 auto'
+                  }}>
+                    We have successfully calculated a detailed quote for your project dimensions.
+                  </p>
+                </div>
+
+                <div className="wizard-actions-vertical" style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  width: '100%',
+                  marginTop: '10px'
+                }}>
+                  <button 
+                    type="button" 
+                    className="btn btn-blue" 
+                    onClick={() => window.open('/estimate', '_blank')}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    View Detailed Estimate 📄
+                  </button>
+                  <button 
+                    type="button" 
+                    className="btn btn-glass" 
+                    data-cal-link="dhrumil-sanghvi-4kxjvq/15min"
+                    data-cal-namespace="15min"
+                    data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      cursor: 'pointer',
+                      color: '#000000'
+                    }}
+                  >
+                    Book a Site Visit 📅
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
+
         </div>
       </section>
 

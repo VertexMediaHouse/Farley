@@ -313,55 +313,70 @@ FINAL CALCULATION (show this work explicitly before the total line):
     e.preventDefault();
     setIsSending(true);
 
-    // Extract the latest estimate from message history
-    const lastEstimate = [...messages].reverse().find(m => 
-      m.role === 'assistant' && m.content.includes("FARLEY CONSTRUCTION & DEVELOPMENT")
-    );
-
-    const templateParams = {
-      user_name: leadData.name,
-      user_email: leadData.email,
-      user_phone: leadData.phone,
-      estimate_details: lastEstimate ? lastEstimate.content : "No estimate found",
-      to_email: 'h.kansara106@gmail.com'
-    };
-
     try {
-      // NOTE: You need to install @emailjs/browser or use the CDN. 
-      // For this single-file component, we'll use a direct fetch to their API
-      // which is more reliable than form-submit relays.
-      
-      // REPLACE THESE WITH YOUR EMAILJS CREDENTIALS
-      const SERVICE_ID = 'YOUR_SERVICE_ID';
-      const TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
-      const PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+      setIsLeadSubmitted(true);
 
-      const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          service_id: SERVICE_ID,
-          template_id: TEMPLATE_ID,
-          user_id: PUBLIC_KEY,
-          template_params: templateParams
-        })
-      });
-
-      if (response.ok) {
-        setIsLeadSubmitted(true);
-        setTimeout(() => {
-          setShowLeadForm(false);
-          setMessages(prev => [...prev, { 
-            role: 'assistant', 
-            content: `Thank you, ${leadData.name.split(' ')[0]}! I've sent your information and the estimate to our team. An expert will reach out to you at ${leadData.phone} shortly.` 
-          }]);
-        }, 1500);
-      } else {
-        throw new Error("EmailJS Error");
+      // Robustly get or initialize Cal.com
+      let Cal = window.Cal;
+      if (!Cal) {
+        (function (C, A, L) {
+          let p = function (a, ar) { a.q.push(ar); };
+          let d = C.document;
+          C.Cal = C.Cal || function () {
+            let cal = C.Cal;
+            let ar = arguments;
+            if (!cal.loaded) {
+              cal.ns = {};
+              cal.q = cal.q || [];
+              d.head.appendChild(d.createElement("script")).src = A;
+              cal.loaded = true;
+            }
+            if (ar[0] === L) {
+              const api = function () { p(api, arguments); };
+              const namespace = ar[1];
+              api.q = api.q || [];
+              if (typeof namespace === "string") {
+                cal.ns[namespace] = cal.ns[namespace] || api;
+                p(cal.ns[namespace], ar);
+                p(cal, ["initNamespace", namespace]);
+              } else p(cal, ar);
+              return;
+            }
+            p(cal, ar);
+          };
+        })(window, "https://app.cal.com/embed/embed.js", "init");
+        
+        Cal = window.Cal;
+        if (Cal) {
+          Cal("init", "15min", { origin: "https://app.cal.com" });
+          Cal.ns["15min"]("ui", { "hideEventTypeDetails": false, "layout": "month_view" });
+        }
       }
+
+      // Trigger the Cal.com popup overlay
+      if (Cal) {
+        Cal("open", {
+          calLink: "dhrumil-sanghvi-4kxjvq/15min",
+          config: {
+            layout: "month_view",
+            useSlotsViewOnSmallScreen: "true"
+          }
+        });
+      } else {
+        // Fallback to direct redirect
+        window.open("https://app.cal.com/dhrumil-sanghvi-4kxjvq/15min", "_blank");
+      }
+
+      setTimeout(() => {
+        setShowLeadForm(false);
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: `Thank you, ${leadData.name.split(' ')[0]}! I've opened our site visit booking calendar so you can select a convenient slot. Our estimating team has recorded your details.` 
+        }]);
+      }, 2000);
+
     } catch (error) {
       console.error('Submission Error:', error);
-      alert("Submission Error: To fix this, please ensure your EmailJS credentials are set correctly in FCDChatbot.jsx. \n\nCheck the console for more details.");
     } finally {
       setIsSending(false);
     }
@@ -1207,7 +1222,7 @@ FINAL CALCULATION (show this work explicitly before the total line):
                       onChange={(e) => setLeadData({...leadData, phone: e.target.value})}
                     />
                     <button type="submit" className="fcd-submit-lead" disabled={isSending}>
-                      {isSending ? 'Sending...' : 'Get My Free Consultation'}
+                      {isSending ? 'Loading Scheduler...' : 'Book a Site Visit 📅'}
                     </button>
                     <button 
                       type="button" 
