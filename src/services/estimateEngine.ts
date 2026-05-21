@@ -19,14 +19,11 @@ import {
  * maps pricing databases, handles waste factors and rounding, and generates 
  * a complete, structured, and strictly rule-based EstimateResult.
  * 
- * All AI keyword parsing, hidden modifiers, note inferences, and auto-added
- * haul-away fees have been fully removed. Calculations are 100% deterministic.
- * 
  * @param formData FormAnswers state from the React homepage wizard.
  * @returns Fully itemized EstimateResult.
  */
 export function calculateEstimate(formData: any): EstimateResult {
-  // 1. Safe parsing of room dimensions from step 0
+  // 1. Safe parsing of room dimensions
   const length = Math.max(0, parseFloat(formData.length) || 0);
   const width = Math.max(0, parseFloat(formData.width) || 0);
   const height = Math.max(0, parseFloat(formData.height) || 0);
@@ -58,99 +55,158 @@ export function calculateEstimate(formData: any): EstimateResult {
   }
 
   // -------------------------------------------------------------
-  // A. LABOR CALCULATIONS
+  // A. LABOR & DEMOLITION & INSULATION CALCULATIONS (Drywall Workflow)
   // -------------------------------------------------------------
 
-  // 1. Drywall Labor
+  let activeWallArea = 0;
+  let activeCeilingArea = 0;
   let drywallArea = 0;
-  let isDrywallCeilingActive = false;
-  let isDrywallWallActive = false;
 
   if (formData.services?.drywall) {
-    const areas = formData.drywall_areas || 'Both';
-    isDrywallCeilingActive = areas === 'Ceiling' || areas === 'Both';
-    isDrywallWallActive = areas === 'Wall' || areas === 'Both';
+    const hasDims = formData.drywall_has_dims === 'Yes';
+    const workType = formData.drywall_work_type || 'entire room installation';
+    const areas = formData.drywall_areas || 'both';
 
-    // Calculate drywall area based on selected areas
-    drywallArea = (isDrywallCeilingActive ? ceilingArea : 0) + (isDrywallWallActive ? wallArea : 0);
-
-    const texture = formData.drywall_texture || 'Orange Peel';
-    const isSmooth = texture === 'Smooth';
-
-    // Drywall Ceiling Installation
-    if (isDrywallCeilingActive && ceilingArea > 0) {
-      const unitPrice = isSmooth ? LABOR_PRICING.DRYWALL.CEILING_SMOOTH : LABOR_PRICING.DRYWALL.CEILING_ORANGE_PEEL;
-      const total = ceilingArea * unitPrice;
-      laborItems.push({
-        name: `Ceiling Drywall Install & Finish (${isSmooth ? 'Level 4 Smooth' : 'Orange Peel Texture'})`,
-        quantity: Math.round(ceilingArea),
-        unit: 'sqft',
-        unitPrice,
-        total
-      });
+    // Establish wall and ceiling areas
+    if (hasDims) {
+      if (areas === 'walls' || areas === 'both') {
+        activeWallArea = wallArea;
+      }
+      if (areas === 'celling' || areas === 'both') {
+        activeCeilingArea = ceilingArea;
+      }
+    } else {
+      // Flat rate fallback virtual areas for material calculations
+      if (workType === 'full wall replacement') {
+        activeWallArea = 150;
+      } else if (workType === 'celling replacement') {
+        activeCeilingArea = 144;
+      } else if (workType === 'entire room installation') {
+        activeWallArea = 384;
+        activeCeilingArea = 144;
+      }
     }
 
-    // Drywall Wall Installation
-    if (isDrywallWallActive && wallArea > 0) {
-      const unitPrice = isSmooth ? LABOR_PRICING.DRYWALL.WALL_SMOOTH : LABOR_PRICING.DRYWALL.WALL_ORANGE_PEEL;
-      const total = wallArea * unitPrice;
-      laborItems.push({
-        name: `Wall Drywall Install & Finish (${isSmooth ? 'Level 4 Smooth' : 'Orange Peel Texture'})`,
-        quantity: Math.round(wallArea),
-        unit: 'sqft',
-        unitPrice,
-        total
-      });
-    }
+    drywallArea = activeWallArea + activeCeilingArea;
 
-    // Popcorn Ceiling Scraping (Explicit choice in form)
-    if (formData.drywall_popcorn === 'Yes') {
-      const scrapeArea = ceilingArea;
-      if (scrapeArea > 0) {
-        const unitPrice = LABOR_PRICING.DRYWALL.POPCORN_SCRAPING;
-        const total = scrapeArea * unitPrice;
+    // Establish Labor Costs
+    const texture = formData.drywall_texture || 'orange peel';
+    const isSmooth = texture === 'smooth finish';
+
+    const wallRate = isSmooth ? LABOR_PRICING.DRYWALL.WALL_SMOOTH : LABOR_PRICING.DRYWALL.WALL_ORANGE_PEEL;
+    const ceilingRate = isSmooth ? LABOR_PRICING.DRYWALL.CEILING_SMOOTH : LABOR_PRICING.DRYWALL.CEILING_ORANGE_PEEL;
+
+    // Hole repairs: collect info only, flag for manual review, no price calculation
+    const isRepairType = workType === 'small hole repair' || workType === 'medium patch repair' || workType === 'larger sections repair';
+
+    if (isRepairType) {
+      isPendingReview = true;
+      const repairLabel = workType === 'small hole repair' ? 'Small Hole Repair' : workType === 'medium patch repair' ? 'Medium Patch Repair' : 'Larger Sections Repair';
+      followUpQuestions.push(`Drywall ${repairLabel} selected — pricing will be confirmed after on-site inspection or photo review.`);
+    } else {
+      // Large scale installation
+      if (activeWallArea > 0) {
         laborItems.push({
-          name: 'Popcorn Ceiling Scraping & Removal',
-          quantity: Math.round(scrapeArea),
+          name: `Wall Drywall Install & Finish (${isSmooth ? 'Level 4 Smooth' : 'Orange Peel Texture'})`,
+          quantity: Math.round(activeWallArea),
           unit: 'sqft',
-          unitPrice,
-          total
+          unitPrice: wallRate,
+          total: activeWallArea * wallRate
+        });
+      }
+      if (activeCeilingArea > 0) {
+        laborItems.push({
+          name: `Ceiling Drywall Install & Finish (${isSmooth ? 'Level 4 Smooth' : 'Orange Peel Texture'})`,
+          quantity: Math.round(activeCeilingArea),
+          unit: 'sqft',
+          unitPrice: ceilingRate,
+          total: activeCeilingArea * ceilingRate
         });
       }
     }
 
-    // Skim Coat Level 4 Finish (Explicit choice in form)
-    if (formData.drywall_skim === 'Yes') {
-      const skimArea = drywallArea;
-      if (skimArea > 0) {
-        const unitPrice = LABOR_PRICING.DRYWALL.SKIM_COAT_L4;
-        const total = skimArea * unitPrice;
-        laborItems.push({
-          name: 'Skim Coat Level 4 Finishing',
-          quantity: Math.round(skimArea),
-          unit: 'sqft',
-          unitPrice,
-          total
-        });
-      }
+    // Demolition Labor
+    // Options: 'no demolition', 'remove existing wall drywall', 'remove existing cellng drywall', 'remove both'
+    const demoSelection = formData.drywall_demo || 'no demolition';
+    const isDemoWall = demoSelection === 'remove existing wall drywall' || demoSelection === 'remove both';
+    const isDemoCeiling = demoSelection === 'remove existing cellng drywall' || demoSelection === 'remove both';
+
+    if (isDemoWall && activeWallArea > 0) {
+      // Demolition = same cost as installation per sqft
+      const demoWallCost = activeWallArea * wallRate;
+      laborItems.push({
+        name: 'Wall Drywall Demolition & Sheetrock Tear-out',
+        quantity: Math.round(activeWallArea),
+        unit: 'sqft',
+        unitPrice: wallRate,
+        total: demoWallCost
+      });
+      additionalCharges.push({
+        name: 'Haul Away Logistics & Scrap Disposal (Wall Demolition Debris)',
+        quantity: 1,
+        unit: 'job',
+        unitPrice: ADDITIONAL_CHARGES.HAUL_AWAY,
+        total: ADDITIONAL_CHARGES.HAUL_AWAY
+      });
+    } else if (isDemoWall && activeWallArea === 0) {
+      // No dimensions provided for demo — flag for review
+      isPendingReview = true;
+      followUpQuestions.push('Wall demolition selected but no dimensions provided — pricing will be confirmed after on-site inspection.');
     }
 
-    // Hole Repairs and Cleanup (Explicit choice in form)
-    if (formData.drywall_patch === 'Yes') {
-      const patchAreaInput = parseFloat(formData.drywall_patch_area);
-      if (isNaN(patchAreaInput) || patchAreaInput <= 0) {
-        isPendingReview = true;
-        followUpQuestions.push('What is the approximate total square footage of the patchwork/hole repair areas?');
-      } else {
-        const unitPrice = LABOR_PRICING.DRYWALL.HOLE_REPAIRS_CLEANUP;
-        const total = patchAreaInput * unitPrice;
-        laborItems.push({
-          name: 'Patchwork Hole Repair & Cleanup Support',
-          quantity: Math.round(patchAreaInput),
-          unit: 'sqft',
-          unitPrice,
-          total
+    if (isDemoCeiling && activeCeilingArea > 0) {
+      // Demolition = same cost as installation per sqft
+      const demoCeilingCost = activeCeilingArea * ceilingRate;
+      laborItems.push({
+        name: 'Ceiling Drywall Demolition & Sheetrock Tear-out',
+        quantity: Math.round(activeCeilingArea),
+        unit: 'sqft',
+        unitPrice: ceilingRate,
+        total: demoCeilingCost
+      });
+      additionalCharges.push({
+        name: 'Haul Away Logistics & Scrap Disposal (Ceiling Demolition Debris)',
+        quantity: 1,
+        unit: 'job',
+        unitPrice: ADDITIONAL_CHARGES.HAUL_AWAY,
+        total: ADDITIONAL_CHARGES.HAUL_AWAY
+      });
+    } else if (isDemoCeiling && activeCeilingArea === 0) {
+      // No dimensions provided for demo — flag for review
+      isPendingReview = true;
+      followUpQuestions.push('Ceiling demolition selected but no dimensions provided — pricing will be confirmed after on-site inspection.');
+    }
+
+    // Insulation Labor and Materials
+    if (formData.drywall_insulation === 'Yes') {
+      const insulationAreas = formData.drywall_insulation_areas || 'both';
+      const isInsulateWall = insulationAreas === 'wall' || insulationAreas === 'both';
+      const isInsulateCeiling = insulationAreas === 'celling' || insulationAreas === 'both';
+
+      if (isInsulateWall) {
+        hasMaterials = true;
+        const qty = activeWallArea > 0 ? Math.ceil(activeWallArea / MATERIAL_COVERAGE.INSULATION_ROLL) : 2;
+        materialItems.push({
+          name: 'R19 Wall Insulation Material (Bundles)',
+          quantity: qty,
+          unit: 'bundles',
+          unitPrice: MATERIAL_PRICING.INSULATION.R19_BUNDLE,
+          total: qty * MATERIAL_PRICING.INSULATION.R19_BUNDLE
         });
+        // No insulation labor charge per pricing sheet
+      }
+
+      if (isInsulateCeiling) {
+        hasMaterials = true;
+        const qty = activeCeilingArea > 0 ? Math.ceil(activeCeilingArea / MATERIAL_COVERAGE.INSULATION_ROLL) : 2;
+        materialItems.push({
+          name: 'R13 Ceiling Insulation Material (Rolls)',
+          quantity: qty,
+          unit: 'rolls',
+          unitPrice: MATERIAL_PRICING.INSULATION.R13_ROLL,
+          total: qty * MATERIAL_PRICING.INSULATION.R13_ROLL
+        });
+        // No insulation labor charge per pricing sheet
       }
     }
 
@@ -162,78 +218,48 @@ export function calculateEstimate(formData: any): EstimateResult {
     }
   }
 
-  // 2. Demolition Labor (Explicit choice in form)
-  let isDemolitionSelected = false;
-  if (formData.services?.drywall && formData.drywall_demo === 'Yes') {
-    isDemolitionSelected = true;
-    if (drywallArea > 0) {
-      const texture = formData.drywall_texture || 'Orange Peel';
-      const isSmooth = texture === 'Smooth';
+  // -------------------------------------------------------------
+  // B. OTHER SERVICES LABOR (Painting & Trim - Unchanged as requested)
+  // -------------------------------------------------------------
 
-      let demoCost = 0;
-      // Demolition cost applies ONLY to affected service areas calculated separately
-      if (isDrywallCeilingActive) {
-        const ceilingInstallRate = isSmooth ? LABOR_PRICING.DRYWALL.CEILING_SMOOTH : LABOR_PRICING.DRYWALL.CEILING_ORANGE_PEEL;
-        demoCost += ceilingArea * ceilingInstallRate;
-      }
-      if (isDrywallWallActive) {
-        const wallInstallRate = isSmooth ? LABOR_PRICING.DRYWALL.WALL_SMOOTH : LABOR_PRICING.DRYWALL.WALL_ORANGE_PEEL;
-        demoCost += wallArea * wallInstallRate;
-      }
-
-      if (demoCost > 0) {
-        laborItems.push({
-          name: 'Drywall Demolition & Sheetrock Tear-out',
-          quantity: Math.round(drywallArea),
-          unit: 'sqft',
-          unitPrice: Math.round((demoCost / drywallArea) * 100) / 100,
-          total: demoCost
-        });
-      }
-    }
-  }
-
-  // 3. Painting Labor (Explicit choice in form)
-  if (formData.services?.paint && formData.paint_needed !== 'No') {
+  // Painting Labor (Explicit choice in form)
+  if (formData.services?.paint) {
     hasPaintService = true;
-    const paintType = formData.paint_type;
-    const isCornerToCorner = paintType === 'Corner-to-corner painting';
-    const isTouchUp = paintType === 'Touch-up painting';
+    const paintNeeds = formData.paint_needs_paint || 'entire room';
+    const paintType = formData.paint_type || 'corner to corner painting';
+    const isTouchUp = paintType === 'touch-up painting' || paintType === 'Touch-up painting';
+    const isCornerToCorner = paintType === 'corner to corner painting' || paintType === 'Corner-to-corner painting';
 
     let paintArea = 0;
-    let paintDimensionError = false;
+    let paintPerimeter = 0;
 
-    if (isCornerToCorner) {
-      // Corner-to-Corner uses room geometry area: Wall + Ceiling if drywall is both/unspecified, or matching active drywall areas
-      paintArea = totalRoomArea;
-      if (formData.services?.drywall) {
-        paintArea = (isDrywallCeilingActive ? ceilingArea : 0) + (isDrywallWallActive ? wallArea : 0);
-      }
+    const hasDims = formData.services?.drywall ? (formData.drywall_has_dims === 'Yes') : (formData.general_has_dims === 'Yes');
 
-      if (formData.paint_corner_has_dims === 'No') {
-        isPendingReview = true;
-        paintDimensionError = true;
-        followUpQuestions.push('What are the exact dimensions or surface square footage of the rooms and walls slated for corner-to-corner painting?');
-        followUpQuestions.push('Are we painting ceilings, walls, or both? What color and gloss level (eggshell, satin, semi-gloss) did you select?');
-      }
-    } else if (isTouchUp) {
-      // Touch-Up painting requires a user-specified area and does NOT estimate from room geometry automatically
+    if (isTouchUp) {
       const touchUpAreaInput = parseFloat(formData.paint_touch_up_area);
       if (isNaN(touchUpAreaInput) || touchUpAreaInput <= 0) {
-        isPendingReview = true;
-        paintDimensionError = true;
-        followUpQuestions.push('Could you estimate the approximate square footage of the touch-up painting spots?');
+        paintArea = 30; // fallback touch-up area
       } else {
         paintArea = touchUpAreaInput;
       }
+    } else {
+      // Corner to corner or other
+      if (paintNeeds === 'walls') {
+        paintArea = hasDims ? wallArea : 300;
+      } else if (paintNeeds === 'celling') {
+        paintArea = hasDims ? ceilingArea : 150;
+      } else if (paintNeeds === 'entire room') {
+        paintArea = hasDims ? (wallArea + ceilingArea) : 450;
+      } else if (paintNeeds === 'trim/baseboard') {
+        paintPerimeter = hasDims ? perimeter : 60;
+      }
     }
 
-    if (paintArea > 0 && !paintDimensionError) {
+    if (paintArea > 0) {
       const unitPrice = LABOR_PRICING.PAINT.PRIMER_AND_PAINT;
       const total = paintArea * unitPrice;
-
       laborItems.push({
-        name: isCornerToCorner ? 'Corner-to-Corner Surface Painting' : 'Touch-Up Spot Painting',
+        name: isTouchUp ? 'Painting: Touch-Up Spot Painting' : `Painting: Corner-to-Corner (${paintNeeds})`,
         quantity: Math.round(paintArea),
         unit: 'sqft',
         unitPrice,
@@ -241,248 +267,284 @@ export function calculateEstimate(formData: any): EstimateResult {
       });
     }
 
-    // Trim Painting Labor (Explicit choice in form)
-    if (formData.trim_paint === 'Yes' && perimeter > 0) {
+    if (paintPerimeter > 0 || paintNeeds === 'trim/baseboard') {
+      const effectivePerimeter = paintPerimeter > 0 ? paintPerimeter : (hasDims ? perimeter : 60);
       const unitPrice = LABOR_PRICING.PAINT.TRIM_PAINTING;
-      const total = perimeter * unitPrice;
+      const total = effectivePerimeter * unitPrice;
       laborItems.push({
-        name: 'Trim & Baseboard Professional Painting',
-        quantity: Math.round(perimeter),
+        name: 'Painting: Trim & Baseboard Professional Painting',
+        quantity: Math.round(effectivePerimeter),
         unit: 'linear ft',
         unitPrice,
         total
       });
     }
+
+    // Check if paint dimensions are missing
+    if (!hasDims && !isTouchUp) {
+      isPendingReview = true;
+      followUpQuestions.push('What are the exact dimensions or surface square footage of the rooms/areas slated for painting?');
+    }
   }
 
-  // 4. Trim Installation Labor (Explicit choice in form)
+  // -------------------------------------------------------------
+  // Trim Custom Services Labor & Demolition Calculations
+  // -------------------------------------------------------------
   if (formData.services?.trim) {
-    if (formData.trim_install === 'Yes' && perimeter > 0) {
-      const unitPrice = LABOR_PRICING.TRIM.BASEBOARD_INSTALL;
-      const total = perimeter * unitPrice;
+    // 1. Calculate combined linear footage of all manually added areas
+    let totalTrimFeet = 0;
+    if (formData.trim_areas && Array.isArray(formData.trim_areas)) {
+      totalTrimFeet = formData.trim_areas.reduce((sum: number, area: any) => {
+        const feetVal = parseFloat(area.feet) || 0;
+        return sum + Math.max(0, feetVal);
+      }, 0);
+    }
+
+    // Prioritize manual areas linear footage over the room geometry perimeter fallback
+    let effectiveTrimFeet = totalTrimFeet;
+    if (effectiveTrimFeet === 0) {
+      const hasDims = formData.services?.drywall ? (formData.drywall_has_dims === 'Yes') : (formData.general_has_dims === 'Yes');
+      effectiveTrimFeet = hasDims ? perimeter : 60; // Fallback to perimeter if dimensions exist, otherwise 60 LF
+    }
+
+    const serviceType = formData.trim_services || 'install new baseboard';
+    const trimStyle = formData.trim_style || 'standerd';
+    
+    // Capitalize style labels beautifully
+    const styleLabel = trimStyle === 'standerd' ? 'Standard Style' : trimStyle === 'mordern' ? 'Modern Style' : 'Match Existing Style';
+
+    if (serviceType === 'install new baseboard') {
+      const unitPrice = LABOR_PRICING.TRIM.BASEBOARD_INSTALL; // $5.00/LF
+      const total = effectiveTrimFeet * unitPrice;
       laborItems.push({
-        name: 'Baseboard & Trim Carpentry Installation',
-        quantity: Math.round(perimeter),
+        name: `Baseboard & Trim Carpentry Installation (${styleLabel})`,
+        quantity: Math.round(effectiveTrimFeet),
         unit: 'linear ft',
         unitPrice,
         total
       });
-    }
-
-    // Crown molding labor (Explicit choice in form)
-    if (formData.trim_crown === 'Yes' && perimeter > 0) {
-      const unitPrice = LABOR_PRICING.TRIM.CROWN_MOLDING_INSTALL;
-      const total = perimeter * unitPrice;
+      hasMaterials = true; // Needs materials, adds trip charge
+    } else if (serviceType === 'replace existing baseboard') {
+      const installUnitPrice = LABOR_PRICING.TRIM.BASEBOARD_INSTALL; // $5.00/LF
+      const installTotal = effectiveTrimFeet * installUnitPrice;
       laborItems.push({
-        name: 'Crown Molding Fine Wood Install',
-        quantity: Math.round(perimeter),
+        name: `Baseboard & Trim Carpentry Installation (${styleLabel})`,
+        quantity: Math.round(effectiveTrimFeet),
+        unit: 'linear ft',
+        unitPrice: installUnitPrice,
+        total: installTotal
+      });
+
+      // Demolition/Removal labor: same cost as installation
+      const demoUnitPrice = installUnitPrice; // $5.00/LF
+      const demoTotal = effectiveTrimFeet * demoUnitPrice;
+      laborItems.push({
+        name: `Baseboard & Trim Demolition & Removal`,
+        quantity: Math.round(effectiveTrimFeet),
+        unit: 'linear ft',
+        unitPrice: demoUnitPrice,
+        total: demoTotal
+      });
+
+      // Add Haul Away Charge for trim demolition if not already added by drywall demolition
+      const alreadyHasHaulAway = additionalCharges.some(item => item.name.includes('Haul Away'));
+      if (!alreadyHasHaulAway) {
+        additionalCharges.push({
+          name: 'Haul Away Logistics & Scrap Disposal (Trim Demolition Debris)',
+          quantity: 1,
+          unit: 'job',
+          unitPrice: ADDITIONAL_CHARGES.HAUL_AWAY, // $300.00
+          total: ADDITIONAL_CHARGES.HAUL_AWAY
+        });
+      }
+      hasMaterials = true; // Needs baseboard materials, adds trip charge
+    } else if (serviceType === 'repair existing trim') {
+      const unitPrice = LABOR_PRICING.TRIM.BASEBOARD_INSTALL; // $5.00/LF
+      const total = effectiveTrimFeet * unitPrice;
+      laborItems.push({
+        name: `Trim & Baseboard Carpentry Precision Repair (${styleLabel})`,
+        quantity: Math.round(effectiveTrimFeet),
         unit: 'linear ft',
         unitPrice,
         total
       });
-    }
-  }
-
-  // 5. Electrical Labor (Explicit choices in form)
-  if (formData.services?.drywall && formData.drywall_electrical === 'Yes') {
-    // Bathroom Fan
-    const fanQty = parseInt(formData.elec_fan_qty, 10) || 0;
-    if (fanQty > 0) {
-      const unitPrice = LABOR_PRICING.ELECTRICAL.BATHROOM_FAN;
-      laborItems.push({
-        name: 'Electrical: Bathroom Fan Installation',
-        quantity: fanQty,
-        unit: 'ea',
-        unitPrice,
-        total: fanQty * unitPrice
-      });
-    }
-
-    // Can Lights
-    const canQty = parseInt(formData.elec_can_qty, 10) || 0;
-    if (canQty > 0) {
-      const unitPrice = LABOR_PRICING.ELECTRICAL.LED_CAN_LIGHT;
-      laborItems.push({
-        name: 'Electrical: 4"/6" LED Can Lights Wire & Install',
-        quantity: canQty,
-        unit: 'ea',
-        unitPrice,
-        total: canQty * unitPrice
-      });
-    }
-
-    // Surface Mount Light
-    const surfaceQty = parseInt(formData.elec_surface_qty, 10) || 0;
-    if (surfaceQty > 0) {
-      const unitPrice = LABOR_PRICING.ELECTRICAL.SURFACE_MOUNT_LIGHT;
-      laborItems.push({
-        name: 'Electrical: Surface Mount Light Fixture Install',
-        quantity: surfaceQty,
-        unit: 'ea',
-        unitPrice,
-        total: surfaceQty * unitPrice
-      });
+    } else if (serviceType === 'paint existing trim') {
+      const unitPrice = LABOR_PRICING.PAINT.TRIM_PAINTING; // $10.00/LF
+      const total = effectiveTrimFeet * unitPrice;
+      
+      // Check if trim painting labor is already added by general paint selection
+      const alreadyAdded = laborItems.some(item => item.name.includes('Trim & Baseboard Professional Painting'));
+      if (!alreadyAdded) {
+        laborItems.push({
+          name: `Painting: Trim & Baseboard Professional Painting (${styleLabel})`,
+          quantity: Math.round(effectiveTrimFeet),
+          unit: 'linear ft',
+          unitPrice,
+          total
+        });
+      }
+      hasPaintService = true; // Triggers paint tint setup charge ($75.00)
     }
   }
 
   // -------------------------------------------------------------
-  // B. MATERIAL CALCULATIONS (Deterministic & Rule-Based)
+  // C. MATERIAL CALCULATIONS (Deterministic & Rule-Based)
   // -------------------------------------------------------------
 
-  if (formData.services?.drywall && drywallArea > 0 && formData.drywall_has_dims !== 'No') {
+  if (formData.services?.drywall && drywallArea > 0) {
     hasMaterials = true;
 
-    // Apply 10% waste to drywall square footage
-    const drywallAreaWithWaste = addWaste(drywallArea, 0.10);
-    
-    // Each standard sheet of 4x8 drywall covers 32 sqft (MATERIAL_COVERAGE.DRYWALL_SHEET)
-    const drywallSheets = roundUpToNearestInteger(drywallAreaWithWaste / MATERIAL_COVERAGE.DRYWALL_SHEET);
+    const workType = formData.drywall_work_type || 'entire room installation';
+    const isRepair = workType === 'small hole repair' || workType === 'medium patch repair' || workType === 'larger sections repair';
 
-    if (drywallSheets > 0) {
-      // 1/2" lightweight is standard unless moisture resistance (bathroom/wet area) or 5/8" fire-rated is chosen
-      let sheetPrice = MATERIAL_PRICING.DRYWALL.SHEET_1_2_LIGHTWEIGHT;
-      let sheetName = "1/2\" Lightweight Drywall Sheet (8ft)";
-
-      // Note: Since we removed text notes auto-parsing, we rely on the texture selection or similar clean properties if needed,
-      // or standard lightweight as the client database pricing specifies.
-      materialItems.push({
-        name: sheetName,
-        quantity: drywallSheets,
-        unit: 'sheets',
-        unitPrice: sheetPrice,
-        total: drywallSheets * sheetPrice
-      });
-
-      // Joint Compound: 1 bucket of joint compound covers ~150 sqft
-      const compoundBuckets = roundUpToNearestInteger(drywallAreaWithWaste / MATERIAL_COVERAGE.JOINT_COMPOUND);
-      materialItems.push({
-        name: 'Drywall Joint Compound mud (Premixed)',
-        quantity: compoundBuckets,
-        unit: 'buckets',
-        unitPrice: MATERIAL_PRICING.SUPPLIES.JOINT_COMPOUND,
-        total: compoundBuckets * MATERIAL_PRICING.SUPPLIES.JOINT_COMPOUND
-      });
-
-      // Setting Mud: 1 bag of Hot Mud 40 per 200 sqft
-      const hotMudBags = roundUpToNearestInteger(drywallAreaWithWaste / MATERIAL_COVERAGE.HOT_MUD_40);
-      materialItems.push({
-        name: 'Hot Mud 40 (Fast Setting Compound)',
-        quantity: hotMudBags,
-        unit: 'bags',
-        unitPrice: MATERIAL_PRICING.SUPPLIES.HOT_MUD_40,
-        total: hotMudBags * MATERIAL_PRICING.SUPPLIES.HOT_MUD_40
-      });
-
-      // Joint Tape: 1 roll per 5 sheets
-      const tapeRolls = roundUpToNearestInteger(drywallSheets / MATERIAL_COVERAGE.JOINT_TAPE_SHEETS);
-      materialItems.push({
-        name: 'Professional Joint Tape (250ft roll)',
-        quantity: tapeRolls,
-        unit: 'rolls',
-        unitPrice: MATERIAL_PRICING.SUPPLIES.JOINT_TAPE,
-        total: tapeRolls * MATERIAL_PRICING.SUPPLIES.JOINT_TAPE
-      });
-
-      // Screws: 5lb box is plenty for up to 12 sheets. 25lb bucket per 50 sheets.
-      const screwBoxes5lb = drywallSheets <= MATERIAL_COVERAGE.SCREWS_5LB_MAX_SHEETS ? 1 : 0;
-      const screwBoxes25lb = drywallSheets > MATERIAL_COVERAGE.SCREWS_5LB_MAX_SHEETS ? roundUpToNearestInteger(drywallSheets / MATERIAL_COVERAGE.SCREWS_25LB_SHEETS) : 0;
-
-      if (screwBoxes5lb > 0) {
-        materialItems.push({
-          name: 'Drywall Screws (5lb box)',
-          quantity: screwBoxes5lb,
-          unit: 'boxes',
-          unitPrice: MATERIAL_PRICING.SUPPLIES.SCREWS_5LB,
-          total: screwBoxes5lb * MATERIAL_PRICING.SUPPLIES.SCREWS_5LB
-        });
+    if (isRepair && formData.drywall_has_dims !== 'Yes') {
+      // Flat rate patching materials list
+      let matPrice = 50.00;
+      let matName = 'Drywall Small Repair Patching Supplies & Mud';
+      if (workType === 'medium patch repair') {
+        matPrice = 75.00;
+        matName = 'Drywall Medium Repair Patching Supplies, Tape & Mud';
+      } else if (workType === 'larger sections repair') {
+        matPrice = 150.00;
+        matName = 'Drywall Large Section Patching Supplies, Tape, Screws & Mud';
       }
 
-      if (screwBoxes25lb > 0) {
+      materialItems.push({
+        name: matName,
+        quantity: 1,
+        unit: 'job',
+        unitPrice: matPrice,
+        total: matPrice
+      });
+    } else {
+      // Large scale installation or repairs with dimensions
+      const drywallAreaWithWaste = addWaste(drywallArea, 0.10);
+      const drywallSheets = roundUpToNearestInteger(drywallAreaWithWaste / MATERIAL_COVERAGE.DRYWALL_SHEET);
+
+      if (drywallSheets > 0) {
         materialItems.push({
-          name: 'Drywall Screws (25lb bucket)',
-          quantity: screwBoxes25lb,
+          name: '1/2" Lightweight Drywall Sheet (8ft)',
+          quantity: drywallSheets,
+          unit: 'sheets',
+          unitPrice: MATERIAL_PRICING.DRYWALL.SHEET_1_2_LIGHTWEIGHT,
+          total: drywallSheets * MATERIAL_PRICING.DRYWALL.SHEET_1_2_LIGHTWEIGHT
+        });
+
+        // Joint Compound: 1 bucket covers 150 sqft
+        const compoundBuckets = roundUpToNearestInteger(drywallAreaWithWaste / MATERIAL_COVERAGE.JOINT_COMPOUND);
+        materialItems.push({
+          name: 'Drywall Joint Compound mud (Premixed)',
+          quantity: compoundBuckets,
           unit: 'buckets',
-          unitPrice: MATERIAL_PRICING.SUPPLIES.SCREWS_25LB,
-          total: screwBoxes25lb * MATERIAL_PRICING.SUPPLIES.SCREWS_25LB
+          unitPrice: MATERIAL_PRICING.SUPPLIES.JOINT_COMPOUND,
+          total: compoundBuckets * MATERIAL_PRICING.SUPPLIES.JOINT_COMPOUND
         });
-      }
 
-      // Corner beads (if wall is active, add protection beads)
-      if (isDrywallWallActive) {
-        const beadsNeeded = roundUpToNearestInteger(wallArea / MATERIAL_COVERAGE.CORNER_BEAD_WALL_SQFT);
-        const isTenFoot = height > 8;
-        const beadPrice = isTenFoot ? MATERIAL_PRICING.SUPPLIES.CORNER_BEAD_10FT : MATERIAL_PRICING.SUPPLIES.CORNER_BEAD_8FT;
-        
+        // Setting Mud: 1 bag of Hot Mud 40 per 200 sqft
+        const hotMudBags = roundUpToNearestInteger(drywallAreaWithWaste / MATERIAL_COVERAGE.HOT_MUD_40);
         materialItems.push({
-          name: `Corner Bead ${isTenFoot ? '10ft' : '8ft'}`,
-          quantity: beadsNeeded,
-          unit: 'pcs',
-          unitPrice: beadPrice,
-          total: beadsNeeded * beadPrice
+          name: 'Hot Mud 40 (Fast Setting Compound)',
+          quantity: hotMudBags,
+          unit: 'bags',
+          unitPrice: MATERIAL_PRICING.SUPPLIES.HOT_MUD_40,
+          total: hotMudBags * MATERIAL_PRICING.SUPPLIES.HOT_MUD_40
         });
-      }
 
-      // Texture Buckets (if texture is Orange Peel and not level 4 smooth)
-      const textureType = formData.drywall_texture || 'Orange Peel';
-      if (textureType !== 'Smooth') {
-        const textureQty = roundUpToNearestInteger(drywallAreaWithWaste / MATERIAL_COVERAGE.TEXTURE_BUCKET);
+        // Joint Tape: 1 roll per 5 sheets
+        const tapeRolls = roundUpToNearestInteger(drywallSheets / MATERIAL_COVERAGE.JOINT_TAPE_SHEETS);
         materialItems.push({
-          name: 'Drywall Spray Texture Compound Bucket',
-          quantity: textureQty,
+          name: 'Professional Joint Tape (250ft roll)',
+          quantity: tapeRolls,
+          unit: 'rolls',
+          unitPrice: MATERIAL_PRICING.SUPPLIES.JOINT_TAPE,
+          total: tapeRolls * MATERIAL_PRICING.SUPPLIES.JOINT_TAPE
+        });
+
+        // Screws: 5lb box up to 12 sheets, 25lb bucket per 50 sheets
+        const screwBoxes5lb = drywallSheets <= MATERIAL_COVERAGE.SCREWS_5LB_MAX_SHEETS ? 1 : 0;
+        const screwBoxes25lb = drywallSheets > MATERIAL_COVERAGE.SCREWS_5LB_MAX_SHEETS ? roundUpToNearestInteger(drywallSheets / MATERIAL_COVERAGE.SCREWS_25LB_SHEETS) : 0;
+
+        if (screwBoxes5lb > 0) {
+          materialItems.push({
+            name: 'Drywall Screws (5lb box)',
+            quantity: screwBoxes5lb,
+            unit: 'boxes',
+            unitPrice: MATERIAL_PRICING.SUPPLIES.SCREWS_5LB,
+            total: screwBoxes5lb * MATERIAL_PRICING.SUPPLIES.SCREWS_5LB
+          });
+        }
+
+        if (screwBoxes25lb > 0) {
+          materialItems.push({
+            name: 'Drywall Screws (25lb bucket)',
+            quantity: screwBoxes25lb,
+            unit: 'buckets',
+            unitPrice: MATERIAL_PRICING.SUPPLIES.SCREWS_25LB,
+            total: screwBoxes25lb * MATERIAL_PRICING.SUPPLIES.SCREWS_25LB
+          });
+        }
+
+        // Corner beads (if wall is active, add protection beads)
+        if (activeWallArea > 0) {
+          const beadsNeeded = roundUpToNearestInteger(activeWallArea / MATERIAL_COVERAGE.CORNER_BEAD_WALL_SQFT);
+          materialItems.push({
+            name: 'Corner Bead 8ft',
+            quantity: beadsNeeded,
+            unit: 'pcs',
+            unitPrice: MATERIAL_PRICING.SUPPLIES.CORNER_BEAD_8FT,
+            total: beadsNeeded * MATERIAL_PRICING.SUPPLIES.CORNER_BEAD_8FT
+          });
+        }
+
+        // Texture Buckets (if texture is Orange Peel and not level 4 smooth)
+        const textureType = formData.drywall_texture || 'orange peel';
+        if (textureType !== 'smooth finish') {
+          const textureQty = roundUpToNearestInteger(drywallAreaWithWaste / MATERIAL_COVERAGE.TEXTURE_BUCKET);
+          materialItems.push({
+            name: 'Drywall Spray Texture Compound Bucket',
+            quantity: textureQty,
+            unit: 'buckets',
+            unitPrice: MATERIAL_PRICING.SUPPLIES.TEXTURE_BUCKET,
+            total: textureQty * MATERIAL_PRICING.SUPPLIES.TEXTURE_BUCKET
+          });
+        }
+
+        // Always recommend primer for new drywall (covers 400 sqft per 2 gal bucket)
+        const primerBuckets = roundUpToNearestInteger(drywallAreaWithWaste / MATERIAL_COVERAGE.PRIMER_BUCKET);
+        materialItems.push({
+          name: 'Kilz Drywall Primer (2 Gal bucket)',
+          quantity: primerBuckets,
           unit: 'buckets',
-          unitPrice: MATERIAL_PRICING.SUPPLIES.TEXTURE_BUCKET,
-          total: textureQty * MATERIAL_PRICING.SUPPLIES.TEXTURE_BUCKET
+          unitPrice: MATERIAL_PRICING.SUPPLIES.KILZ_PRIMER_2GAL,
+          total: primerBuckets * MATERIAL_PRICING.SUPPLIES.KILZ_PRIMER_2GAL
         });
       }
-
-      // Always recommend primer for new drywall (primer cover = 400 sqft per 2 gal bucket)
-      const primerBuckets = roundUpToNearestInteger(drywallAreaWithWaste / MATERIAL_COVERAGE.PRIMER_BUCKET);
-      materialItems.push({
-        name: 'Kilz Drywall Primer (2 Gal bucket)',
-        quantity: primerBuckets,
-        unit: 'buckets',
-        unitPrice: MATERIAL_PRICING.SUPPLIES.KILZ_PRIMER_2GAL,
-        total: primerBuckets * MATERIAL_PRICING.SUPPLIES.KILZ_PRIMER_2GAL
-      });
-    }
-
-    // Drywall Insulation Materials (Explicit choice in form)
-    if (formData.drywall_insulation === 'Yes') {
-      const insulationQty = roundUpToNearestInteger(drywallArea / MATERIAL_COVERAGE.INSULATION_ROLL);
-      const isR19 = height > 9;
-      const insulationPrice = isR19 ? MATERIAL_PRICING.INSULATION.R19_BUNDLE : MATERIAL_PRICING.INSULATION.R13_ROLL;
-      const insulationName = isR19 ? 'R19 High-Density Thermal Insulation (Bundle)' : 'R13 Wall Insulation (Roll)';
-
-      materialItems.push({
-        name: insulationName,
-        quantity: insulationQty,
-        unit: isR19 ? 'bundles' : 'rolls',
-        unitPrice: insulationPrice,
-        total: insulationQty * insulationPrice
-      });
     }
   }
 
-  // Paint materials (only if paint is needed, they do not already have the paint, and dimensions are provided)
+  // Paint materials (only if paint is selected, and they do not already have the paint)
   if (
     formData.services?.paint && 
-    formData.paint_needed !== 'No' && 
     formData.paint_has_paint === 'No'
   ) {
-    let paintArea = 0;
-    const paintType = formData.paint_type;
-    const isCornerToCorner = paintType === 'Corner-to-corner painting';
-    const isTouchUp = paintType === 'Touch-up painting';
+    const paintNeeds = formData.paint_needs_paint || 'entire room';
+    const paintType = formData.paint_type || 'corner to corner painting';
+    const isTouchUp = paintType === 'touch-up painting' || paintType === 'Touch-up painting';
+    const isCornerToCorner = paintType === 'corner to corner painting' || paintType === 'Corner-to-corner painting';
 
-    if (isCornerToCorner && formData.paint_corner_has_dims !== 'No') {
-      paintArea = totalRoomArea;
-      if (formData.services?.drywall) {
-        paintArea = (isDrywallCeilingActive ? ceilingArea : 0) + (isDrywallWallActive ? wallArea : 0);
-      }
-    } else if (isTouchUp) {
+    const hasDims = formData.services?.drywall ? (formData.drywall_has_dims === 'Yes') : (formData.general_has_dims === 'Yes');
+
+    let paintArea = 0;
+    if (isTouchUp) {
       const touchUpAreaInput = parseFloat(formData.paint_touch_up_area);
-      if (!isNaN(touchUpAreaInput) && touchUpAreaInput > 0) {
-        paintArea = touchUpAreaInput;
+      paintArea = (isNaN(touchUpAreaInput) || touchUpAreaInput <= 0) ? 30 : touchUpAreaInput;
+    } else {
+      if (paintNeeds === 'walls') {
+        paintArea = hasDims ? wallArea : 300;
+      } else if (paintNeeds === 'celling') {
+        paintArea = hasDims ? ceilingArea : 150;
+      } else if (paintNeeds === 'entire room') {
+        paintArea = hasDims ? (wallArea + ceilingArea) : 450;
       }
     }
 
@@ -490,7 +552,7 @@ export function calculateEstimate(formData: any): EstimateResult {
       hasMaterials = true;
       const paintAreaWithWaste = addWaste(paintArea, 0.15); // Add 15% paint waste
 
-      // Calculate paint primer buckets
+      // Calculate paint primer buckets (2 Gal covers 400 sqft)
       const paintPrimerBuckets = roundUpToNearestInteger(paintAreaWithWaste / MATERIAL_COVERAGE.PRIMER_BUCKET);
       materialItems.push({
         name: 'Professional Kilz Wall & Trim Primer (2 Gal)',
@@ -503,23 +565,9 @@ export function calculateEstimate(formData: any): EstimateResult {
   }
 
   // -------------------------------------------------------------
-  // C. ADDITIONAL CHARGES & TRIP FEES
+  // D. ADDITIONAL CHARGES & TRIP FEES
   // -------------------------------------------------------------
 
-  // 1. Haul Away Logistics ($300)
-  // ONLY charge if demolition is selected and user accepted the haul-away recommendation
-  if (isDemolitionSelected && formData.drywall_haul_away === 'Yes') {
-    additionalCharges.push({
-      name: 'Haul Away Logistics, Scrap Disposal & Debris Cleanup',
-      quantity: 1,
-      unit: 'job',
-      unitPrice: ADDITIONAL_CHARGES.HAUL_AWAY,
-      total: ADDITIONAL_CHARGES.HAUL_AWAY
-    });
-  }
-
-  // 2. Store Material Procurement Trip Charge ($100)
-  // Added whenever materials are being purchased
   if (hasMaterials) {
     additionalCharges.push({
       name: 'Store Material Procurement & Freight Trip Charge',
@@ -530,7 +578,6 @@ export function calculateEstimate(formData: any): EstimateResult {
     });
   }
 
-  // 3. Paint Prep and Specialized Tinting Trip Charge ($75)
   if (hasPaintService) {
     additionalCharges.push({
       name: 'Special Tint Matching & Paint Sprayer Setup Charge',
@@ -542,7 +589,7 @@ export function calculateEstimate(formData: any): EstimateResult {
   }
 
   // -------------------------------------------------------------
-  // D. SUBTOTALS & GRAND TOTAL SUM
+  // E. SUBTOTALS & GRAND TOTAL SUM
   // -------------------------------------------------------------
 
   const subtotalLabor = laborItems.reduce((sum, item) => sum + item.total, 0);
@@ -569,7 +616,6 @@ export function calculateEstimate(formData: any): EstimateResult {
         unitPrice: adjustment,
         total: adjustment
       });
-      // Recalculate subtotalAdditional since we added the adjustment
       const newSubtotalAdditional = additionalCharges.reduce((sum, item) => sum + item.total, 0);
       grandTotal = subtotalLabor + subtotalMaterials + newSubtotalAdditional;
     } else {

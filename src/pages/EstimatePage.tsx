@@ -23,7 +23,7 @@ export default function EstimatePage() {
 
   useEffect(() => {
     try {
-      const stored = sessionStorage.getItem('fcd_estimate_data')
+      const stored = localStorage.getItem('fcd_estimate_data')
       if (stored) {
         setData(JSON.parse(stored))
       }
@@ -290,138 +290,6 @@ export default function EstimatePage() {
 
           {/* Tables Breakdowns */}
           <div className="estimate-tables-container" style={{ display: 'flex', flexDirection: 'column', gap: '35px' }}>
-            
-            {/* 1. Labor Breakdown */}
-            {estimate.labor.length > 0 && (
-              <div className="estimate-section">
-                <h4 style={{
-                  fontSize: '0.95rem',
-                  fontWeight: 800,
-                  color: '#2faeff',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  margin: '0 0 12px 0',
-                  paddingBottom: '6px',
-                  borderBottom: '1px solid #e2e8f0'
-                }}>
-                  Labor Breakdown
-                </h4>
-                <table className="estimate-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <th style={{ textAlign: 'left', padding: '10px 12px', color: '#64748b', fontWeight: 700 }}>Description</th>
-                      <th className="qty" style={{ textAlign: 'center', padding: '10px 12px', color: '#64748b', fontWeight: 700, width: '70px' }}>Qty</th>
-                      <th className="unit" style={{ textAlign: 'center', padding: '10px 12px', color: '#64748b', fontWeight: 700, width: '90px' }}>Unit</th>
-                      <th className="price" style={{ textAlign: 'right', padding: '10px 12px', color: '#64748b', fontWeight: 700, width: '100px' }}>Price</th>
-                      <th className="total" style={{ textAlign: 'right', padding: '10px 12px', color: '#0f172a', fontWeight: 700, width: '110px' }}>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {estimate.labor.map((item, idx) => (
-                      <tr key={`lab-${idx}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '12px', color: '#0f172a' }}>{item.name}</td>
-                        <td className="qty" style={{ textAlign: 'center', padding: '12px', color: '#0f172a' }}>{item.quantity}</td>
-                        <td className="unit" style={{ textAlign: 'center', padding: '12px', color: '#64748b' }}>{item.unit}</td>
-                        <td className="price" style={{ textAlign: 'right', padding: '12px', color: '#0f172a' }}>${item.unitPrice.toFixed(2)}</td>
-                        <td className="total" style={{ textAlign: 'right', padding: '12px', fontWeight: 700, color: '#0f172a' }}>${item.total.toFixed(2)}</td>
-                      </tr>
-                    ))}
-                    <tr className="subtotal-row" style={{ background: '#f8fafc', fontWeight: 700, borderTop: '1px solid #e2e8f0' }}>
-                      <td colSpan={4} style={{ padding: '12px', color: '#0f172a', textAlign: 'right' }}>Labor Subtotal:</td>
-                      <td className="total" style={{ textAlign: 'right', padding: '12px', color: '#2faeff' }}>${estimate.subtotalLabor.toFixed(2)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* 2. Materials Breakdown */}
-            {estimate.materials.length > 0 && (
-              <div className="estimate-section">
-                <h4 style={{
-                  fontSize: '0.95rem',
-                  fontWeight: 800,
-                  color: '#2faeff',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  margin: '0 0 12px 0',
-                  paddingBottom: '6px',
-                  borderBottom: '1px solid #e2e8f0'
-                }}>
-                  Materials Breakdown (Includes Waste Multipliers)
-                </h4>
-                <table className="estimate-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <th style={{ textAlign: 'left', padding: '10px 12px', color: '#64748b', fontWeight: 700 }}>Description</th>
-                      <th className="qty" style={{ textAlign: 'center', padding: '10px 12px', color: '#64748b', fontWeight: 700, width: '70px' }}>Qty</th>
-                      <th className="unit" style={{ textAlign: 'center', padding: '10px 12px', color: '#64748b', fontWeight: 700, width: '90px' }}>Unit</th>
-                      <th className="price" style={{ textAlign: 'right', padding: '10px 12px', color: '#64748b', fontWeight: 700, width: '100px' }}>Price</th>
-                      <th className="total" style={{ textAlign: 'right', padding: '10px 12px', color: '#0f172a', fontWeight: 700, width: '110px' }}>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {estimate.materials.map((item, idx) => (
-                      <tr key={`mat-${idx}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '12px', color: '#0f172a' }}>{item.name}</td>
-                        <td className="qty" style={{ textAlign: 'center', padding: '12px', color: '#0f172a' }}>{item.quantity}</td>
-                        <td className="unit" style={{ textAlign: 'center', padding: '12px', color: '#64748b' }}>{item.unit}</td>
-                        <td className="price" style={{ textAlign: 'right', padding: '12px', color: '#0f172a' }}>${item.unitPrice.toFixed(2)}</td>
-                        <td className="total" style={{ textAlign: 'right', padding: '12px', fontWeight: 700, color: '#0f172a' }}>${item.total.toFixed(2)}</td>
-                      </tr>
-                    ))}
-                    <tr className="subtotal-row" style={{ background: '#f8fafc', fontWeight: 700, borderTop: '1px solid #e2e8f0' }}>
-                      <td colSpan={4} style={{ padding: '12px', color: '#0f172a', textAlign: 'right' }}>Materials Subtotal:</td>
-                      <td className="total" style={{ textAlign: 'right', padding: '12px', color: '#2faeff' }}>${estimate.subtotalMaterials.toFixed(2)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* 3. Logistics & Trip Charges */}
-            {estimate.additionalCharges.length > 0 && (
-              <div className="estimate-section">
-                <h4 style={{
-                  fontSize: '0.95rem',
-                  fontWeight: 800,
-                  color: '#2faeff',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  margin: '0 0 12px 0',
-                  paddingBottom: '6px',
-                  borderBottom: '1px solid #e2e8f0'
-                }}>
-                  Logistics &amp; Trip Charges
-                </h4>
-                <table className="estimate-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <th style={{ textAlign: 'left', padding: '10px 12px', color: '#64748b', fontWeight: 700 }}>Description</th>
-                      <th className="qty" style={{ textAlign: 'center', padding: '10px 12px', color: '#64748b', fontWeight: 700, width: '70px' }}>Qty</th>
-                      <th className="unit" style={{ textAlign: 'center', padding: '10px 12px', color: '#64748b', fontWeight: 700, width: '90px' }}>Unit</th>
-                      <th className="price" style={{ textAlign: 'right', padding: '10px 12px', color: '#64748b', fontWeight: 700, width: '100px' }}>Price</th>
-                      <th className="total" style={{ textAlign: 'right', padding: '10px 12px', color: '#0f172a', fontWeight: 700, width: '110px' }}>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {estimate.additionalCharges.map((item, idx) => (
-                      <tr key={`add-${idx}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '12px', color: '#0f172a' }}>{item.name}</td>
-                        <td className="qty" style={{ textAlign: 'center', padding: '12px', color: '#0f172a' }}>{item.quantity}</td>
-                        <td className="unit" style={{ textAlign: 'center', padding: '12px', color: '#64748b' }}>{item.unit}</td>
-                        <td className="price" style={{ textAlign: 'right', padding: '12px', color: '#0f172a' }}>${item.unitPrice.toFixed(2)}</td>
-                        <td className="total" style={{ textAlign: 'right', padding: '12px', fontWeight: 700, color: '#0f172a' }}>${item.total.toFixed(2)}</td>
-                      </tr>
-                    ))}
-                    <tr className="subtotal-row" style={{ background: '#f8fafc', fontWeight: 700, borderTop: '1px solid #e2e8f0' }}>
-                      <td colSpan={4} style={{ padding: '12px', color: '#0f172a', textAlign: 'right' }}>Logistics Subtotal:</td>
-                      <td className="total" style={{ textAlign: 'right', padding: '12px', color: '#2faeff' }}>${estimate.subtotalAdditional.toFixed(2)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            )}
 
             {/* 4. Final Estimation Summary Card */}
             <div className="estimate-final-summary" style={{

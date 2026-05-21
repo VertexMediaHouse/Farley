@@ -269,14 +269,12 @@ FINAL CALCULATION (show this work explicitly before the total line):
     setIsTyping(true);
 
     try {
-      const apiKey = import.meta.env.VITE_OPENAI_KEY || import.meta.env.REACT_APP_OPENAI_KEY;
       const prompt = chatMode === 'estimator' ? ESTIMATOR_PROMPT : GENERAL_PROMPT;
       
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('/.netlify/functions/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           model: 'gpt-4o',
