@@ -530,21 +530,34 @@ export default function HomePage() {
         console.error('Failed to store estimate in localStorage', e)
       }
 
-      // Upload photos to Google Drive if any were selected
-      if (uploadedFiles.length > 0) {
-        setIsUploading(true)
-        try {
-          const uploadResult = await uploadFilesToDrive(uploadedFiles)
-          console.log('Photos uploaded to Drive folder:', uploadResult.folderCreated)
-        } catch (err) {
-          console.error('Photo upload failed:', err)
-          // Still proceed to estimate page even if upload fails
-        } finally {
-          setIsUploading(false)
-        }
+      // If no files to upload, just open the tab immediately
+      if (uploadedFiles.length === 0) {
+        window.open('/estimate', '_blank')
+        return;
       }
 
-      window.open('/estimate', '_blank')
+      // If we have files, we MUST open the new tab synchronously before the 'await', 
+      // otherwise browsers (like Safari/Chrome) will block the popup or alter its behavior.
+      const newTab = window.open('about:blank', '_blank');
+      if (newTab) {
+        newTab.document.write('<html><head><title>Loading...</title></head><body style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;color:#334155;"><h3>Uploading Photos & Generating Quote...</h3></body></html>');
+      }
+
+      setIsUploading(true)
+      try {
+        const uploadResult = await uploadFilesToDrive(uploadedFiles)
+        console.log('Photos uploaded to Drive folder:', uploadResult.folderCreated)
+      } catch (err) {
+        console.error('Photo upload failed:', err)
+      } finally {
+        setIsUploading(false)
+        if (newTab) {
+          newTab.location.href = '/estimate'
+        } else {
+          // Fallback if popup blocker completely prevented the tab from opening
+          window.location.href = '/estimate'
+        }
+      }
     }
   }
 
