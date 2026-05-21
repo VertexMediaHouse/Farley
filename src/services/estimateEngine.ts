@@ -32,7 +32,6 @@ export function calculateEstimate(formData: any): EstimateResult {
   const ceilingArea = calculateCeilingArea(length, width);
   const wallArea = calculateWallArea(length, width, height);
   const perimeter = calculatePerimeter(length, width);
-  const totalRoomArea = ceilingArea + wallArea;
 
   const laborItems: EstimateLineItem[] = [];
   const materialItems: EstimateLineItem[] = [];
@@ -228,7 +227,6 @@ export function calculateEstimate(formData: any): EstimateResult {
     const paintNeeds = formData.paint_needs_paint || 'entire room';
     const paintType = formData.paint_type || 'corner to corner painting';
     const isTouchUp = paintType === 'touch-up painting' || paintType === 'Touch-up painting';
-    const isCornerToCorner = paintType === 'corner to corner painting' || paintType === 'Corner-to-corner painting';
 
     let paintArea = 0;
     let paintPerimeter = 0;
@@ -530,7 +528,6 @@ export function calculateEstimate(formData: any): EstimateResult {
     const paintNeeds = formData.paint_needs_paint || 'entire room';
     const paintType = formData.paint_type || 'corner to corner painting';
     const isTouchUp = paintType === 'touch-up painting' || paintType === 'Touch-up painting';
-    const isCornerToCorner = paintType === 'corner to corner painting' || paintType === 'Corner-to-corner painting';
 
     const hasDims = formData.services?.drywall ? (formData.drywall_has_dims === 'Yes') : (formData.general_has_dims === 'Yes');
 
