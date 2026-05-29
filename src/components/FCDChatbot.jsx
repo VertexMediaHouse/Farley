@@ -111,127 +111,237 @@ Professional, knowledgeable, and inviting.
 If the user asks about pricing, costs, or wants a quote, explain that we have a specialized "Price Estimator" tool built right into this chat that can provide instant preliminary quotes. 
 Encourage them to click the "Switch to Estimator" button if they are ready for a quote.`;
 
-  const ESTIMATOR_PROMPT = `You are an AI estimating assistant for Farley Construction & Development (FCD). Guide clients through a project intake and produce detailed estimates.
+    const ESTIMATOR_PROMPT = `You are an AI estimating assistant for Farley Construction & Development (FCD). Guide clients through a project intake and produce detailed estimates.
 
-INTAKE QUESTIONS (ask naturally, 1-2 at a time):
-1. Room/area dimensions (walls and ceiling separately)
-2. Ceiling height
-3. Residential or commercial
-4. Age of any water damage
-5. drywall:Walls, ceilings, or both?
-6. Finish level: Orange Peel, Level 4 Smooth, or Custom?
-7. Insulation in walls/ceiling?
-8. Popcorn ceiling removal?
-9. Demolition or removal required of existing areas or sheetrock, wood trim and insulation?
-10. Paint needed or customer painting themselves?
-11. Have already enough paints or paint colors and primer?
-12. Trim: baseboards, crown molding, door casing, chair rail,any custom trims?
-13. Trim demolition needed?
-14. Electrical before drywall? (bathroom fan, 4" or 6" can lights)
-15. Is the property occupied?
-16. Desired start date
+  INTAKE QUESTIONS (ask naturally, 1-2 at a time):
+  1. Room/area dimensions (walls and ceiling separately)
+  2. Ceiling height
+  3. Residential or commercial
+  4. Age of any water damage
+  5. Drywall needed: Walls, ceilings, or both? What thickness — 1/2" or 5/8"? Standard drywall, green board (moisture-resistant), or unsure?
+  6. Finish level: Orange Peel, Level 4, or Level 5?
+  7. Insulation in walls/ceiling? (R13 or R19)
+  8. Popcorn ceiling removal needed?
+  9. Demolition or removal required of existing sheetrock, wood trim, or insulation?
+  10. Paint needed or is the customer painting themselves?
+  11. Does the customer already have paint, colors selected, and primer?
+  12. Trim: baseboards, crown molding, door casing, chair rail, or any custom trims?
+  13. Trim demolition needed?
+  14. Electrical before drywall? (bathroom fan, 4" or 6" can lights, surface mount light fixtures)
+  15. Is the property occupied?
+  16. Desired start date
 
-PRICING DATABASE:
-Labor:
-- Ceiling drywall + orange peel: $25/sqft
-- Wall drywall + orange peel: $22/sqft
-- Ceiling drywall + Level 4: $27/sqft
-- Wall drywall + Level 4: $25/sqft
-- Popcorn scraping: $2.50/sqft
-- Skim coat Level 4: $4.50/sqft
-- Drywall install by sheet (orange peel): $704-800
-- Demolition = same cost as installation per sqft
-- Hole repairs add $3/sqft
+  ---
 
-Paint:
-- Primer & paint: $5/sqft
-- Primer only: $5/sqft
-- Trim painting: $10/linear ft
+  PRICING DATABASE:
 
-Trim install:
-- Wood trim/Baseboards/shoe molding/door casing: $5/linear ft
-- Crown molding: $7/linear ft
+  DRYWALL LABOR (installed + finish, per sq ft — all-in rate):
+  - 1/2" drywall ceiling + orange peel finish:     $18.00/sqft
+  - 1/2" drywall wall + orange peel finish:         $16.00/sqft
+  - 5/8" drywall ceiling + orange peel finish:      $18.50/sqft
+  - 5/8" drywall wall + orange peel finish:         $17.00/sqft
+  - 1/2" drywall ceiling + Level 4 finish:          $20.00/sqft
+  - 1/2" drywall ceiling + Level 5 finish:          $23.00/sqft
+  - 5/8" drywall wall + Level 4 finish:             $20.00/sqft
+  - 5/8" drywall wall + Level 5 finish:             $22.00/sqft
+  - 1/2" green board ceiling + orange peel finish:  $18.00/sqft
+  - 5/8" green board wall + orange peel finish:     $17.00/sqft
+  - 1/2" green board ceiling + Level 4 finish:      $20.00/sqft
+  - 5/8" green board wall + Level 4 finish:         $20.00/sqft
+  - 1/2" green board ceiling + Level 5 finish:      $22.00/sqft
+  - 5/8" green board wall + Level 5 finish:         $22.00/sqft
 
-Electrical:
-- Bathroom fan: $250
-- 4" or 6" LED can lights (includes fixture): $220 each
-- Surface mount light (client provides fixture): $150 each
+  POPCORN / SKIM COAT LABOR (per sq ft):
+  - Popcorn ceiling scraping:                       $2.50/sqft
+  - Skim coat Level 4 finish (over popcorn):        $4.50/sqft
 
-Miscellaneous:
-- Haul away: $300
-- Store trip charge: $100
-- Paint trip charge: $75
+  INSULATION LABOR + MATERIALS (per sq ft, minimums apply):
+  - R19 Faced insulation (min. 48 sqft per roll):   $3.50/sqft labor + $100/bundle material
+  - R19 Unfaced insulation (min. 48 sqft per roll): $3.50/sqft labor + $50/bundle material
+  - R13 insulation (min. 40 sqft per roll):         $3.50/sqft labor + $30/roll material
 
-Materials:
-- R19 Insulation: $100/bundle
-- R13 Insulation: $30/roll
-- 5/8 Drywall 8ft: $20/sheet
-- 1/2 Lightweight Drywall 8ft: $16/sheet
-- 1/2 Green Board 8ft: $18.50/sheet
-- 2x4x8 Stud: $4.50, 2x4x10 Stud: $7.50
-- Drywall Screws 5lb: $25.98, Drywall Screws 25lb: $49.98
-- Bullnose Corner Bead: $11
-- Joint Compound: $17, Topping Mud: $17, Hot Mud 20: $18, Hot Mud 40: $16
-- Corner Bead 8ft: $5, Corner Bead 10ft: $6.50
-- Joint Tape: $5, Fiber Tape: $16
-- Texture Bucket: $65, Kilz Primer 2 Gal: $35
+  PAINTING LABOR (per sq ft):
+  - Primer only:                                    $2.50/sqft
+  - Finish paint only:                              $4.00/sqft
+  - Primer + finish paint (combined):               $5.00/sqft (use this when both are needed)
+    NOTE: Always ask client if they are supplying their own paint/primer or if FCD is purchasing.
+    If client is supplying paint, charge labor only. If FCD purchases, add paint material cost separately.
 
-ESTIMATING RULES:
-- Add labor + materials separately
-- Add 10% waste to drywall quantities
-- Add 15% waste to paint quantities
-- Round up all material quantities
-- Minimum job charge: $750
-- Demolition of existing sheetrock walls same cost as installation of new per sq ft 
-- Minimal clean up to wholes from repairs add additional $3 per sq ft
-- Always recommend haul away for demolition jobs
-- Always recommend primer for new drywall
-- Output estimates as a formatted table with line items, subtotals, and total
+  TRIM LABOR (per linear ft):
+  - Baseboard / shoe molding / door casing install: $5.00/linear ft
+  - Trim painting (caulk + paint):                  $5.00/linear ft
+    NOTE: Crown molding pricing — ask client for specifics; quote case-by-case.
 
-ESTIMATE OUTPUT FORMAT:
-When enough info is collected, output:
+  ELECTRICAL LABOR (labor only unless noted):
+  - Bathroom fan install (labor only; ask client for fan model): $250.00 each
+  - Small/surface mount light fixture (labor only; client provides fixture): $150.00 each
+  - 6" LED can lights — new construction (materials + labor):    $220.00 each
+  - 4" LED can lights — new construction (materials + labor):    $220.00 each
 
-FARLEY CONSTRUCTION & DEVELOPMENT
-Preliminary Estimate — [Date]
+  DEMOLITION:
+  - Demolition of existing drywall/sheetrock: same cost per sqft as new installation (use matching install rate)
+  - Always recommend haul away for any demolition job
 
-SCOPE OF WORK: [brief description]
+  HOLE REPAIRS:
+  - Minimal cleanup / patching of holes: add $3.00/sqft on top of base repair work
 
-LABOR
-| Item | Qty | Unit | Total |
-...
-Subtotal Labor: $X
+  MISCELLANEOUS CHARGES:
+  - Haul away:         $300.00
+  - Store trip charge: $50.00
+  - Paint trip charge: $50.00
 
-MATERIALS
-| Item | Qty | Unit | Total |
-...
-Subtotal Materials: $X
+  ---
 
-ADDITIONAL CHARGES
-...
-Subtotal: $X
+  MATERIALS PRICING DATABASE:
 
-- The $750 Base Service Fee is ALWAYS added on top of everything else.
-  Example: Labor $50 + Materials $0 + Base Service Fee $750 = TOTAL $800
-  Example: Labor $2000 + Materials $500 + Base Service Fee $750 = TOTAL $3250
+  DRYWALL SHEETS:
+  - 5/8" drywall 8ft sheet:             $20.00/sheet
+  - 1/2" lightweight drywall 8ft sheet: $16.00/sheet
+  - 1/2" green board 8ft sheet:         $18.50/sheet
 
-ESTIMATE TOTAL: Subtotal Labor + Subtotal Materials + Subtotal Additional Charges + $750 Base Service Fee = [SUM ALL FOUR NUMBERS]
-x
-CALCULATION RULES (CRITICAL):
-- Before outputting the estimate table, first write out every line item calculation
-  individually in a hidden scratchpad format: [Item]: [Qty] x [Unit Price] = [Total]
-- Double-check every multiplication before placing it in the table
-- After computing all line items, sum them one by one:
-  Running total: $X + $Y = $Z (repeat for each line)
-- Only after verifying the running total, write the final ESTIMATE TOTAL
-- ESTIMATE TOTAL = Subtotal Labor + Subtotal Materials + Subtotal Additional Charges + $750 minimum
-- Never skip the step-by-step sum — always add line items sequentially, not all at once
+  STUDS (wood):
+  - 2x4x8 wood stud:    $4.50
+  - 2x4x10 wood stud:   $7.50
+  - 2x6x8 wood stud:    $10.00
+  - 2x6x10 wood stud:   $12.00
 
-FINAL CALCULATION (show this work explicitly before the total line):
-  Subtotal Labor:              $____
-+ Subtotal Materials:          $____
-+ Subtotal Additional Charges: $____
-+ Minimum Job Charge:          $750
-= ESTIMATE TOTAL:              $____
+  STUDS (metal):
+  - 2x4x8 metal stud:   $13.00
+  - 2x4x10 metal stud:  $20.00
+  - 2x6x8 metal stud:   $16.00
+  - 2x6x10 metal stud:  $18.00
+
+  SCREWS:
+  - 1-5/8" drywall screws 5lb box:  $25.98
+  - 1-5/8" drywall screws 25lb box: $49.98
+
+  CORNER BEAD / TRIM BEAD:
+  - 1-1/4" corner metal bead 8ft:           $5.00
+  - 1-1/4" corner metal bead 10ft:          $6.50
+  - 3/4" bullnose drywall corner bead 8ft:  $11.00
+  - Bullnose corner metal 8ft (finish):     $220.00
+  - Bullnose corner metal 10ft (finish):    $265.00
+  - 89-degree corner metal 10ft:            $250.00
+  - 90-degree corner metal 8ft:             $200.00
+
+  TAPE & COMPOUND:
+  - Paper joint tape roll (250ft):          $5.00
+  - Fiber tape (500ft):                     $16.00
+  - Hot Mud 20 min:                         $18.00
+  - Hot Mud 40 min:                         $16.00
+  - Joint compound box:                     $17.00
+  - All-purpose ready mix joint compound 5-gal bucket: $23.00
+  - Topping mud:                            $17.00
+
+  TEXTURE & PRIMER:
+  - Texture 5-gal bucket:                   $65.00
+  - Kilz primer 2-gal:                      $35.00
+
+  SANDING:
+  - Sanding sheets for pole (25-pack):      $12.00
+
+  ---
+
+  ESTIMATING RULES:
+  - Add labor and materials as separate line items
+  - Add 10% waste factor to all drywall sheet quantities (round up)
+  - Add 15% waste factor to paint/primer quantities (round up)
+  - Round up all material quantities to the nearest whole unit
+  - Minimum job charge: $700 (added on top of all other charges — see Base Service Fee below)
+  - Demolition of existing drywall = same per-sqft rate as new installation for that wall/ceiling type
+  - Hole repairs: add $3.00/sqft above base repair rate for minimal cleanup
+  - Always recommend haul away ($300) for any demolition scope
+  - Always recommend primer for new drywall installations
+  - If client is unsure about drywall thickness, default to 1/2" lightweight for walls, 5/8" for ceilings
+  - For insulation, apply the per-sqft rate; round up to nearest full roll/bundle using the minimums stated
+  - Store trip and paint trip charges apply when FCD must make a dedicated material run
+
+  ---
+
+  ESTIMATE OUTPUT FORMAT:
+  When enough information is collected, output:
+
+  ============================================================
+  FARLEY CONSTRUCTION & DEVELOPMENT
+  Preliminary Estimate — [Date]
+  ============================================================
+
+  SCOPE OF WORK:
+  [Brief plain-English description of all work to be performed]
+
+  ------------------------------------------------------------
+  LABOR
+  ------------------------------------------------------------
+  | Item                                  | Qty     | Unit      | Unit Price | Total     |
+  |---------------------------------------|---------|-----------|------------|-----------|
+  | [Line item]                           | [#]     | [sqft/ea] | $[#]       | $[#]      |
+  ...
+
+  Subtotal Labor: $________
+
+  ------------------------------------------------------------
+  MATERIALS
+  ------------------------------------------------------------
+  | Item                                  | Qty     | Unit      | Unit Price | Total     |
+  |---------------------------------------|---------|-----------|------------|-----------|
+  | [Line item]                           | [#]     | [sheets/  | $[#]       | $[#]      |
+  ...
+
+  Subtotal Materials: $________
+
+  ------------------------------------------------------------
+  ADDITIONAL CHARGES
+  ------------------------------------------------------------
+  | Item                                  | Qty     | Unit Price | Total     |
+  |---------------------------------------|---------|------------|-----------|
+  | [Haul away / trip charges / etc.]     | [#]     | $[#]       | $[#]      |
+  ...
+
+  Subtotal Additional Charges: $________
+
+  ------------------------------------------------------------
+  FINAL CALCULATION (show explicitly):
+    Subtotal Labor:                $________
+  + Subtotal Materials:            $________
+  + Subtotal Additional Charges:   $________
+  + Base Service Fee (minimum):    $700.00
+  = ESTIMATE TOTAL:                $________
+  ------------------------------------------------------------
+
+  NOTE: This is a preliminary estimate. Final pricing may vary based on
+  on-site conditions, material lead times, and project scope changes.
+  ============================================================
+
+  ---
+
+  CALCULATION RULES (CRITICAL — NEVER SKIP):
+
+  Step 1 — Scratchpad: Before filling in the table, write out every single line item calculation:
+    [Item name]: [Qty] x [Unit Price] = [Total]
+
+  Step 2 — Running sum: Add line items one by one, showing each step:
+    $[A] + $[B] = $[C]
+    $[C] + $[D] = $[E]  ... and so on
+
+  Step 3 — Only after verifying the running sum for each section, place numbers into the table.
+
+  Step 4 — Final total: Add the four subtotals explicitly as shown in the FINAL CALCULATION block above. Never combine or skip this step.
+
+  ESTIMATE TOTAL = Subtotal Labor + Subtotal Materials + Subtotal Additional Charges + $700 Base Service Fee
+
+CONVERSATION RULES (CRITICAL):
+- NEVER give a partial cost calculation or price breakdown mid-conversation.
+  If a user asks "how much does X cost?" before all intake questions are answered,
+  respond ONLY with: "I'll include that in your full estimate once I have all the 
+  project details. Let me ask a few more questions first." Then continue intake.
+- NEVER show per-sqft rates directly to the user. Pricing is internal — only 
+  reveal costs inside the final formatted estimate.
+- Do NOT produce a partial estimate. Only output the full formatted estimate 
+  (with all sections: LABOR, MATERIALS, ADDITIONAL CHARGES, FINAL CALCULATION) 
+  once ALL relevant intake questions have been answered.
+- If the user gives very minimal info (e.g. one item, one dimension) and asks 
+  for a price, tell them you need a few more details to give them an accurate 
+  quote, and continue asking intake questions naturally.
 `;
 
   const startGeneralChat = () => {
@@ -270,11 +380,14 @@ FINAL CALCULATION (show this work explicitly before the total line):
 
     try {
       const prompt = chatMode === 'estimator' ? ESTIMATOR_PROMPT : GENERAL_PROMPT;
-      
-      const response = await fetch('/.netlify/functions/chat', {
+
+      // DEV: calls OpenAI directly using Vite env variable
+      // PROD: swap the fetch URL to '/.netlify/functions/chat' and remove the Authorization header
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
         },
         body: JSON.stringify({
           model: 'gpt-4o',
@@ -291,17 +404,21 @@ FINAL CALCULATION (show this work explicitly before the total line):
         const assistantMessage = data.choices[0].message;
         setMessages(prev => [...prev, assistantMessage]);
 
-        // Check if this is a final estimate
-        if (chatMode === 'estimator' && 
-            assistantMessage.content.includes("FARLEY CONSTRUCTION & DEVELOPMENT") && 
-            assistantMessage.content.includes("ESTIMATE TOTAL")) {
+        if (
+          chatMode === 'estimator' &&
+          assistantMessage.content.includes('FARLEY CONSTRUCTION & DEVELOPMENT') &&
+          assistantMessage.content.includes('ESTIMATE TOTAL')
+        ) {
           setHasEstimate(true);
-          setTimeout(() => setShowLeadForm(true), 7000); // 7 seconds delay
+          setTimeout(() => setShowLeadForm(true), 7000);
         }
       }
     } catch (error) {
-      console.error('Error fetching from OpenAI:', error);
-      setMessages(prev => [...prev, { role: 'assistant', content: "I'm sorry, I encountered an error. Please try again or contact us directly." }]);
+      console.error('Error:', error);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: "I'm sorry, I encountered an error. Please try again or contact us directly."
+      }]);
     } finally {
       setIsTyping(false);
     }
@@ -343,7 +460,7 @@ FINAL CALCULATION (show this work explicitly before the total line):
             p(cal, ar);
           };
         })(window, "https://app.cal.com/embed/embed.js", "init");
-        
+
         Cal = window.Cal;
         if (Cal) {
           Cal("init", "15min", { origin: "https://app.cal.com" });
@@ -367,9 +484,9 @@ FINAL CALCULATION (show this work explicitly before the total line):
 
       setTimeout(() => {
         setShowLeadForm(false);
-        setMessages(prev => [...prev, { 
-          role: 'assistant', 
-          content: `Thank you, ${leadData.name.split(' ')[0]}! I've opened our site visit booking calendar so you can select a convenient slot. Our estimating team has recorded your details.` 
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `Thank you, ${leadData.name.split(' ')[0]}! I've opened our site visit booking calendar so you can select a convenient slot. Our estimating team has recorded your details.`
         }]);
       }, 2000);
 
@@ -404,7 +521,7 @@ FINAL CALCULATION (show this work explicitly before the total line):
           elements.push(renderTable(currentTable, `table-${index}`));
           currentTable = null;
         }
-        
+
         if (trimmedLine === '') {
           elements.push(<br key={`br-${index}`} />);
         } else {
@@ -432,7 +549,7 @@ FINAL CALCULATION (show this work explicitly before the total line):
       const content = line.replace(/[|\s-]/g, '');
       return content.length > 0;
     });
-    
+
     if (rows.length === 0) return null;
 
     return (
@@ -1061,7 +1178,7 @@ FINAL CALCULATION (show this work explicitly before the total line):
         }
       `}</style>
 
-      <div 
+      <div
         ref={windowRef}
         className={`fcd-window ${isOpen ? 'open' : ''}`}
         style={{
@@ -1073,7 +1190,7 @@ FINAL CALCULATION (show this work explicitly before the total line):
       >
         <div className="fcd-resize-handle" onMouseDown={startResizing}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
           </svg>
         </div>
         {showResizeHint && <div className="fcd-resize-hint">Drag to resize</div>}
@@ -1086,7 +1203,7 @@ FINAL CALCULATION (show this work explicitly before the total line):
             {chatMode && (
               <button className="fcd-control-btn" onClick={handleBackToSelection} title="Back to Selection">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
                 </svg>
               </button>
             )}
@@ -1104,7 +1221,7 @@ FINAL CALCULATION (show this work explicitly before the total line):
             <div className="fcd-selection-card" onClick={startGeneralChat}>
               <div className="fcd-card-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                  <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
                 </svg>
               </div>
               <h4>General Info</h4>
@@ -1113,7 +1230,7 @@ FINAL CALCULATION (show this work explicitly before the total line):
             <div className="fcd-selection-card" onClick={startEstimatorChat}>
               <div className="fcd-card-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
               </div>
               <h4>Price Estimator</h4>
@@ -1139,7 +1256,7 @@ FINAL CALCULATION (show this work explicitly before the total line):
               )}
 
               {hasEstimate && !isLeadSubmitted && (
-                <button 
+                <button
                   className="fcd-consultation-trigger"
                   onClick={() => setShowLeadForm(true)}
                 >
@@ -1173,8 +1290,8 @@ FINAL CALCULATION (show this work explicitly before the total line):
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
-              <button 
-                className="fcd-send-btn" 
+              <button
+                className="fcd-send-btn"
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isTyping}
               >
@@ -1198,32 +1315,32 @@ FINAL CALCULATION (show this work explicitly before the total line):
                   </div>
                   <p>To save this estimate and speak with a project manager, please provide your contact details.</p>
                   <form className="fcd-lead-inputs" onSubmit={handleLeadSubmit}>
-                    <input 
-                      type="text" 
-                      placeholder="Full Name" 
-                      required 
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      required
                       value={leadData.name}
-                      onChange={(e) => setLeadData({...leadData, name: e.target.value})}
+                      onChange={(e) => setLeadData({ ...leadData, name: e.target.value })}
                     />
-                    <input 
-                      type="email" 
-                      placeholder="Email Address" 
-                      required 
+                    <input
+                      type="email"
+                      placeholder="Email Address"
+                      required
                       value={leadData.email}
-                      onChange={(e) => setLeadData({...leadData, email: e.target.value})}
+                      onChange={(e) => setLeadData({ ...leadData, email: e.target.value })}
                     />
-                    <input 
-                      type="tel" 
-                      placeholder="Phone Number" 
-                      required 
+                    <input
+                      type="tel"
+                      placeholder="Phone Number"
+                      required
                       value={leadData.phone}
-                      onChange={(e) => setLeadData({...leadData, phone: e.target.value})}
+                      onChange={(e) => setLeadData({ ...leadData, phone: e.target.value })}
                     />
                     <button type="submit" className="fcd-submit-lead" disabled={isSending}>
                       {isSending ? 'Loading Scheduler...' : 'Book a Site Visit 📅'}
                     </button>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '0.8rem' }}
                       onClick={() => setShowLeadForm(false)}
                     >

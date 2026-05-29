@@ -7,7 +7,7 @@ import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
 import ServicesPage from './pages/ServicesPage'
 import EstimatePage from './pages/EstimatePage'
-// import FCDChatbot from './components/FCDChatbot'
+import FCDChatbot from './components/FCDChatbot'
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
@@ -69,7 +69,7 @@ export default function App() {
         <Route path="/estimate" element={<EstimatePage />} />
       </Routes>
       <BackToTopButton />
-      {/* {!isEstimatePage && <FCDChatbot />} */}
+      {!isEstimatePage && <FCDChatbot />}
       {!isEstimatePage && <Footer />}
     </div>
   )
