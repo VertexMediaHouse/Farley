@@ -6,39 +6,27 @@ export const LABOR_PRICING = {
   DRYWALL: {
     // ── ½" Drywall ──
     HALF_WALL_ORANGE_PEEL: 16.00,         // per sqft
-    HALF_CEILING_ORANGE_PEEL: 18.00,      // per sqft
-    HALF_WALL_LEVEL4: 20.00,              // per sqft
-    HALF_CEILING_LEVEL4: 20.00,           // per sqft
-    HALF_CEILING_LEVEL5: 23.00,           // per sqft
+    HALF_WALL_SMOOTH_FINISH: 23.00,
+    HALF_WALL_KNOCK_DOWN:23.00,
 
     // ── ⅝" Drywall ──
-    FIVE_EIGHTH_WALL_ORANGE_PEEL: 17.00,  // per sqft
-    FIVE_EIGHTH_CEILING_ORANGE_PEEL: 18.50, // per sqft
-    FIVE_EIGHTH_WALL_LEVEL4: 20.00,       // per sqft
-    FIVE_EIGHTH_WALL_LEVEL5: 22.00,       // per sqft
+    FIVE_EIGHTH_CEILING_ORANGE_PEEL: 18.50,
+    FIVE_EIGHTH_CEILING_SMOOTH_FINISH:24.00,
+    FIVE_EIGHTH_CEILING_KNOCK_DOWN: 20.00, // per sqft
 
     // ── ½" Green Board ──
-    GREENBOARD_HALF_CEILING_ORANGE_PEEL: 18.00,  // per sqft
-    GREENBOARD_HALF_CEILING_LEVEL4: 20.00,        // per sqft
-    GREENBOARD_HALF_CEILING_LEVEL5: 22.00,        // per sqft
+    GREENBOARD_HALF_WALL_ORANGE_PEEL: 18.00,  // per sqft
+    GREENBOARD_HALF_WALL_SMOOTH_FINISH: 20.00,  // per sqft
+    GREENBOARD_HALF_WALL_KNOCK_DOWN: 20.00,  // per sqft
 
     // ── ⅝" Green Board ──
-    GREENBOARD_FIVE_EIGHTH_WALL_ORANGE_PEEL: 17.00, // per sqft
-    GREENBOARD_FIVE_EIGHTH_WALL_LEVEL4: 20.00,      // per sqft
-    GREENBOARD_FIVE_EIGHTH_WALL_LEVEL5: 22.00,      // per sqft
+    GREENBOARD_FIVE_EIGHTH_CEILING_ORANGE_PEEL:  17.00, // per sqft
+    GREENBOARD_FIVE_EIGHTH_CEILING_SMOOTH_FINISH:  20.00, // per sqft
+    GREENBOARD_FIVE_EIGHTH_CEILING_KNOCK_DOWN:  20.00, // per sqft
 
     // ── Popcorn & Skim ──
     POPCORN_SCRAPING: 2.50,               // per sqft
     SKIM_COAT_L4: 4.50,                   // per sqft
-
-    // ── Convenience aliases used by estimateEngine ──
-    // Default wall/ceiling rates (½" orange peel — most common)
-    WALL_ORANGE_PEEL: 16.00,              // per sqft
-    CEILING_ORANGE_PEEL: 18.00,           // per sqft
-    WALL_SMOOTH: 20.00,                   // per sqft (Level 4)
-    CEILING_SMOOTH: 20.00,                // per sqft (Level 4)
-    WALL_SMOOTH_L5: 22.00,               // per sqft (Level 5)
-    CEILING_SMOOTH_L5: 23.00,            // per sqft (Level 5)
   },
 
   PAINT: {
@@ -83,7 +71,8 @@ export const MATERIAL_PRICING = {
   DRYWALL: {
     SHEET_5_8: 20.00,                    // 5/8" drywall 8ft sheet
     SHEET_1_2_LIGHTWEIGHT: 16.00,        // 1/2" lightweight drywall 8ft sheet
-    SHEET_GREEN_BOARD: 18.50,            // 1/2" green board 8ft sheet
+    SHEET_GREEN_BOARD_1_2: 18.50,        // 1/2" green board 8ft sheet
+    SHEET_GREEN_BOARD_5_8: 21.00,        // 5/8" green board 8ft sheet
   },
 
   FRAMING: {
@@ -141,17 +130,6 @@ export const ADDITIONAL_CHARGES = {
   STORE_TRIP: 50.00,
   PAINT_TRIP: 50.00,
   BASE_SERVICE_FEE: 750.00,             // Fixed additional charge per order
-};
-
-// ========================================
-// MULTIPLIERS
-// ========================================
-export const MULTIPLIERS = {
-  CEILING: 1.15,         // ceiling drywall, ceiling painting, ceiling texture
-  TWO_STORY: 1.20,       // work on second floor or higher
-  OCCUPIED_ROOM: 1.10,   // room occupied or furniture present
-  EMERGENCY: 1.25,       // same-day or rush work
-  LATE_DAY: 1.10,        // job starts late in the day
 };
 
 // ========================================

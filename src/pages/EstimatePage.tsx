@@ -32,41 +32,6 @@ export default function EstimatePage() {
     }
   }, [])
 
-  useEffect(() => {
-    (function (C: any, A: string, L: string) {
-      let p = function (a: any, ar: any) { a.q.push(ar); };
-      let d = C.document;
-      C.Cal = C.Cal || function () {
-        let cal = C.Cal;
-        let ar = arguments;
-        if (!cal.loaded) {
-          cal.ns = {};
-          cal.q = cal.q || [];
-          d.head.appendChild(d.createElement("script")).src = A;
-          cal.loaded = true;
-        }
-        if (ar[0] === L) {
-          const api: any = function () { p(api, arguments); };
-          const namespace = ar[1];
-          api.q = api.q || [];
-          if (typeof namespace === "string") {
-            cal.ns[namespace] = cal.ns[namespace] || api;
-            p(cal.ns[namespace], ar);
-            p(cal, ["initNamespace", namespace]);
-          } else p(cal, ar);
-          return;
-        }
-        p(cal, ar);
-      };
-    })(window as any, "https://app.cal.com/embed/embed.js", "init");
-
-    const Cal = (window as any).Cal;
-    if (Cal) {
-      Cal("init", "15min", { origin: "https://app.cal.com" });
-      Cal.ns["15min"]("ui", { "hideEventTypeDetails": false, "layout": "month_view" });
-    }
-  }, [data]);
-
   if (!data) {
     return (
       <div className="estimate-error-container" style={{
@@ -290,8 +255,6 @@ export default function EstimatePage() {
 
           {/* Tables Breakdowns */}
           <div className="estimate-tables-container" style={{ display: 'flex', flexDirection: 'column', gap: '35px' }}>
-
-            {/* 4. Final Estimation Summary Card */}
             <div className="estimate-final-summary" style={{
               background: '#f8fafc',
               border: '1px solid #e2e8f0',
@@ -338,36 +301,6 @@ export default function EstimatePage() {
                 <span>Estimated Grand Total:</span>
                 <span style={{ fontSize: '1.6rem', color: '#2faeff', fontWeight: 900 }}>${estimate.grandTotal.toFixed(2)}</span>
               </div>
-            </div>
-
-            {/* Book a Site Visit 100% Width CTA Button */}
-            <div className="no-print" style={{ marginTop: '30px', marginBottom: '20px' }}>
-              <button 
-                type="button" 
-                className="btn btn-blue"
-                data-cal-link="dhrumil-sanghvi-4kxjvq/15min"
-                data-cal-namespace="15min"
-                data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
-                style={{
-                  width: '100%',
-                  padding: '16px 24px',
-                  fontSize: '1.1rem',
-                  fontWeight: 800,
-                  borderRadius: '12px',
-                  background: '#2faeff',
-                  color: '#ffffff',
-                  border: 'none',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  boxShadow: '0 4px 14px 0 rgba(47, 174, 255, 0.3)',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                Book a Site Visit &amp; Consult 📅
-              </button>
             </div>
 
             {/* Note Bottom */}
