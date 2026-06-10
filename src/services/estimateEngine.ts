@@ -28,8 +28,6 @@ import {
   MINIMUM_JOB_CHARGE_CONFIG,
 } from '../constants/pricing';
 import {
-  calculateCeilingArea,
-  calculateWallArea,
   calculatePerimeter,
   addWaste,
   roundUpToNearestInteger,
@@ -37,7 +35,7 @@ import {
   calculateR13Rolls,
   safeParseFloat,
 } from '../utils/calculationHelpers';
-
+  
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
