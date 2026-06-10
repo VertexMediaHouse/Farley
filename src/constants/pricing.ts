@@ -7,12 +7,22 @@ export const LABOR_PRICING = {
     // ── ½" Drywall ──
     HALF_WALL_ORANGE_PEEL: 16.00,         // per sqft
     HALF_WALL_SMOOTH_FINISH: 23.00,
-    HALF_WALL_KNOCK_DOWN:23.00,
+    HALF_WALL_KNOCK_DOWN: 16.00,          // updated to match orange peel rate
+    // New level finishes for ½" drywall
+    HALF_WALL_LEVEL4: 20.00,               // per sqft
+    HALF_WALL_LEVEL5: 23.00,               // per sqft
+    CEILING_LEVEL4: 20.00,                // per sqft (½" ceiling)
+    CEILING_LEVEL5: 23.00,                // per sqft (½" ceiling)
 
     // ── ⅝" Drywall ──
-    FIVE_EIGHTH_CEILING_ORANGE_PEEL: 18.50,
-    FIVE_EIGHTH_CEILING_SMOOTH_FINISH:24.00,
-    FIVE_EIGHTH_CEILING_KNOCK_DOWN: 20.00, // per sqft
+    FIVE_EIGHTTH_CEILING_ORANGE_PEEL: 18.50,
+    FIVE_EIGHTTH_CEILING_SMOOTH_FINISH: 24.00,
+    FIVE_EIGHTTH_CEILING_KNOCK_DOWN: 18.50, // updated to match orange peel rate
+    // New level finishes for ⅝" drywall
+    FIVE_EIGHTH_WALL_ORANGE_PEEL: 17.00,    // per sqft
+    FIVE_EIGHTTH_WALL_KNOCK_DOWN: 17.00,   // same as orange peel
+    FIVE_EIGHTH_WALL_LEVEL4: 20.00,        // per sqft
+    FIVE_EIGHTTH_WALL_LEVEL5: 22.00,        // per sqft
 
     // ── ½" Green Board ──
     GREENBOARD_HALF_WALL_ORANGE_PEEL: 18.00,  // per sqft
@@ -35,6 +45,7 @@ export const LABOR_PRICING = {
     PRIMER_AND_PAINT: 5.00,              // per sqft
     PRIMER_ONLY: 2.50,                   // per sqft
     TRIM_PAINTING: 5.00,                 // per linear ft (caulking & painting)
+    TRIM_PRIMER_PAINTING: 2.00,          // per linear ft (primer only for trim)
   },
 
   TRIM: {
@@ -118,6 +129,10 @@ export const MATERIAL_PRICING = {
     BULLNOSE_8FT: 220.00,
     NINETY_DEGREE_10FT: 250.00,          // 89/90 degree corner metal 10ft
     NINETY_DEGREE_8FT: 200.00,           // 90 degree corner metal 8ft
+    ARCH_STANDARD_PER_LINEAR: 75.00,    // per linear ft
+    ARCH_BULLNOSE_PER_LINEAR: 100.00,    // per linear ft
+    ARCH_STANDARD_SINGLE: 300.00,       // single piece standard arch
+    ARCH_BULLNOSE_SINGLE: 450.00,       // single piece bullnose arch
   },
 
 };
@@ -126,10 +141,10 @@ export const MATERIAL_PRICING = {
 // ADDITIONAL CHARGES
 // ========================================
 export const ADDITIONAL_CHARGES = {
-  HAUL_AWAY: 300.00,
+  HAUL_AWAY: 200.00,
   STORE_TRIP: 50.00,
   PAINT_TRIP: 50.00,
-  BASE_SERVICE_FEE: 750.00,             // Fixed additional charge per order
+  // BASE_SERVICE_FEE removed per updated pricing sheet
 };
 
 // ========================================

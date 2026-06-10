@@ -3,20 +3,19 @@
  *
  * Main estimate calculation engine.
  *
- * NEW in this version (vs previous):
- *  - Minimum job = TRUE minimum ($700 floor on grand total, NOT a fixed add-on fee)
- *  - BASE_SERVICE_FEE removed entirely
- *  - Ceiling multiplier (1.15) applied to all ceiling drywall labor
- *  - Two-story, occupied room, emergency, late-day multipliers wired in
- *  - Drywall type (½", ⅝", green board) drives correct per-sqft rate
- *  - Finish level (orange peel / knockdown / level 4 / level 5) drives correct rate
- *    (knockdown treated same as orange peel per pricing sheet)
- *  - Insulation bug fixed: uses correct INSULATION_R19_BUNDLE / INSULATION_R13_ROLL coverage
- *    and the $3.50/sqft labor line is now included
- *  - Corner metal selection added
- *  - Electrical services added (recessed lights, fan, fixture, outlet, TV mount)
- *  - Soffits flagged for manual review (no fixed rate exists)
- *  - Multipliers applied ONLY to the affected labor category (not haul-away, not electrical, etc.)
+ * - Minimum job = TRUE minimum ($700 floor on grand total, NOT a fixed add-on fee)
+ * - BASE_SERVICE_FEE removed entirely
+ * - Ceiling multiplier (1.15) applied to all ceiling drywall labor
+ * - Two-story, occupied room, emergency, late-day multipliers wired in
+ * - Drywall type (½", ⅝", green board) drives correct per-sqft rate
+ * - Finish level (orange peel / knockdown / level 4 / level 5) drives correct rate
+ *   (knockdown treated same as orange peel per pricing sheet)
+ * - Insulation bug fixed: uses correct INSULATION_R19_BUNDLE / INSULATION_R13_ROLL coverage
+ *   and the $3.50/sqft labor line is now included
+ * - Corner metal selection added
+ * - Electrical services added (recessed lights, fan, fixture, outlet, TV mount)
+ * - Soffits flagged for manual review (no fixed rate exists)
+ * - Multipliers applied ONLY to the affected labor category (not haul-away, not electrical, etc.)
  */
 
 import type { EstimateResult, EstimateLineItem } from '../types/estimate';
@@ -35,7 +34,7 @@ import {
   calculateR13Rolls,
   safeParseFloat,
 } from '../utils/calculationHelpers';
-  
+
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
@@ -43,16 +42,21 @@ import {
 /** Resolve the correct wall labor rate from drywall type + finish level. */
 function resolveWallRate(drywallType: string, finishLevel: string): number {
   const isGreenBoard = drywallType === 'green board';
+  const level = finishLevel.toLowerCase();
 
-  if (finishLevel === 'smooth finish') {
+  if (level === 'smooth finish' || level === 'level 4') {
     if (isGreenBoard) return LABOR_PRICING.DRYWALL.GREENBOARD_HALF_WALL_SMOOTH_FINISH;
     return LABOR_PRICING.DRYWALL.HALF_WALL_SMOOTH_FINISH;
   }
-  if (finishLevel === 'knock down') {
+  if (level === 'level 5') {
+    if (isGreenBoard) return LABOR_PRICING.DRYWALL.GREENBOARD_HALF_WALL_KNOCK_DOWN;
+    return LABOR_PRICING.DRYWALL.HALF_WALL_LEVEL5;
+  }
+  if (level === 'knock down' || level === 'knockdown') {
     if (isGreenBoard) return LABOR_PRICING.DRYWALL.GREENBOARD_HALF_WALL_KNOCK_DOWN;
     return LABOR_PRICING.DRYWALL.HALF_WALL_KNOCK_DOWN;
   }
-  // Orange peel or Match Existing
+  // Orange peel or Match Existing (default)
   if (isGreenBoard) return LABOR_PRICING.DRYWALL.GREENBOARD_HALF_WALL_ORANGE_PEEL;
   return LABOR_PRICING.DRYWALL.HALF_WALL_ORANGE_PEEL;
 }
@@ -61,18 +65,24 @@ function resolveWallRate(drywallType: string, finishLevel: string): number {
  *  NOTE: the ceiling multiplier (1.15) is applied separately — do not bake it in here. */
 function resolveCeilingRate(drywallType: string, finishLevel: string): number {
   const isGreenBoard = drywallType === 'green board';
+  const level = finishLevel.toLowerCase();
 
-  if (finishLevel === 'smooth finish') {
+  if (level === 'smooth finish' || level === 'level 4') {
     if (isGreenBoard) return LABOR_PRICING.DRYWALL.GREENBOARD_FIVE_EIGHTH_CEILING_SMOOTH_FINISH;
-    return LABOR_PRICING.DRYWALL.FIVE_EIGHTH_CEILING_SMOOTH_FINISH;
+    return LABOR_PRICING.DRYWALL.FIVE_EIGHTTH_CEILING_SMOOTH_FINISH;
   }
-  if (finishLevel === 'knock down') {
+  if (level === 'level 5') {
+    // No explicit ceiling level5 rate; fallback to knock down as proxy
     if (isGreenBoard) return LABOR_PRICING.DRYWALL.GREENBOARD_FIVE_EIGHTH_CEILING_KNOCK_DOWN;
-    return LABOR_PRICING.DRYWALL.FIVE_EIGHTH_CEILING_KNOCK_DOWN;
+    return LABOR_PRICING.DRYWALL.FIVE_EIGHTTH_WALL_LEVEL5;
   }
-  // Orange peel or Match Existing
+  if (level === 'knock down' || level === 'knockdown') {
+    if (isGreenBoard) return LABOR_PRICING.DRYWALL.GREENBOARD_FIVE_EIGHTH_CEILING_KNOCK_DOWN;
+    return LABOR_PRICING.DRYWALL.FIVE_EIGHTTH_CEILING_KNOCK_DOWN;
+  }
+  // Default orange peel
   if (isGreenBoard) return LABOR_PRICING.DRYWALL.GREENBOARD_FIVE_EIGHTH_CEILING_ORANGE_PEEL;
-  return LABOR_PRICING.DRYWALL.FIVE_EIGHTH_CEILING_ORANGE_PEEL;
+  return LABOR_PRICING.DRYWALL.FIVE_EIGHTTH_CEILING_ORANGE_PEEL;
 }
 
 /** Human-readable finish level label. */
@@ -80,12 +90,13 @@ function finishLabel(finishLevel: string): string {
   const map: Record<string, string> = {
     'orange peel': 'Orange Peel Texture',
     'knockdown': 'Knockdown Texture',
+    'knock down': 'Knockdown Texture',
     'level 4': 'Level 4 Smooth',
     'smooth finish': 'Level 4 Smooth',
     'level 5': 'Level 5 Smooth',
     'match existing texture': 'Match Existing Texture',
   };
-  return map[finishLevel] ?? 'Orange Peel Texture';
+  return map[finishLevel.toLowerCase()] ?? 'Orange Peel Texture';
 }
 
 // ---------------------------------------------------------------------------
@@ -98,7 +109,7 @@ export function calculateEstimate(formData: any): EstimateResult {
   const width = safeParseFloat(formData.width);
   const perimeter = calculatePerimeter(length, width);
 
-  // ── 3. Output buckets ────────────────────────────────────────────────────
+  // ── 2. Output buckets ────────────────────────────────────────────────────
   const laborItems: EstimateLineItem[] = [];
   const materialItems: EstimateLineItem[] = [];
   const additionalCharges: EstimateLineItem[] = [];
@@ -111,14 +122,14 @@ export function calculateEstimate(formData: any): EstimateResult {
 
   if (formData.has_photos === 'No') requiresPhotos = true;
 
-  // ── 4. DRYWALL ────────────────────────────────────────────────────────────
+  // ── 3. DRYWALL ────────────────────────────────────────────────────────────
   let drywallArea = 0;
 
   if (formData.services?.drywall) {
     const texture = formData.drywall_texture || 'Orange Peel';
     const finishLevel = texture.toLowerCase();
 
-    // ── 4a. Read per-area sqft directly from form fields ─────────────────
+    // ── 3a. Read per-area sqft directly from form fields ──────────────────
     const wallSqft = safeParseFloat(formData.drywall_wall_sqft);
     const ceilingSqft = safeParseFloat(formData.drywall_ceiling_sqft);
     const bathWallSqft = safeParseFloat(formData.drywall_bathroom_wall_sqft);
@@ -131,7 +142,7 @@ export function calculateEstimate(formData: any): EstimateResult {
       followUpQuestions.push('Texture matching requested — pricing will be confirmed after photo review or on-site inspection.');
     }
 
-    // ── 4b. Labor per area ───────────────────────────────────────────────
+    // ── 3b. Labor per area ────────────────────────────────────────────────
     if (wallSqft > 0) {
       const rate = resolveWallRate('1/2', finishLevel);
       laborItems.push({
@@ -144,7 +155,8 @@ export function calculateEstimate(formData: any): EstimateResult {
     }
 
     if (ceilingSqft > 0) {
-      const rate = resolveCeilingRate('5/8', finishLevel);
+      const baseRate = resolveCeilingRate('5/8', finishLevel);
+      const rate = Math.round(baseRate * 1.15 * 100) / 100;
       laborItems.push({
         name: `Ceiling Drywall Install & Finish — 5/8" ${finishLabel(finishLevel)}`,
         quantity: Math.round(ceilingSqft),
@@ -181,7 +193,7 @@ export function calculateEstimate(formData: any): EstimateResult {
       followUpQuestions.push('No drywall square footage provided — pricing will be confirmed after on-site inspection.');
     }
 
-    // ── 4c. Demolition ───────────────────────────────────────────────────
+    // ── 3c. Demolition ────────────────────────────────────────────────────
     const demolitionSelections: string[] = Array.isArray(formData.drywall_demolition)
       ? formData.drywall_demolition
       : (formData.drywall_demolition ? [formData.drywall_demolition] : []);
@@ -227,7 +239,6 @@ export function calculateEstimate(formData: any): EstimateResult {
     if (demolitionSelections.includes('Remove Insulation (sqft)')) {
       const insRemovalSqft = safeParseFloat(formData.drywall_demo_insulation_sqft);
       if (insRemovalSqft > 0) {
-        // Use R13 labor rate as a proxy for insulation removal
         laborItems.push({
           name: 'Insulation Removal',
           quantity: Math.round(insRemovalSqft),
@@ -288,7 +299,7 @@ export function calculateEstimate(formData: any): EstimateResult {
       });
     }
 
-    // ── 4d. Insulation (R13 wall, R19 ceiling per new workflow) ──────────
+    // ── 3d. Insulation (R13 wall, R19 ceiling) ────────────────────────────
     if (formData.drywall_insulation === 'Yes') {
       const insWallSqft = wallSqft + bathWallSqft;
       const insCeilSqft = ceilingSqft + bathCeilSqft;
@@ -332,7 +343,7 @@ export function calculateEstimate(formData: any): EstimateResult {
       }
     }
 
-    // ── 4e. Corner metal ──────────────────────────────────────────────────
+    // ── 3e. Corner metal ──────────────────────────────────────────────────
     const cornerMetals: string[] = Array.isArray(formData.drywall_corner_metal)
       ? formData.drywall_corner_metal
       : (formData.drywall_corner_metal ? [formData.drywall_corner_metal] : []);
@@ -366,15 +377,25 @@ export function calculateEstimate(formData: any): EstimateResult {
       });
     }
 
-    const archOrEngelSelected = cornerMetals.some(c =>
-      c.includes('Arch') || c.includes('Engel')
-    );
-    if (archOrEngelSelected) {
+    const archSelected = cornerMetals.some(c => c.toLowerCase().includes('arch'));
+    if (archSelected) {
+      const unitPrice = MATERIAL_PRICING.CORNER_METAL.ARCH_STANDARD_PER_LINEAR;
+      materialItems.push({
+        name: `Arch Corner Metal (${cornerLength})`,
+        quantity: cornerQty,
+        unit: 'pcs',
+        unitPrice,
+        total: cornerQty * unitPrice,
+      });
+    }
+
+    const engelSelected = cornerMetals.some(c => c.toLowerCase().includes('engel'));
+    if (archSelected || engelSelected) {
       isPendingReview = true;
       followUpQuestions.push(`Arch/Engel corner metal selected (${cornerQty} corners) — pricing will be confirmed after on-site measurement.`);
     }
 
-    // ── 4f. Soffits → manual review with sqft logged ──────────────────────
+    // ── 3f. Soffits → manual review with sqft logged ──────────────────────
     const soffits: string[] = Array.isArray(formData.drywall_soffits)
       ? formData.drywall_soffits
       : (formData.drywall_soffits ? [formData.drywall_soffits] : []);
@@ -388,12 +409,11 @@ export function calculateEstimate(formData: any): EstimateResult {
     }
   }
 
-  // ── 5. PAINTING ──────────────────────────────────────────────────────────
-
+  // ── 4. PAINTING ──────────────────────────────────────────────────────────
   if (formData.services?.paint) {
     hasPaintService = true;
 
-    // ── 5a. Parse Paint Areas ──────────────────────────────────────────────
+    // ── 4a. Parse Paint Areas ─────────────────────────────────────────────
     const paintAreas: string[] = Array.isArray(formData.paint_area)
       ? formData.paint_area
       : (formData.paint_area ? [formData.paint_area] : []);
@@ -427,7 +447,7 @@ export function calculateEstimate(formData: any): EstimateResult {
       followUpQuestions.push('Painting areas selected but no square footage provided — pricing will be confirmed after on-site inspection.');
     }
 
-    // ── 5b. Parse Trim Areas ───────────────────────────────────────────────
+    // ── 4b. Parse Trim Areas ──────────────────────────────────────────────
     const trimAreas: string[] = Array.isArray(formData.paint_trim_area)
       ? formData.paint_trim_area
       : (formData.paint_trim_area ? [formData.paint_trim_area] : []);
@@ -454,19 +474,21 @@ export function calculateEstimate(formData: any): EstimateResult {
       followUpQuestions.push('Trim painting selected but no linear footage provided — pricing will be confirmed after on-site inspection.');
     }
 
-    // ── 5c. Ceiling Height Flag ────────────────────────────────────────────
+    // ── 4c. Ceiling Height Flag ───────────────────────────────────────────
     if (formData.paint_ceiling_height_over_8ft === 'Yes') {
       const heightStr = formData.paint_ceiling_height || 'over 8ft';
       isPendingReview = true;
       followUpQuestions.push(`High ceilings (${heightStr}) may require scaffolding or extra labor — pricing will be confirmed after on-site inspection.`);
     }
 
-    // ── 5d. Paint Materials ────────────────────────────────────────────────
-    const wantsUsToGetPaint = formData.paint_customer_providing === 'No' && formData.paint_contractor_providing === 'Yes';
-    
+    // ── 4d. Paint Materials ───────────────────────────────────────────────
+    const wantsUsToGetPaint =
+      formData.paint_customer_providing === 'No' &&
+      formData.paint_contractor_providing === 'Yes';
+
     if (wantsUsToGetPaint && totalPaintSqft > 0) {
       hasMaterials = true;
-      
+
       if (formData.paint_primer === 'Yes') {
         const paintAreaWithWaste = addWaste(totalPaintSqft, 0.15);
         const primerBuckets = roundUpToNearestInteger(paintAreaWithWaste / MATERIAL_COVERAGE.PRIMER_BUCKET);
@@ -481,7 +503,7 @@ export function calculateEstimate(formData: any): EstimateResult {
     }
   }
 
-  // ── 6. TRIM ──────────────────────────────────────────────────────────────
+  // ── 5. TRIM ──────────────────────────────────────────────────────────────
   if (formData.services?.trim) {
     const baseboardFeetRaw = safeParseFloat(formData.trim_base_linear_feet);
     const casingFeetRaw = safeParseFloat(formData.trim_casing_linear_feet);
@@ -493,9 +515,14 @@ export function calculateEstimate(formData: any): EstimateResult {
     const effectiveBaseboardFeet = baseboardFeetRaw > 0 ? baseboardFeetRaw : (hasDims ? perimeter : 60);
     const effectiveCasingFeet = casingFeetRaw > 0 ? casingFeetRaw : 0;
 
-    const finalBaseboardFeet = (effectiveBaseboardFeet === 0 && effectiveCasingFeet === 0) ? (hasDims ? perimeter : 60) : effectiveBaseboardFeet;
+    const finalBaseboardFeet =
+      effectiveBaseboardFeet === 0 && effectiveCasingFeet === 0
+        ? (hasDims ? perimeter : 60)
+        : effectiveBaseboardFeet;
 
-    const serviceTypeStr = Array.isArray(formData.trim_services) ? formData.trim_services.join(',').toLowerCase() : (formData.trim_services || '').toLowerCase();
+    const serviceTypeStr = Array.isArray(formData.trim_services)
+      ? formData.trim_services.join(',').toLowerCase()
+      : (formData.trim_services || '').toLowerCase();
     const isInstall = serviceTypeStr.includes('install new baseboard') || serviceTypeStr === '';
     const isReplace = serviceTypeStr.includes('replace existing baseboard');
 
@@ -571,9 +598,7 @@ export function calculateEstimate(formData: any): EstimateResult {
     }
   }
 
-  // ── 7. ELECTRICAL ────────────────────────────────────────────────────────
-  // Electrical multipliers: condition multiplier applies (two-story, occupied, etc.)
-  // but ceiling multiplier does NOT automatically apply unless specifically ceiling work.
+  // ── 6. ELECTRICAL ────────────────────────────────────────────────────────
   if (formData.services?.electrical) {
     const electricalServices: string[] = Array.isArray(formData.electrical_services)
       ? formData.electrical_services
@@ -632,7 +657,6 @@ export function calculateEstimate(formData: any): EstimateResult {
         case 'outlet/switch relocation':
         case 'new outlet installation':
         case 'tv mount wire concealment': {
-          // No fixed rate — flag for review
           isPendingReview = true;
           const serviceNameMap: Record<string, string> = {
             'outlet/switch relocation': 'Outlet/Switch Relocation',
@@ -650,7 +674,7 @@ export function calculateEstimate(formData: any): EstimateResult {
     });
   }
 
-  // ── 9. TRIP CHARGES ──────────────────────────────────────────────────────
+  // ── 7. TRIP CHARGES ──────────────────────────────────────────────────────
   if (hasMaterials) {
     additionalCharges.push({
       name: 'Store Material Procurement Trip',
@@ -671,17 +695,14 @@ export function calculateEstimate(formData: any): EstimateResult {
     });
   }
 
-  // ── 10. TOTALS & FIXED SERVICE FEE ─────────────────────────────────
+  // ── 8. TOTALS ─────────────────────────────────────────────────────────────
   const subtotalLabor = laborItems.reduce((s, i) => s + i.total, 0);
   const subtotalMaterials = materialItems.reduce((s, i) => s + i.total, 0);
-
-  // ALWAYS add a $700 fixed service fee
-  const fixedServiceFee = MINIMUM_JOB_CHARGE_CONFIG.VALUE;
-
   const finalSubtotalAdditional = additionalCharges.reduce((s, i) => s + i.total, 0);
 
-  // Include the fixed base service fee in the grand total calculation
-  let grandTotal = subtotalLabor + subtotalMaterials + finalSubtotalAdditional + fixedServiceFee;
+  // Add mandatory $700 fixed charge to the total
+  const baseServiceFee = MINIMUM_JOB_CHARGE_CONFIG.VALUE;
+  let grandTotal = subtotalLabor + subtotalMaterials + finalSubtotalAdditional + baseServiceFee;
 
   const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -692,7 +713,7 @@ export function calculateEstimate(formData: any): EstimateResult {
     subtotalLabor: round2(subtotalLabor),
     subtotalMaterials: round2(subtotalMaterials),
     subtotalAdditional: round2(finalSubtotalAdditional),
-    baseServiceFee: fixedServiceFee,
+    baseServiceFee: MINIMUM_JOB_CHARGE_CONFIG.VALUE,
     grandTotal: round2(grandTotal),
     isPendingReview,
     reviewStatus: isPendingReview ? 'Pending Final Review' : 'Calculated',

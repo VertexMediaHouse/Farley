@@ -277,18 +277,78 @@ export default function EstimatePage() {
                 <span>Subtotal Logistics &amp; Setup:</span>
                 <span style={{ fontWeight: 700, color: '#0f172a' }}>${estimate.subtotalAdditional.toFixed(2)}</span>
               </div>
-              <div className="final-row highlight-fee" style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '0.95rem',
-                color: '#64748b',
-                padding: '10px 0',
-                borderTop: '1px dashed #cbd5e1',
-                borderBottom: '1px dashed #cbd5e1'
-              }}>
-                <span>Fixed Base Service Fee:</span>
-                <span style={{ fontWeight: 800, color: '#ff861c' }}>${estimate.baseServiceFee.toFixed(2)}</span>
+              <div className="final-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#64748b' }}>
+                <span>Fixed Charge (Minimum $700):</span>
+                <span style={{ fontWeight: 700, color: '#0f172a' }}>${estimate.baseServiceFee.toFixed(2)}</span>
               </div>
+              {/* Detailed Labor Breakdown */}
+              <h3 style={{ marginTop: '20px', fontSize: '1rem', fontWeight: 600, color: '#0f172a' }}>Labor Items</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
+                <thead>
+                  <tr style={{ background: '#f1f5f9' }}>
+                    <th style={{ textAlign: 'left', padding: '6px' }}>Description</th>
+                    <th style={{ textAlign: 'right', padding: '6px' }}>Qty</th>
+                    <th style={{ textAlign: 'right', padding: '6px' }}>Unit Price</th>
+                    <th style={{ textAlign: 'right', padding: '6px' }}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {estimate.labor.map((item, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '6px' }}>{item.name}</td>
+                      <td style={{ padding: '6px', textAlign: 'right' }}>{item.quantity}</td>
+                      <td style={{ padding: '6px', textAlign: 'right' }}>${item.unitPrice.toFixed(2)}</td>
+                      <td style={{ padding: '6px', textAlign: 'right' }}>${item.total.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Detailed Materials Breakdown */}
+              <h3 style={{ marginTop: '20px', fontSize: '1rem', fontWeight: 600, color: '#0f172a' }}>Material Items</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
+                <thead>
+                  <tr style={{ background: '#f1f5f9' }}>
+                    <th style={{ textAlign: 'left', padding: '6px' }}>Description</th>
+                    <th style={{ textAlign: 'right', padding: '6px' }}>Qty</th>
+                    <th style={{ textAlign: 'right', padding: '6px' }}>Unit Price</th>
+                    <th style={{ textAlign: 'right', padding: '6px' }}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {estimate.materials.map((item, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '6px' }}>{item.name}</td>
+                      <td style={{ padding: '6px', textAlign: 'right' }}>{item.quantity}</td>
+                      <td style={{ padding: '6px', textAlign: 'right' }}>${item.unitPrice.toFixed(2)}</td>
+                      <td style={{ padding: '6px', textAlign: 'right' }}>${item.total.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Detailed Additional Charges */}
+              <h3 style={{ marginTop: '20px', fontSize: '1rem', fontWeight: 600, color: '#0f172a' }}>Additional Charges</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
+                <thead>
+                  <tr style={{ background: '#f1f5f9' }}>
+                    <th style={{ textAlign: 'left', padding: '6px' }}>Description</th>
+                    <th style={{ textAlign: 'right', padding: '6px' }}>Qty</th>
+                    <th style={{ textAlign: 'right', padding: '6px' }}>Unit Price</th>
+                    <th style={{ textAlign: 'right', padding: '6px' }}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {estimate.additionalCharges.map((item, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '6px' }}>{item.name}</td>
+                      <td style={{ padding: '6px', textAlign: 'right' }}>{item.quantity}</td>
+                      <td style={{ padding: '6px', textAlign: 'right' }}>${item.unitPrice.toFixed(2)}</td>
+                      <td style={{ padding: '6px', textAlign: 'right' }}>${item.total.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
               <div className="final-row grand-total-row" style={{
                 display: 'flex',
                 justifyContent: 'space-between',
