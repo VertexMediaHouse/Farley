@@ -1749,7 +1749,7 @@ export default function EstimateWizard() {
                     <div className="yesno-combined-step" style={{ marginBottom: '20px' }}>
                       {/* Radio options */}
                       <div className="radio-options-list" style={{ marginBottom: '16px' }}>
-                        {dynamicSteps[currentStepIndex - 1].options.map(option => {
+                        {dynamicSteps[currentStepIndex - 1].options.map((option: string) => {
                           const isSelected = answers[dynamicSteps[currentStepIndex - 1].id] === option;
                           return (
                             <div key={option} className="radio-option-card-wrapper">
