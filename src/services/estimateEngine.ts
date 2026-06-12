@@ -527,10 +527,10 @@ export function calculateEstimate(formData: any): EstimateResult {
     const isReplace = serviceTypeStr.includes('replace existing baseboard');
 
     const customBasePrice = safeParseFloat(formData.trim_base_price);
-    const baseInstallRate = customBasePrice > 0 ? customBasePrice : LABOR_PRICING.TRIM.BASEBOARD_INSTALL;
+    const baseInstallRate = LABOR_PRICING.TRIM.BASEBOARD_INSTALL;
 
     const customCasingPrice = safeParseFloat(formData.trim_casing_price);
-    const casingInstallRate = customCasingPrice > 0 ? customCasingPrice : LABOR_PRICING.TRIM.DOOR_CASING;
+    const casingInstallRate = LABOR_PRICING.TRIM.DOOR_CASING;
 
     if (isInstall || isReplace) {
       if (finalBaseboardFeet > 0) {
@@ -541,6 +541,16 @@ export function calculateEstimate(formData: any): EstimateResult {
           unitPrice: baseInstallRate,
           total: finalBaseboardFeet * baseInstallRate,
         });
+        
+        if (customBasePrice > 0) {
+          materialItems.push({
+            name: 'Baseboard Material',
+            quantity: Math.round(finalBaseboardFeet),
+            unit: 'linear ft',
+            unitPrice: customBasePrice,
+            total: finalBaseboardFeet * customBasePrice,
+          });
+        }
       }
 
       if (effectiveCasingFeet > 0) {
@@ -551,6 +561,16 @@ export function calculateEstimate(formData: any): EstimateResult {
           unitPrice: casingInstallRate,
           total: effectiveCasingFeet * casingInstallRate,
         });
+
+        if (customCasingPrice > 0) {
+          materialItems.push({
+            name: 'Door Casing Material',
+            quantity: Math.round(effectiveCasingFeet),
+            unit: 'linear ft',
+            unitPrice: customCasingPrice,
+            total: effectiveCasingFeet * customCasingPrice,
+          });
+        }
       }
 
       if (isReplace) {

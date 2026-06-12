@@ -130,9 +130,9 @@ export const MATERIAL_PRICING = {
     NINETY_DEGREE_10FT: 250.00,          // 89/90 degree corner metal 10ft
     NINETY_DEGREE_8FT: 200.00,           // 90 degree corner metal 8ft
     ARCH_STANDARD_PER_LINEAR: 75.00,    // per linear ft
-    ARCH_BULLNOSE_PER_LINEAR: 100.00,    // per linear ft
+    ARCH_BULLNOSE_PER_LINEAR: 100.00,   // per linear ft
     ARCH_STANDARD_SINGLE: 300.00,       // single piece standard arch
-    ARCH_BULLNOSE_SINGLE: 450.00,       // single piece bullnose arch
+    ARCH_BULLNOSE_SINGLE: 450.00,       // single piece bullnose archx`
   },
 
 };
@@ -144,7 +144,6 @@ export const ADDITIONAL_CHARGES = {
   HAUL_AWAY: 200.00,
   STORE_TRIP: 50.00,
   PAINT_TRIP: 50.00,
-  // BASE_SERVICE_FEE removed per updated pricing sheet
 };
 
 // ========================================

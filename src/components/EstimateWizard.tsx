@@ -235,38 +235,52 @@ export default function EstimateWizard() {
     setAnswers((prev) => ({ ...prev, [field]: value }))
   }
 
-  // ─── Trim area helpers ───────────────────────────────────────────────────────
+  // ─── Combined Step Helpers ───────────────────────────────────────────────────
+  const [combinedItems, setCombinedItems] = useState<Record<string, { photo: File | null, sqft: string }[]>>({});
 
-  const addTrimArea = () => {
-    setAnswers((prev) => ({
+  const getStepItems = (stepId: string) => {
+    return combinedItems[stepId] || [{ photo: null, sqft: '' }];
+  };
+
+  const addRow = (stepId: string) => {
+    setCombinedItems(prev => ({
       ...prev,
-      trim_areas: [...(prev.trim_areas || []), { label: '', feet: '' }]
-    }))
-  }
+      [stepId]: [...(prev[stepId] || [{ photo: null, sqft: '' }]), { photo: null, sqft: '' }]
+    }));
+  };
 
-  const removeTrimArea = (index: number) => {
-    setAnswers((prev) => {
-      const newAreas = [...(prev.trim_areas || [])]
-      newAreas.splice(index, 1)
+  const removeRow = (stepId: string, index: number, dimensionId: string) => {
+    setCombinedItems(prev => {
+      const current = prev[stepId] || [{ photo: null, sqft: '' }];
+      const newItems = current.filter((_, i) => i !== index);
+      const total = newItems.reduce((acc, item) => acc + (parseFloat(item.sqft) || 0), 0);
+      setAnswers(a => ({ ...a, [dimensionId]: total > 0 ? total.toString() : '' }));
+      return { ...prev, [stepId]: newItems };
+    });
+  };
+
+  const updateSqft = (stepId: string, index: number, value: string, dimensionId: string) => {
+    setCombinedItems(prev => {
+      const current = prev[stepId] || [{ photo: null, sqft: '' }];
+      const newItems = current.map((item, i) => i === index ? { ...item, sqft: value } : item);
+      const total = newItems.reduce((acc, item) => acc + (parseFloat(item.sqft) || 0), 0);
+      setAnswers(a => ({ ...a, [dimensionId]: total > 0 ? total.toString() : '' }));
+      return { ...prev, [stepId]: newItems };
+    });
+  };
+
+  const updatePhoto = (stepId: string, index: number, file: File | null) => {
+    setCombinedItems(prev => {
+      const current = prev[stepId] || [{ photo: null, sqft: '' }];
       return {
         ...prev,
-        trim_areas: newAreas
-      }
-    })
-  }
-
-  const updateTrimArea = (index: number, field: 'label' | 'feet', value: string) => {
-    setAnswers((prev) => {
-      const newAreas = [...(prev.trim_areas || [])]
-      newAreas[index] = { ...newAreas[index], [field]: value }
-      return {
-        ...prev,
-        trim_areas: newAreas
-      }
-    })
-  }
-
-  // ─── Dynamic step builder ────────────────────────────────────────────────────
+        [stepId]: current.map((item, i) => i === index ? { ...item, photo: file } : item)
+      };
+    });
+    if (file) {
+      setUploadedFiles(prev => [...prev, file]);
+    }
+  };
 
   const getDynamicSteps = () => {
     const stepsList: any[] = []
@@ -276,7 +290,7 @@ export default function EstimateWizard() {
       // ── Step 1: Area selection ────────────────────────────────────────────
       stepsList.push({
         id: 'drywall_area',
-        title: 'WHAT AREA NEEDS drywall?',
+        title: 'What area needs drywall?',
         subtitle: 'Please add all areas. (Allow multiple selections)',
         type: 'checkbox',
         options: [
@@ -294,64 +308,56 @@ export default function EstimateWizard() {
 
       if (selectedAreas.some(a => a.startsWith('Walls'))) {
         stepsList.push({
-          id: 'drywall_wall_sqft',
-          title: 'Wall drywall — How many sqft?',
-          type: 'text',
-          placeholder: 'e.g. 200'
-        })
-        stepsList.push({
-          id: 'drywall_wall_photo',
-          title: 'Please add photos of the wall area',
-          type: 'photo_upload'
+          id: 'drywall_wall',
+          title: 'Wall drywall — How many sqft & photos?',
+          type: 'combined',
+          fields: {
+            dimension: { id: 'drywall_wall_sqft', placeholder: 'e.g. 200' },
+            photo: { id: 'drywall_wall_photo', title: 'Wall photos' }
+          }
         })
       }
 
       if (selectedAreas.some(a => a.startsWith('Ceiling'))) {
         stepsList.push({
-          id: 'drywall_ceiling_sqft',
-          title: 'Ceiling drywall — How many sqft?',
-          type: 'text',
-          placeholder: 'e.g. 150'
-        })
-        stepsList.push({
-          id: 'drywall_ceiling_photo',
-          title: 'Please add photos of the ceiling area',
-          type: 'photo_upload'
+          id: 'drywall_ceiling',
+          title: 'Ceiling drywall — How many sqft & photos?',
+          type: 'combined',
+          fields: {
+            dimension: { id: 'drywall_ceiling_sqft', placeholder: 'e.g. 150' },
+            photo: { id: 'drywall_ceiling_photo', title: 'Ceiling photos' }
+          }
         })
       }
 
       if (selectedAreas.some(a => a.startsWith('Bathroom walls'))) {
         stepsList.push({
-          id: 'drywall_bathroom_wall_sqft',
-          title: 'Bathroom wall drywall — How many sqft?',
-          type: 'text',
-          placeholder: 'e.g. 80'
-        })
-        stepsList.push({
-          id: 'drywall_bathroom_wall_photo',
-          title: 'Please add photos of the bathroom wall area',
-          type: 'photo_upload'
+          id: 'drywall_bathroom_wall',
+          title: 'Bathroom wall drywall — How many sqft & photos?',
+          type: 'combined',
+          fields: {
+            dimension: { id: 'drywall_bathroom_wall_sqft', placeholder: 'e.g. 80' },
+            photo: { id: 'drywall_bathroom_wall_photo', title: 'Bathroom wall photos' }
+          }
         })
       }
 
       if (selectedAreas.some(a => a.startsWith('Bathroom ceiling'))) {
         stepsList.push({
-          id: 'drywall_bathroom_ceiling_sqft',
-          title: 'Bathroom ceiling drywall — How many sqft?',
-          type: 'text',
-          placeholder: 'e.g. 50'
-        })
-        stepsList.push({
-          id: 'drywall_bathroom_ceiling_photo',
-          title: 'Please add photos of the bathroom ceiling area',
-          type: 'photo_upload'
+          id: 'drywall_bathroom_ceiling',
+          title: 'Bathroom ceiling drywall — How many sqft & photos?',
+          type: 'combined',
+          fields: {
+            dimension: { id: 'drywall_bathroom_ceiling_sqft', placeholder: 'e.g. 50' },
+            photo: { id: 'drywall_bathroom_ceiling_photo', title: 'Bathroom ceiling photos' }
+          }
         })
       }
 
       // ── Step 2: Demolition ────────────────────────────────────────────────
       stepsList.push({
         id: 'drywall_demolition',
-        title: 'DO YOU NEED DEMOLITION?',
+        title: 'Do you need demolition?',
         type: 'checkbox',
         options: [
           'No Demo Needed',
@@ -359,7 +365,7 @@ export default function EstimateWizard() {
           'Remove Existing Ceiling Drywall',
           'Remove Insulation (sqft)',
           'Remove Base Board (linear ft)',
-          'Popcorn Ceiling Removal'
+          'Remove Popcorn Ceiling'
         ]
       })
 
@@ -367,123 +373,77 @@ export default function EstimateWizard() {
         ? answers.drywall_demolition
         : (answers.drywall_demolition ? [answers.drywall_demolition] : [])
 
-      if (demo.includes('Remove Existing Wall Drywall')) {
+      const demoRequireDimensions = demo.filter(d => d !== 'No Demo Needed');
+      if (demoRequireDimensions.length > 0) {
         stepsList.push({
-          id: 'drywall_demo_wall_sqft',
-          title: 'Remove Existing Wall Drywall — How many sqft?',
-          type: 'text',
-          placeholder: 'e.g. 200'
-        })
+          id: 'drywall_demolition_details',
+          title: 'Demolition Details — Provide amounts for selected items',
+          type: 'demolition_combined',
+          options: demoRequireDimensions
+        });
       }
 
-      if (demo.includes('Remove Existing Ceiling Drywall')) {
-        stepsList.push({
-          id: 'drywall_demo_ceiling_sqft',
-          title: 'Remove Existing Ceiling Drywall — How many sqft?',
-          type: 'text',
-          placeholder: 'e.g. 150'
-        })
-      }
-
-      if (demo.includes('Remove Insulation (sqft)')) {
-        stepsList.push({
-          id: 'drywall_demo_insulation_sqft',
-          title: 'Remove Insulation — How many sqft?',
-          type: 'text',
-          placeholder: 'e.g. 100'
-        })
-      }
-
-      if (demo.includes('Remove Base Board (linear ft)')) {
-        stepsList.push({
-          id: 'drywall_demo_baseboard_ft',
-          title: 'Remove Base Board — How many linear ft?',
-          type: 'text',
-          placeholder: 'e.g. 40'
-        })
-      }
-
-      if (demo.includes('Popcorn Ceiling Removal')) {
-        stepsList.push({
-          id: 'drywall_popcorn_sqft',
-          title: 'Popcorn Ceiling Removal — How many sqft?\n(Base rate $300. Over 100 sqft charged at $1/sqft)',
-          type: 'text',
-          placeholder: 'e.g. 150'
-        })
-        stepsList.push({
-          id: 'drywall_popcorn_photo',
-          title: 'Please add photos of the popcorn ceiling',
-          type: 'photo_upload'
-        })
-      }
-
-      // ── Step 3: Soffits ───────────────────────────────────────────────────
       stepsList.push({
-        id: 'drywall_soffits',
-        title: 'DO YOU HAVE ANY SOFFITS?',
-        type: 'checkbox',
-        options: ['Wall Soffits', 'Ceiling Soffits', 'None']
-      })
-
-      const soffits: string[] = Array.isArray(answers.drywall_soffits)
-        ? answers.drywall_soffits
-        : (answers.drywall_soffits ? [answers.drywall_soffits] : [])
-
-      const hasSoffits = soffits.some(s => s !== 'None')
-      if (hasSoffits) {
-        stepsList.push({
-          id: 'drywall_soffits_sqft',
-          title: 'Approximate sqft of soffits',
-          type: 'text',
-          placeholder: 'e.g. 40'
-        })
-        stepsList.push({
-          id: 'drywall_soffits_photos',
-          title: 'Please add photos of your soffits',
-          type: 'photo_upload'
-        })
-      }
-
-      // ── Step 4: Ceiling height ────────────────────────────────────────────
-      stepsList.push({
-        id: 'ceiling_height_greater_than_8ft',
-        title: 'Is the ceiling height more than 8ft? If so, how tall?',
+        id: 'drywall_has_soffits',
+        title: 'Do you have any Soffits?',
         type: 'radio',
         options: ['Yes', 'No']
       })
 
-      if (answers.ceiling_height_greater_than_8ft === 'Yes') {
+      if (answers.drywall_has_soffits === 'Yes') {
         stepsList.push({
-          id: 'ceiling_height_specify',
-          title: 'Please add height (in feet)',
-          type: 'text',
-          placeholder: 'e.g. 10'
+          id: 'drywall_soffits',
+          title: 'Soffits — Sqft & photos',
+          type: 'combined',
+          fields: {
+            dimension: { id: 'drywall_soffits_sqft', placeholder: 'e.g. 40' },
+            photo: { id: 'drywall_soffits_photos', title: 'Soffit photos' }
+          }
+        })
+      }
+
+      // Popcorn and baseboard are combined above. Keep the photo step for Popcorn.
+      if (demo.includes('Remove Popcorn Ceiling')) {
+        stepsList.push({
+          id: 'drywall_popcorn_photo',
+          title: 'Please add photos of the Popcorn Ceiling',
+          type: 'photo_upload'
+        })
+      }
+      // ── Compute area flags early (used by ceiling height, vaulted, insulation) ──
+      const hasWallArea = selectedAreas.some(a => a.startsWith('Walls') || a.startsWith('Bathroom walls'))
+      const hasCeilingArea = selectedAreas.some(a => a.startsWith('Ceiling') || a.startsWith('Bathroom ceiling'))
+
+      // ── Step 4: Ceiling height ────────────────────────────────────────────
+      if (hasCeilingArea) {
+        stepsList.push({
+          id: 'ceiling_height',
+          title: 'Ceiling height > 8ft?',
+          type: 'yesno_combined',
+          fields: {
+            yes: { id: 'ceiling_height_specify', title: 'Specify height (ft)', placeholder: 'e.g. 10' }
+          },
+          options: ['Yes', 'No']
         })
       }
 
       // ── Step 5: Vaulted ceiling ───────────────────────────────────────────
-      stepsList.push({
-        id: 'drywall_vaulted_ceiling',
-        title: 'Do you have a vaulted ceiling?',
-        type: 'radio',
-        options: ['Yes', 'No']
-      })
-
-      if (answers.drywall_vaulted_ceiling === 'Yes') {
+      if (hasCeilingArea) {
         stepsList.push({
-          id: 'drywall_vaulted_dimensions',
-          title: 'Please provide vaulted ceiling dimensions',
-          type: 'vaulted_dimensions'
+          id: 'drywall_vaulted_ceiling',
+          title: 'Vaulted ceiling? (Provide dimensions if Yes)',
+          type: 'yesno_combined',
+          fields: {
+            yes: { id: 'drywall_vaulted_dimensions', title: 'Vaulted dimensions' }
+          },
+          options: ['Yes', 'No']
         })
       }
-
       // ── Step 6: Insulation (auto-shown based on selected areas) ──────────
-      const hasWallArea = selectedAreas.some(a => a.startsWith('Walls') || a.startsWith('Bathroom walls'))
-      const hasCeilingArea = selectedAreas.some(a => a.startsWith('Ceiling') || a.startsWith('Bathroom ceiling'))
       if (hasWallArea || hasCeilingArea) {
         stepsList.push({
           id: 'drywall_insulation',
-          title: 'DO YOU NEED INSULATION?',
+          title: 'Do you need Insulation?',
           subtitle: hasWallArea && hasCeilingArea
             ? 'Wall insulation — R13 | Ceiling insulation — R19'
             : hasWallArea ? 'Wall insulation — R13' : 'Ceiling insulation — R19',
@@ -495,7 +455,7 @@ export default function EstimateWizard() {
       // ── Step 7: Corner metal ──────────────────────────────────────────────
       stepsList.push({
         id: 'drywall_corner_metal',
-        title: 'DO YOU NEED ANY CORNER METAL?',
+        title: 'Do you need any corner metals?',
         type: 'checkbox',
         options: [
           'No Corner Metal Needed',
@@ -503,8 +463,6 @@ export default function EstimateWizard() {
           'Bullnose Corner Metal',
           'Arch Standard 90 Degree Corner Metal',
           'Arch Bullnose Corner Metal',
-          'Engel Corner Metal',
-          'Arch Engel Corner Metal'
         ]
       })
 
@@ -516,7 +474,7 @@ export default function EstimateWizard() {
       if (needsCorners) {
         stepsList.push({
           id: 'drywall_corner_count',
-          title: 'HOW MANY CORNERS?',
+          title: 'How many Corners?',
           type: 'text',
           placeholder: 'e.g. 4'
         })
@@ -527,7 +485,7 @@ export default function EstimateWizard() {
         if (needsLength) {
           stepsList.push({
             id: 'drywall_corner_length',
-            title: 'What length of corner metal?',
+            title: 'What is the length of corner metal?',
             type: 'radio',
             options: ['8ft', '10ft', 'Other']
           })
@@ -537,7 +495,7 @@ export default function EstimateWizard() {
       // ── Step 8: Texture / Finish ──────────────────────────────────────────
       stepsList.push({
         id: 'drywall_texture',
-        title: 'WHAT TEXTURE/FINISH DO YOU WANT?',
+        title: 'What texture/finish do you want?',
         type: 'radio',
         options: ['Smooth Finish', 'Orange Peel', 'Knock Down', 'Match Existing Texture']
       })
@@ -585,7 +543,7 @@ export default function EstimateWizard() {
         type: 'contact_info_optional'
       })
     }
-    
+
     // 2. Paint questions
     if (answers.services.paint) {
       stepsList.push({
@@ -597,7 +555,7 @@ export default function EstimateWizard() {
 
       stepsList.push({
         id: 'paint_area',
-        title: 'WHAT AREA NEEDS paint?',
+        title: 'What area needs paint?',
         subtitle: 'Please add all areas. (Allow multiple selection)',
         type: 'checkbox',
         options: ['Wall', 'Ceiling', 'Bath ceiling', 'Bath wall']
@@ -608,25 +566,53 @@ export default function EstimateWizard() {
         : (answers.paint_area ? [answers.paint_area] : [])
 
       if (selectedPaintAreas.includes('Wall')) {
-        stepsList.push({ id: 'paint_wall_sqft', title: 'Wall — How many sqft?', type: 'text', placeholder: 'e.g. 200' })
-        stepsList.push({ id: 'paint_wall_photo', title: 'Please add a photo of the wall', type: 'photo_upload' })
+        stepsList.push({
+          id: 'paint_wall',
+          title: 'Wall — Sqft & photo',
+          type: 'combined',
+          fields: {
+            dimension: { id: 'paint_wall_sqft', placeholder: 'e.g. 200' },
+            photo: { id: 'paint_wall_photo', title: 'Wall photo' }
+          }
+        })
       }
       if (selectedPaintAreas.includes('Ceiling')) {
-        stepsList.push({ id: 'paint_ceiling_sqft', title: 'Ceiling — How many sqft?', type: 'text', placeholder: 'e.g. 150' })
-        stepsList.push({ id: 'paint_ceiling_photo', title: 'Please add a photo of the ceiling', type: 'photo_upload' })
+        stepsList.push({
+          id: 'paint_ceiling',
+          title: 'Ceiling — Sqft & photo',
+          type: 'combined',
+          fields: {
+            dimension: { id: 'paint_ceiling_sqft', placeholder: 'e.g. 150' },
+            photo: { id: 'paint_ceiling_photo', title: 'Ceiling photo' }
+          }
+        })
       }
       if (selectedPaintAreas.includes('Bath ceiling')) {
-        stepsList.push({ id: 'paint_bath_ceiling_sqft', title: 'Bath ceiling — How many sqft?', type: 'text', placeholder: 'e.g. 50' })
-        stepsList.push({ id: 'paint_bath_ceiling_photo', title: 'Please add a photo of the bath ceiling', type: 'photo_upload' })
+        stepsList.push({
+          id: 'paint_bath_ceiling',
+          title: 'Bath ceiling — Sqft & photo',
+          type: 'combined',
+          fields: {
+            dimension: { id: 'paint_bath_ceiling_sqft', placeholder: 'e.g. 50' },
+            photo: { id: 'paint_bath_ceiling_photo', title: 'Bath ceiling photo' }
+          }
+        })
       }
       if (selectedPaintAreas.includes('Bath wall')) {
-        stepsList.push({ id: 'paint_bath_wall_sqft', title: 'Bath wall — How many sqft?', type: 'text', placeholder: 'e.g. 100' })
-        stepsList.push({ id: 'paint_bath_wall_photo', title: 'Please add a photo of the bath wall', type: 'photo_upload' })
+        stepsList.push({
+          id: 'paint_bath_wall',
+          title: 'Bath wall — Sqft & photo',
+          type: 'combined',
+          fields: {
+            dimension: { id: 'paint_bath_wall_sqft', placeholder: 'e.g. 100' },
+            photo: { id: 'paint_bath_wall_photo', title: 'Bath wall photo' }
+          }
+        })
       }
 
       stepsList.push({
         id: 'paint_trim_area',
-        title: 'WHAT Trim NEEDS PAINTING?',
+        title: 'What trim and baseboards need painting?',
         subtitle: 'Allow multiple selection',
         type: 'checkbox',
         options: ['Trim', 'Baseboards']
@@ -637,33 +623,41 @@ export default function EstimateWizard() {
         : (answers.paint_trim_area ? [answers.paint_trim_area] : [])
 
       if (selectedTrimAreas.includes('Trim')) {
-        stepsList.push({ id: 'paint_trim_linear_ft', title: 'Trim — How many linear ft?', type: 'text', placeholder: 'e.g. 50' })
-        stepsList.push({ id: 'paint_trim_photo', title: 'Please add a photo of the trim', type: 'photo_upload' })
+        stepsList.push({
+          id: 'paint_trim',
+          title: 'Trim — Linear ft & photo',
+          type: 'combined',
+          fields: {
+            dimension: { id: 'paint_trim_linear_ft', placeholder: 'e.g. 50' },
+            photo: { id: 'paint_trim_photo', title: 'Trim photo' }
+          }
+        })
       }
       if (selectedTrimAreas.includes('Baseboards')) {
-        stepsList.push({ id: 'paint_baseboards_linear_ft', title: 'Baseboards — How many linear ft?', type: 'text', placeholder: 'e.g. 100' })
-        stepsList.push({ id: 'paint_baseboards_photo', title: 'Please add a photo of the baseboards', type: 'photo_upload' })
-      }
-
-      stepsList.push({
-        id: 'paint_ceiling_height_over_8ft',
-        title: 'Is the ceiling height more than 8ft. If so, how tall.',
-        type: 'radio',
-        options: ['Yes', 'No']
-      })
-
-      if (answers.paint_ceiling_height_over_8ft === 'Yes') {
         stepsList.push({
-          id: 'paint_ceiling_height',
-          title: 'Ceiling height',
-          type: 'text',
-          placeholder: 'e.g. 10ft'
+          id: 'paint_baseboards',
+          title: 'Baseboards — Linear ft & photo',
+          type: 'combined',
+          fields: {
+            dimension: { id: 'paint_baseboards_linear_ft', placeholder: 'e.g. 100' },
+            photo: { id: 'paint_baseboards_photo', title: 'Baseboards photo' }
+          }
         })
       }
 
       stepsList.push({
+        id: 'paint_ceiling_height',
+        title: 'Is paint ceiling height > 8ft?',
+        type: 'yesno_combined',
+        fields: {
+          yes: { id: 'paint_ceiling_height_detail', title: 'Specify height (ft)', placeholder: 'e.g. 10' }
+        },
+        options: ['Yes', 'No']
+      })
+
+      stepsList.push({
         id: 'paint_customer_providing',
-        title: 'Will you be providing PAINT?',
+        title: 'Will you be providing paint?',
         type: 'radio',
         options: ['Yes', 'No']
       })
@@ -724,7 +718,7 @@ export default function EstimateWizard() {
           type: 'radio',
           options: ['Yes', 'No'],
           warningCondition: 'Yes',
-          warningMessage: 'have all furniture removed before work starts'
+          warningMessage: 'Have all furniture removed before work starts'
         })
 
         stepsList.push({
@@ -756,7 +750,7 @@ export default function EstimateWizard() {
     if (answers.services.trim) {
       stepsList.push({
         id: 'trim_services',
-        title: 'WHAT SERVICE DO YOU NEED?',
+        title: 'What service do you need?',
         type: 'checkbox',
         options: [
           'Install New Baseboards',
@@ -765,30 +759,26 @@ export default function EstimateWizard() {
       })
 
       stepsList.push({
-        id: 'trim_baseboard_height',
-        title: 'How tall is your base board? If over 6" please share what size',
-        type: 'text',
-        placeholder: 'blank space to add height'
-      })
-
-      stepsList.push({
-        id: 'trim_baseboard_photo',
-        title: 'Please add photos of your baseboard',
-        type: 'photo_upload'
+        id: 'trim_baseboard',
+        title: 'Baseboard height and photos',
+        subtitle: 'If over 6" please share what size',
+        type: 'combined',
+        fields: {
+          dimension: { id: 'trim_baseboard_height', placeholder: 'e.g. 4 inch' },
+          photo: { id: 'trim_baseboard_photo', title: 'Baseboard photos' }
+        }
       })
 
       stepsList.push({
         id: 'trim_base_material',
         title: 'What material is your base?',
-        type: 'checkbox',
-        options: ['MDF', 'Real wood']
-      })
-
-      stepsList.push({
-        id: 'trim_base_linear_feet',
-        title: 'How many linear feet do you have?',
-        type: 'text',
-        placeholder: 'linear feet'
+        type: 'checkbox_with_input',
+        options: ['MDF', 'Real wood'],
+        inputField: {
+          id: 'trim_base_linear_feet',
+          label: 'Linear feet',
+          placeholder: 'linear feet'
+        }
       })
 
       stepsList.push({
@@ -807,22 +797,19 @@ export default function EstimateWizard() {
 
       stepsList.push({
         id: 'trim_casing',
-        title: 'Door CASING Do you have',
+        title: 'Door casing do you have',
         type: 'radio',
         options: ['3"', '4"', '5"', '6"', 'Other']
       })
 
       stepsList.push({
-        id: 'trim_casing_photo',
-        title: 'Please add photos.',
-        type: 'photo_upload'
-      })
-
-      stepsList.push({
-        id: 'trim_casing_linear_feet',
-        title: 'How many linear feet do you have?',
-        type: 'text',
-        placeholder: 'linear feet'
+        id: 'trim_casing_combined',
+        title: 'Casing — Photo & Linear Ft',
+        type: 'combined',
+        fields: {
+          dimension: { id: 'trim_casing_linear_feet', placeholder: 'e.g. 50' },
+          photo: { id: 'trim_casing_photo', title: 'Casing photos' }
+        }
       })
 
       stepsList.push({
@@ -831,38 +818,37 @@ export default function EstimateWizard() {
         type: 'radio',
         options: ['Yes', 'No']
       })
-
+      
       stepsList.push({
         id: 'trim_knows_price',
         title: 'Do you know what the price per linear foot is for your base, or casing?',
         type: 'radio',
         options: ['Yes', 'No']
       })
-
+      
       if (answers.trim_knows_price === 'Yes') {
         stepsList.push({
-          id: 'trim_base_price',
-          title: 'Base: Enter linear price',
-          type: 'text',
-          placeholder: 'e.g. 5.00'
-        })
-        stepsList.push({
-          id: 'trim_casing_price',
-          title: 'Casing: Enter linear price',
-          type: 'text',
-          placeholder: 'e.g. 5.00'
+          id: 'trim_prices',
+          title: 'Enter linear price for Base & Casing',
+          type: 'price_pair',
+          fields: {
+            base: { id: 'trim_base_price', label: 'Base ($/linear ft)', placeholder: 'e.g. 5.00' },
+            casing: { id: 'trim_casing_price', label: 'Casing ($/linear ft)', placeholder: 'e.g. 5.00' }
+          }
         })
       }
-
+      
       if (answers.trim_knows_price === 'No') {
         stepsList.push({
           id: 'trim_search_fee_ok',
           title: 'Are you ok with a $50 an hour fee for searching for your trim?',
           type: 'radio',
-          options: ['Yes', 'No']
+          options: ['Yes', 'No'],
+          warningCondition: 'No',
+          warningMessage: 'Please Provide Trim details before work starts.'
         })
       }
-
+      
       if (!answers.services.drywall && !answers.services.paint) {
         stepsList.push({
           id: 'is_occupied',
@@ -870,7 +856,7 @@ export default function EstimateWizard() {
           type: 'radio',
           options: ['Yes', 'No'],
           warningCondition: 'Yes',
-          warningMessage: 'have all furniture removed before work starts'
+          warningMessage: 'Have all furniture removed before work starts'
         })
 
         stepsList.push({
@@ -924,6 +910,12 @@ export default function EstimateWizard() {
         answers.drywall_vaulted_height?.trim() !== '' &&
         answers.drywall_vaulted_surrounding?.trim() !== ''
       )
+    }
+
+    if (currentDynamicStep.type === 'price_pair') {
+      const base = answers[currentDynamicStep.fields.base.id]
+      const casing = answers[currentDynamicStep.fields.casing.id]
+      return base?.trim() !== '' && casing?.trim() !== ''
     }
 
     if (currentDynamicStep.type === 'checkbox') {
@@ -1019,6 +1011,10 @@ export default function EstimateWizard() {
         }
       }
     }
+  }
+
+  const handleRadioChange = (id: string, option: string) => {
+    setAnswers((prev) => ({ ...prev, [id]: option }))
   }
 
   // ─── Render ──────────────────────────────────────────────────────────────────
@@ -1145,13 +1141,13 @@ export default function EstimateWizard() {
                     </div>
                   )}
 
-                  {dynamicSteps[currentStepIndex - 1].type === 'radio' && 
-                   dynamicSteps[currentStepIndex - 1].warningCondition && 
-                   answers[dynamicSteps[currentStepIndex - 1].id] === dynamicSteps[currentStepIndex - 1].warningCondition && (
-                    <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.3)', borderRadius: '8px', color: '#b45309', fontSize: '0.9rem', fontWeight: 600 }}>
-                      ⚠️ {dynamicSteps[currentStepIndex - 1].warningMessage}
-                    </div>
-                  )}
+                  {dynamicSteps[currentStepIndex - 1].type === 'radio' &&
+                    dynamicSteps[currentStepIndex - 1].warningCondition &&
+                    answers[dynamicSteps[currentStepIndex - 1].id] === dynamicSteps[currentStepIndex - 1].warningCondition && (
+                      <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.3)', borderRadius: '8px', color: '#b45309', fontSize: '0.9rem', fontWeight: 600 }}>
+                        ⚠️ {dynamicSteps[currentStepIndex - 1].warningMessage}
+                      </div>
+                    )}
 
                   {dynamicSteps[currentStepIndex - 1].type === 'checkbox' && (
                     <div className="radio-options-list">
@@ -1334,6 +1330,68 @@ export default function EstimateWizard() {
                     </div>
                   )}
 
+                  {dynamicSteps[currentStepIndex - 1].type === 'checkbox_with_input' && (
+                    <div>
+                      <div className="radio-options-list">
+                        {dynamicSteps[currentStepIndex - 1].options?.map((option: string) => {
+                          const stepId = dynamicSteps[currentStepIndex - 1].id
+                          const currentVals = Array.isArray(answers[stepId]) ? answers[stepId] : (answers[stepId] ? [answers[stepId]] : [])
+                          const isSelected = currentVals.includes(option)
+
+                          return (
+                            <button
+                              key={option}
+                              type="button"
+                              className={`radio-option-card${isSelected ? ' selected' : ''}`}
+                              onClick={() => {
+                                setAnswers((prev) => {
+                                  const prevVals = Array.isArray(prev[stepId]) ? prev[stepId] : (prev[stepId] ? [prev[stepId]] : [])
+                                  let newVals = [...prevVals]
+                                  if (isSelected) {
+                                    newVals = newVals.filter(v => v !== option)
+                                  } else {
+                                    newVals.push(option)
+                                  }
+                                  return { ...prev, [stepId]: newVals }
+                                })
+                              }}
+                            >
+                              <div className="custom-checkbox" style={{ marginRight: '12px' }}>
+                                {isSelected && <span className="checkmark">✓</span>}
+                              </div>
+                              <span className="radio-label-text">{option}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+
+                      {(() => {
+                        const stepId = dynamicSteps[currentStepIndex - 1].id
+                        const currentVals = Array.isArray(answers[stepId]) ? answers[stepId] : (answers[stepId] ? [answers[stepId]] : [])
+                        const inputField = dynamicSteps[currentStepIndex - 1].inputField
+
+                        if (currentVals.length > 0 && inputField) {
+                          return (
+                            <div className="input-group" style={{ marginTop: '16px' }}>
+                              <label htmlFor={inputField.id} style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                                {inputField.label}
+                              </label>
+                              <input
+                                id={inputField.id}
+                                type="text"
+                                className="theme-text-input"
+                                placeholder={inputField.placeholder}
+                                value={answers[inputField.id] || ''}
+                                onChange={e => handleTextChange(inputField.id, e.target.value)}
+                              />
+                            </div>
+                          )
+                        }
+                        return null
+                      })()}
+                    </div>
+                  )}
+
                   {dynamicSteps[currentStepIndex - 1].type === 'contact_info_optional' && (
                     <div className="wizard-step-pane active" style={{ padding: 0 }}>
                       <div className="input-group" style={{ marginBottom: '12px' }}>
@@ -1474,90 +1532,257 @@ export default function EstimateWizard() {
                     </div>
                   )}
 
-                  {dynamicSteps[currentStepIndex - 1].type === 'trim_areas_input' && (
-                    <div className="trim-areas-container" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <p style={{ fontSize: '0.88rem', color: '#64748b', margin: '0 0 8px 0', lineHeight: '1.5' }}>
-                        Add the rooms or walls where trim work is needed.
-                        <br />
-                        <strong>Example:</strong> "Living Room Wall" &mdash; 15 ft
-                        <br /><br />
-                        <span style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 600 }}>
-                          Note: We have a $2.50 minimum per linear foot. If info shared is different, we will adjust the cost accordingly when on site. We have a $50 an hour fee for searching for rare trim.
-                        </span>
-                      </p>
-
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '240px', overflowY: 'auto', paddingRight: '4px' }}>
-                        {(answers.trim_areas || []).map((area: any, idx: number) => (
-                          <div key={idx} style={{ display: 'flex', gap: '10px', alignItems: 'center', background: 'rgba(0,0,0,0.02)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.05)' }}>
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <input
-                                type="text"
-                                placeholder="e.g. Living Room Wall"
-                                value={area.label}
-                                onChange={e => updateTrimArea(idx, 'label', e.target.value)}
-                                style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.9rem', color: '#000000' }}
-                              />
-                            </div>
-                            <div style={{ width: '120px', display: 'flex', alignItems: 'center' }}>
-                              <input
-                                type="number"
-                                placeholder="Feet"
-                                value={area.feet}
-                                onChange={e => updateTrimArea(idx, 'feet', e.target.value)}
-                                style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '0.9rem', color: '#000000' }}
-                              />
-                              <span style={{ marginLeft: '6px', fontSize: '0.85rem', color: '#64748b', whiteSpace: 'nowrap' }}>ft</span>
-                            </div>
-                            {(answers.trim_areas || []).length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => removeTrimArea(idx)}
-                                style={{
-                                  background: 'rgba(239, 68, 68, 0.1)',
-                                  color: '#ef4444',
-                                  border: 'none',
-                                  width: '32px',
-                                  height: '32px',
-                                  borderRadius: '6px',
-                                  display: 'grid',
-                                  placeItems: 'center',
-                                  cursor: 'pointer',
-                                  fontSize: '1rem',
-                                  fontWeight: 'bold',
-                                  transition: 'background 0.2s',
-                                  flexShrink: 0
-                                }}
-                                title="Remove area"
-                              >
-                                ✕
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={addTrimArea}
+                  {/* Combined dimension + photo step */}
+                  {dynamicSteps[currentStepIndex - 1].type === 'combined' && dynamicSteps[currentStepIndex - 1].fields?.dimension && dynamicSteps[currentStepIndex - 1].fields?.photo && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                      }}
+                    >
+                      {/* Header */}
+                      <div
                         style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '6px',
-                          padding: '10px 16px',
-                          background: 'rgba(59, 130, 246, 0.08)',
-                          color: '#3b82f6',
-                          border: '1px dashed rgba(59, 130, 246, 0.3)',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 150px 50px',
+                          gap: '12px',
                           fontWeight: 700,
-                          fontSize: '0.9rem',
-                          marginTop: '8px',
-                          transition: 'all 0.2s'
+                          fontSize: '0.85rem',
+                          color: '#334155',
                         }}
                       >
-                        ➕ Add Another Area
+                        <div>Photo</div>
+                        <div>Sq Ft</div>
+                        <div></div>
+                      </div>
+
+                      {getStepItems(dynamicSteps[currentStepIndex - 1].id).map((item, index) => (
+                        <div
+                          key={index}
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 150px 50px',
+                            gap: '12px',
+                            alignItems: 'center',
+                          }}
+                        >
+                          {/* Upload */}
+                          <div>
+                            <label
+                              htmlFor={`photo-${dynamicSteps[currentStepIndex - 1].id}-${index}`}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                                padding: '12px',
+                                border: '1px dashed var(--blue)',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                background: 'rgba(47,174,255,0.05)',
+                                minHeight: '48px',
+                              }}
+                            >
+                              📸 {item.photo ? item.photo.name : 'Upload Photo'}
+                            </label>
+
+                            <input
+                              id={`photo-${dynamicSteps[currentStepIndex - 1].id}-${index}`}
+                              type="file"
+                              accept="image/*"
+                              style={{ display: 'none' }}
+                              onChange={(e) =>
+                                updatePhoto(
+                                  dynamicSteps[currentStepIndex - 1].id,
+                                  index,
+                                  e.target.files?.[0] || null
+                                )
+                              }
+                            />
+                          </div>
+
+                          {/* SqFt */}
+                          <input
+                            type="number"
+                            placeholder="Sq Ft"
+                            value={item.sqft}
+                            onChange={(e) =>
+                              updateSqft(
+                                dynamicSteps[currentStepIndex - 1].id,
+                                index,
+                                e.target.value,
+                                dynamicSteps[currentStepIndex - 1].fields.dimension.id
+                              )
+                            }
+                            className="theme-text-input"
+                          />
+
+                          {/* Remove */}
+                          <button
+                            type="button"
+                            onClick={() => removeRow(
+                              dynamicSteps[currentStepIndex - 1].id,
+                              index,
+                              dynamicSteps[currentStepIndex - 1].fields.dimension.id
+                            )}
+                            disabled={getStepItems(dynamicSteps[currentStepIndex - 1].id).length === 1}
+                            style={{
+                              border: 'none',
+                              background: 'rgba(239,68,68,0.1)',
+                              color: '#ef4444',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              padding: '8px',
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+
+                      {/* Add More */}
+                      <button
+                        type="button"
+                        onClick={() => addRow(dynamicSteps[currentStepIndex - 1].id)}
+                        style={{
+                          alignSelf: 'flex-start',
+                          marginTop: '8px',
+                          padding: '10px 16px',
+                          borderRadius: '8px',
+                          border: '1px solid var(--blue)',
+                          background: 'transparent',
+                          color: 'var(--blue)',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        ➕ Add More
                       </button>
+                    </div>
+                  )}
+
+                  {dynamicSteps[currentStepIndex - 1].type === 'price_pair' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <div className="input-group">
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                          {dynamicSteps[currentStepIndex - 1].fields.base.label}
+                        </label>
+                        <input
+                          type="text"
+                          className="theme-text-input"
+                          placeholder={dynamicSteps[currentStepIndex - 1].fields.base.placeholder}
+                          value={answers[dynamicSteps[currentStepIndex - 1].fields.base.id] || ''}
+                          onChange={e => handleTextChange(dynamicSteps[currentStepIndex - 1].fields.base.id, e.target.value)}
+                        />
+                      </div>
+
+                      <div className="input-group">
+                        <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                          {dynamicSteps[currentStepIndex - 1].fields.casing.label}
+                        </label>
+                        <input
+                          type="text"
+                          className="theme-text-input"
+                          placeholder={dynamicSteps[currentStepIndex - 1].fields.casing.placeholder}
+                          value={answers[dynamicSteps[currentStepIndex - 1].fields.casing.id] || ''}
+                          onChange={e => handleTextChange(dynamicSteps[currentStepIndex - 1].fields.casing.id, e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Demolition combined step */}
+                  {dynamicSteps[currentStepIndex - 1].type === 'demolition_combined' && (
+                    <div className="demolition-combined-step">
+                      {(dynamicSteps[currentStepIndex - 1].options || []).map((item: string) => {
+                        let id = '';
+                        let placeholder = '';
+                        let title = '';
+
+                        if (item === 'Remove Existing Wall Drywall') {
+                          id = 'drywall_demo_wall_sqft';
+                          title = 'Remove Existing Wall Drywall (sqft)';
+                          placeholder = 'e.g. 200';
+                        } else if (item === 'Remove Existing Ceiling Drywall') {
+                          id = 'drywall_demo_ceiling_sqft';
+                          title = 'Remove Existing Ceiling Drywall (sqft)';
+                          placeholder = 'e.g. 150';
+                        } else if (item === 'Remove Insulation (sqft)') {
+                          id = 'drywall_demo_insulation_sqft';
+                          title = 'Remove Insulation (sqft)';
+                          placeholder = 'e.g. 100';
+                        } else if (item === 'Remove Base Board (linear ft)') {
+                          id = 'drywall_demo_baseboard_ft';
+                          title = 'Remove Base Board (linear ft)';
+                          placeholder = 'e.g. 40';
+                        } else if (item === 'Remove Popcorn Ceiling') {
+                          id = 'drywall_popcorn_sqft';
+                          title = 'Remove Popcorn Ceiling (sqft) - Base rate $300';
+                          placeholder = 'e.g. 150';
+                        }
+
+                        if (!id) return null;
+
+                        return (
+                          <div key={item} className="input-group" style={{ marginBottom: '16px', padding: '16px', border: '1px solid #cbd5e1', borderRadius: '8px', background: 'rgba(0,0,0,0.02)' }}>
+                            <label htmlFor={id} style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '8px' }}>
+                              {title}
+                            </label>
+                            <input
+                              id={id}
+                              type="number"
+                              placeholder={placeholder}
+                              value={answers[id] || ''}
+                              onChange={e => handleTextChange(id, e.target.value)}
+                              className="theme-text-input"
+                              style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                            />
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* Yes/No + dimension combined step */}
+                  {dynamicSteps[currentStepIndex - 1].type === 'yesno_combined' && dynamicSteps[currentStepIndex - 1].fields?.yes && (
+                    <div className="yesno-combined-step" style={{ marginBottom: '20px' }}>
+                      {/* Radio options */}
+                      <div className="radio-options-list" style={{ marginBottom: '16px' }}>
+                        {dynamicSteps[currentStepIndex - 1].options.map(option => {
+                          const isSelected = answers[dynamicSteps[currentStepIndex - 1].id] === option;
+                          return (
+                            <div key={option} className="radio-option-card-wrapper">
+                              <button
+                                type="button"
+                                className={`radio-option-card${isSelected ? ' selected' : ''}`}
+                                onClick={() => handleRadioChange(dynamicSteps[currentStepIndex - 1].id, option)}
+                              >
+                                <span className="radio-indicator">
+                                  {isSelected && <span className="radio-dot" />}
+                                </span>
+                                <span className="radio-label-text">{option}</span>
+                              </button>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      {/* Show dimension field only if Yes */}
+                      {answers[dynamicSteps[currentStepIndex - 1].id] === 'Yes' && (
+                        <div className="input-group" style={{ marginBottom: '12px' }}>
+                          <label htmlFor={dynamicSteps[currentStepIndex - 1].fields.yes.id} style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>
+                            {dynamicSteps[currentStepIndex - 1].fields.yes.title}
+                          </label>
+                          <input
+                            id={dynamicSteps[currentStepIndex - 1].fields.yes.id}
+                            type="number"
+                            placeholder={dynamicSteps[currentStepIndex - 1].fields.yes.placeholder || 'e.g. 10'}
+                            className="theme-text-input"
+                            value={answers[dynamicSteps[currentStepIndex - 1].fields.yes.id] || ''}
+                            onChange={e => handleTextChange(dynamicSteps[currentStepIndex - 1].fields.yes.id, e.target.value)}
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
