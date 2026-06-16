@@ -489,17 +489,15 @@ export function calculateEstimate(formData: any): EstimateResult {
     if (wantsUsToGetPaint && totalPaintSqft > 0) {
       hasMaterials = true;
 
-      if (formData.paint_primer === 'Yes') {
-        const paintAreaWithWaste = addWaste(totalPaintSqft, 0.15);
-        const primerBuckets = roundUpToNearestInteger(paintAreaWithWaste / MATERIAL_COVERAGE.PRIMER_BUCKET);
-        materialItems.push({
-          name: 'Kilz Wall & Trim Primer (2 Gal)',
-          quantity: primerBuckets,
-          unit: 'buckets',
-          unitPrice: MATERIAL_PRICING.SUPPLIES.KILZ_PRIMER_2GAL,
-          total: primerBuckets * MATERIAL_PRICING.SUPPLIES.KILZ_PRIMER_2GAL,
-        });
-      }
+      const paintAreaWithWaste = addWaste(totalPaintSqft, 0.15);
+      const primerBuckets = roundUpToNearestInteger(paintAreaWithWaste / MATERIAL_COVERAGE.PRIMER_BUCKET);
+      materialItems.push({
+        name: 'Kilz Wall & Trim Primer (2 Gal)',
+        quantity: primerBuckets,
+        unit: 'buckets',
+        unitPrice: MATERIAL_PRICING.SUPPLIES.KILZ_PRIMER_2GAL,
+        total: primerBuckets * MATERIAL_PRICING.SUPPLIES.KILZ_PRIMER_2GAL,
+      });
     }
   }
 
