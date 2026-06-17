@@ -352,7 +352,7 @@ export default function EstimateWizard() {
     if (file) setUploadedFiles((prev) => [...prev, file])
   }
 
-  const clearRowPhoto = (stepId: string, index: number, dimensionId: string) => {
+  const clearRowPhoto = (stepId: string, index: number, _dimensionId: string) => {
     updatePhoto(stepId, index, null)
   }
 
