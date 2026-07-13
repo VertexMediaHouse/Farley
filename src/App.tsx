@@ -7,6 +7,11 @@ import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
 import ServicesPage from './pages/ServicesPage'
 import EstimatePage from './pages/EstimatePage'
+import PriceEstimatorPage from './pages/PriceEstimatorPage'
+import SubcontractorPage from './pages/SubcontractorPage'
+import AdminDashboard from './pages/AdminDashboard'
+import RequireAuth from './components/RequireAuth'
+import { CopyProvider } from './context/CopyProvider'
 import FCDChatbot from './components/FCDChatbot'
 
 function ScrollToTop() {
@@ -53,24 +58,44 @@ function BackToTopButton() {
   );
 }
 
+import { fetchPriceOverrides } from './lib/priceOverrides'
+import { applyPricingRules } from './data/pricingMapper'
+
 export default function App() {
   const { pathname } = useLocation()
-  const isEstimatePage = pathname === '/estimate'
+  const isEstimatePage = pathname === '/estimate' || pathname === '/priceestimator'
+  const isAdmin = pathname.startsWith('/admin')
+
+  // Load pricing overrides once on app start so all calculations use latest prices
+  useEffect(() => {
+    fetchPriceOverrides()
+      .then(overrides => {
+        if (overrides) {
+          applyPricingRules(overrides)
+        }
+      })
+      .catch(err => console.error('Failed to load pricing overrides', err))
+  }, [])
 
   return (
-    <div className="site">
-      <ScrollToTop />
-      {!isEstimatePage && <Navbar />}
+    <CopyProvider>
+      <div className="site">
+        <ScrollToTop />
+        {!isEstimatePage && !isAdmin && <Navbar />}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/estimate" element={<EstimatePage />} />
+        <Route path="/priceestimator" element={<PriceEstimatorPage />} />
+        <Route path="/subcontractor" element={<SubcontractorPage />} />
+        <Route path="/admin/*" element={<RequireAuth><AdminDashboard /></RequireAuth>} />
       </Routes>
       <BackToTopButton />
-      {!isEstimatePage && <FCDChatbot />}
-      {!isEstimatePage && <Footer />}
+      {!isEstimatePage && !isAdmin && <FCDChatbot />}
+      {!isEstimatePage && !isAdmin && <Footer />}
     </div>
+    </CopyProvider>
   )
 }

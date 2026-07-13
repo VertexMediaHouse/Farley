@@ -103,7 +103,11 @@ function finishLabel(finishLevel: string): string {
 // Main export
 // ---------------------------------------------------------------------------
 
-export function calculateEstimate(formData: any): EstimateResult {
+export function calculateEstimate(
+  formData: any,
+  rawArrays: { drywall?: any[], trim?: any[], paint?: any[] } = {},
+  customQuestions: any[] = []
+): EstimateResult {
   // ── 1. Parse dimensions ──────────────────────────────────────────────────
   const length = safeParseFloat(formData.length);
   const width = safeParseFloat(formData.width);
@@ -710,6 +714,62 @@ export function calculateEstimate(formData: any): EstimateResult {
       unit: 'job',
       unitPrice: ADDITIONAL_CHARGES.PAINT_TRIP,
       total: ADDITIONAL_CHARGES.PAINT_TRIP,
+    });
+  }
+
+
+  // ── 7.5. CUSTOM QUESTIONS PRICING ────────────────────────────────────────
+  if (rawArrays.drywall) {
+    rawArrays.drywall.forEach(area => {
+      customQuestions.filter(q => q.path === 'drywall').forEach(cq => {
+        const val = area[cq.config.id];
+        if (!val) return;
+        const rule = cq.config.pricingRules?.[val] || (cq.config.type === 'number' ? cq.config.pricingRules?.['multiplier'] : null);
+        if (rule) {
+          if (rule.type === 'flat') {
+            additionalCharges.push({ name: `Custom: ${cq.config.label} (${val})`, quantity: 1, unit: 'Flat Fee', unitPrice: rule.amount, total: rule.amount });
+          } else if (rule.type === 'per_unit') {
+            const qty = parseFloat(val) || 0;
+            if (qty > 0) laborItems.push({ name: `Custom: ${cq.config.label}`, quantity: qty, unit: 'units', unitPrice: rule.amount, total: qty * rule.amount });
+          }
+        }
+      });
+    });
+  }
+
+  if (rawArrays.trim) {
+    rawArrays.trim.forEach(area => {
+      customQuestions.filter(q => q.path === 'trim').forEach(cq => {
+        const val = area[cq.config.id];
+        if (!val) return;
+        const rule = cq.config.pricingRules?.[val] || (cq.config.type === 'number' ? cq.config.pricingRules?.['multiplier'] : null);
+        if (rule) {
+          if (rule.type === 'flat') {
+            additionalCharges.push({ name: `Custom: ${cq.config.label} (${val})`, quantity: 1, unit: 'Flat Fee', unitPrice: rule.amount, total: rule.amount });
+          } else if (rule.type === 'per_unit') {
+            const qty = parseFloat(val) || 0;
+            if (qty > 0) laborItems.push({ name: `Custom: ${cq.config.label}`, quantity: qty, unit: 'units', unitPrice: rule.amount, total: qty * rule.amount });
+          }
+        }
+      });
+    });
+  }
+
+  if (rawArrays.paint) {
+    rawArrays.paint.forEach(area => {
+      customQuestions.filter(q => q.path === 'paint').forEach(cq => {
+        const val = area[cq.config.id];
+        if (!val) return;
+        const rule = cq.config.pricingRules?.[val] || (cq.config.type === 'number' ? cq.config.pricingRules?.['multiplier'] : null);
+        if (rule) {
+          if (rule.type === 'flat') {
+            additionalCharges.push({ name: `Custom: ${cq.config.label} (${val})`, quantity: 1, unit: 'Flat Fee', unitPrice: rule.amount, total: rule.amount });
+          } else if (rule.type === 'per_unit') {
+            const qty = parseFloat(val) || 0;
+            if (qty > 0) laborItems.push({ name: `Custom: ${cq.config.label}`, quantity: qty, unit: 'units', unitPrice: rule.amount, total: qty * rule.amount });
+          }
+        }
+      });
     });
   }
 

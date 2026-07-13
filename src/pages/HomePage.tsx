@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { Counter, FadeSection, SectionLabel, StaggerRow } from '../utils'
 import SuccessModal from '../components/SuccessModal'
 import { featuredProjects, stats, testimonials } from '../data'
-import EstimateWizard from '../components/EstimateWizard'
 
 const services = [
   {
@@ -113,6 +112,12 @@ export default function HomePage() {
             </p>
             <div className="btn-row">
               <a href="#contact" className="btn btn-orange">Get a Free Estimate<span aria-hidden="true">→</span></a>
+              <Link
+                to="/priceestimator"
+                className="btn btn-navy"
+              >
+                Get Started
+              </Link>
               <a href="tel:+19497924283" className="btn btn-glass">Call Now<span aria-hidden="true">→</span></a>
             </div>
             <div className="hero-avatars">
@@ -124,9 +129,9 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="hero-img-wrap fade-in-right">
+          {/* <div className="hero-img-wrap fade-in-right">
             <EstimateWizard />
-          </div>
+          </div> */}
 
         </div>
       </section>

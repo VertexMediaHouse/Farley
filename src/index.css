@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --page-bg: #ffffff;
   --ink: #071023;
   --ink-2: #0b1428;
@@ -2359,9 +2359,9 @@ textarea {
   transform: none;
 }
 
-/* ═══════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    CONTACT PAGE
-═══════════════════════════════════════════════════════ */
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cp-hero {
   position: relative;
   min-height: 420px;
@@ -3256,7 +3256,7 @@ a.footer-contact-value:hover {
   }
 }
 
-/* ── Scroll progress bar ──────────────────────────────────── */
+/* â”€â”€ Scroll progress bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .scroll-progress {
   position: fixed;
   top: 0;
@@ -3269,7 +3269,7 @@ a.footer-contact-value:hover {
   border-radius: 0 2px 2px 0;
 }
 
-/* ── Back to top button ───────────────────────────────────── */
+/* â”€â”€ Back to top button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .back-to-top {
   position: fixed;
   bottom: 28px;
@@ -3312,13 +3312,13 @@ a.footer-contact-value:hover {
   stroke-linejoin: round;
 }
 
-/* ── Hero image float ─────────────────────────────────────── */
+/* â”€â”€ Hero image float â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .hero-img-float {
   animation: heroFloat 5s 1.4s ease-in-out infinite;
   will-change: transform;
 }
 
-/* ── Stagger card reveals ─────────────────────────────────── */
+/* â”€â”€ Stagger card reveals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .stagger-cards>* {
   opacity: 0;
   transform: translateY(28px);
@@ -3333,7 +3333,7 @@ a.footer-contact-value:hover {
   transform: none;
 }
 
-/* ── Card shimmer sweep on hover ──────────────────────────── */
+/* â”€â”€ Card shimmer sweep on hover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .service-card,
 .testi-card,
 .benefit-card,
@@ -3365,7 +3365,7 @@ a.footer-contact-value:hover {
   transform: translateX(130%) skewX(-12deg);
 }
 
-/* ── About chips stagger ──────────────────────────────────── */
+/* â”€â”€ About chips stagger â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .stagger-chips>* {
   opacity: 0;
   transform: translateY(12px);
@@ -3653,9 +3653,9 @@ a.footer-contact-value:hover {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   ABOUT PAGE — Page Hero
-═══════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ABOUT PAGE â€” Page Hero
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .page-hero {
   position: relative;
   min-height: 340px;
@@ -3813,7 +3813,7 @@ a.footer-contact-value:hover {
   font-size: 0.74rem;
 }
 
-/* ── About & Services stats (below page heroes) ────────── */
+/* â”€â”€ About & Services stats (below page heroes) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .about-stats,
 .services-stats {
   position: relative;
@@ -3864,7 +3864,7 @@ a.footer-contact-value:hover {
   font-size: 0.66rem;
 }
 
-/* ── About story two-col ────────────────────────────── */
+/* â”€â”€ About story two-col â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #our-story.section {
   padding-top: clamp(92px, 9vw, 122px);
   padding-bottom: clamp(76px, 8vw, 98px);
@@ -3906,7 +3906,7 @@ a.footer-contact-value:hover {
   letter-spacing: 0.11em;
 }
 
-/* ── About 2×2 photo grid ───────────────────────────── */
+/* â”€â”€ About 2Ã—2 photo grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .about-photo-grid {
   width: min(100%, 465px);
   aspect-ratio: 1 / 1;
@@ -3929,7 +3929,7 @@ a.footer-contact-value:hover {
   transform: scale(1.04);
 }
 
-/* ── Outline dark button ────────────────────────────── */
+/* â”€â”€ Outline dark button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .btn-outline-dark {
   color: var(--ink);
   background: transparent;
@@ -3941,7 +3941,7 @@ a.footer-contact-value:hover {
   color: var(--white);
 }
 
-/* ── About image placeholder ────────────────────────── */
+/* â”€â”€ About image placeholder â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .about-img-placeholder {
   width: 100%;
   aspect-ratio: 4/3;
@@ -3972,9 +3972,9 @@ a.footer-contact-value:hover {
   stroke-linejoin: round;
 }
 
-/* ═══════════════════════════════════════════════════════
-   ABOUT PAGE — Mission & Vision cards
-═══════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ABOUT PAGE â€” Mission & Vision cards
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .mission-vision-section {
   padding: 82px 0 96px;
   background: #f6f8fb;
@@ -4077,9 +4077,9 @@ a.footer-contact-value:hover {
   font-size: 0.88rem;
 }
 
-/* ═══════════════════════════════════════════════════════
-   ABOUT PAGE — Trust section
-═══════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ABOUT PAGE â€” Trust section
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .trust-section {
   padding: 92px 0 98px;
   background: var(--white);
@@ -4180,9 +4180,9 @@ a.footer-contact-value:hover {
   object-position: center;
 }
 
-/* ═══════════════════════════════════════════════════════
-   ABOUT PAGE — Timeline [COMMENTED OUT]
-═══════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ABOUT PAGE â€” Timeline [COMMENTED OUT]
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 .timeline {
   position: relative;
   margin-top: 52px;
@@ -4269,9 +4269,9 @@ a.footer-contact-value:hover {
 }
 */
 
-/* ═══════════════════════════════════════════════════════
-   ABOUT PAGE — Team [COMMENTED OUT]
-═══════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ABOUT PAGE â€” Team [COMMENTED OUT]
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 .team-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -4343,7 +4343,7 @@ a.footer-contact-value:hover {
 }
 */
 
-/* ─── Responsive: About page ────────────────────────── */
+/* â”€â”€â”€ Responsive: About page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 860px) {
   .page-hero {
     padding: 64px 0 92px;
@@ -5226,7 +5226,7 @@ a.footer-contact-value:hover {
   }
 }
 
-/* Services page — tighter hero than default .page-hero */
+/* Services page â€” tighter hero than default .page-hero */
 .page-hero.services-hero {
   align-items: stretch;
   justify-content: flex-start;
@@ -5367,7 +5367,7 @@ a.footer-contact-value:hover {
   background: var(--white);
 }
 
-/* Services page section kicker — align with site blue (#3AABF0), not default orange .sec-label */
+/* Services page section kicker â€” align with site blue (#3AABF0), not default orange .sec-label */
 .services-overview-section .sec-label,
 .services-detail-section .sec-label,
 .services-sector-section .sec-label,
@@ -5929,7 +5929,7 @@ a.footer-contact-value:hover {
   }
 }
 
-/* ── Featured Projects Pop-up Hover Preview ──────────────── */
+/* â”€â”€ Featured Projects Pop-up Hover Preview â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (min-width: 1025px) {
   .project-section .stagger-cards .project-card:hover {
     transform: scale(1.12) translateY(-15px) !important;
@@ -6640,7 +6640,3 @@ a.footer-contact-value:hover {
     visibility: hidden !important;
   }
 }
-
-
-
-
