@@ -1,4 +1,10 @@
-export function adaptV2ToV1Estimate(drywall: any[], trim: any[], paint: any[], contact: any) {
+import type { ProductPriceMap } from '../lib/productPricesStore';
+import { pricePerLft } from '../lib/productPricesStore';
+
+export function adaptV2ToV1Estimate(
+  drywall: any[], trim: any[], paint: any[], contact: any,
+  productPrices: ProductPriceMap = {},
+) {
   const formData: any = {
     length: '0',
     width: '0',
@@ -81,14 +87,22 @@ export function adaptV2ToV1Estimate(drywall: any[], trim: any[], paint: any[], c
   // --- TRIM ---
   let baseboardFeet = 0;
   let casingFeet = 0;
+  let trimMaterialPrice = 0;
   trim.forEach(area => {
     const bf = parseFloat(area.baseboardLinearFeet) || 0;
     const cf = parseFloat(area.casingLinearFeet) || 0;
     baseboardFeet += bf;
     casingFeet += cf;
+    const url = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
+    const rate = url ? pricePerLft(productPrices, url) : null;
+    if (rate != null) {
+      if (bf > 0) trimMaterialPrice = rate;
+      else if (cf > 0) trimMaterialPrice = rate;
+    }
   });
   formData.trim_base_linear_feet = baseboardFeet;
   formData.trim_casing_linear_feet = casingFeet;
+  if (trimMaterialPrice > 0) formData.trim_base_price = trimMaterialPrice;
   if (baseboardFeet > 0 || casingFeet > 0) {
      formData.trim_services = 'install new baseboard'; // default to install
   }

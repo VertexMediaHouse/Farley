@@ -1,5 +1,7 @@
 import { PRICING } from '../data/pricing';
 import type { CustomQuestionRecord } from './customQuestionsStore';
+import type { ProductPriceMap } from './productPricesStore';
+import { pricePerLft } from './productPricesStore';
 
 export interface LineItem {
   area: string;
@@ -19,7 +21,8 @@ interface AreaValues {
 
 export function calculateEstimate(
   data: { drywall: AreaValues[], trim: AreaValues[], paint: AreaValues[] },
-  customQuestions: CustomQuestionRecord[] = []
+  customQuestions: CustomQuestionRecord[] = [],
+  productPrices: ProductPriceMap = {},
 ): EstimateResult {
   const lineItems: LineItem[] = [];
   let subtotal = 0;
@@ -177,19 +180,32 @@ export function calculateEstimate(
     if (area.service.includes('Baseboard')) {
       const lft = parseFloat(area.baseboardLinearFeet) || 0;
       if (lft > 0) {
-        const height = area.baseboardHeight || '6';   // default to 6" if not selected
-        const heightKey = String(parseInt(height) || 6);  // normalise to '6','7','8','9','10'
-        // Per-height rates: 6->$5, 7->$6, 8->$6.50, 9->$7, 10->$7.50
-        const rate = PRICING.trim.baseboard[heightKey] ?? 5.00;
-        addItem(areaName, `Trim: Baseboards (${heightKey}" height)`, `${lft} lft`, lft * rate);
+        const catalogUrl = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
+        const materialRate = catalogUrl ? pricePerLft(productPrices, catalogUrl) : null;
+        const height = area.baseboardHeight || '6';
+        const heightKey = String(parseInt(height) || 6);
+        const laborRate = PRICING.trim.baseboard[heightKey] ?? 5.00;
+        if (materialRate != null) {
+          addItem(areaName, 'Trim: Baseboard labor', `${lft} lft`, lft * laborRate);
+          addItem(areaName, 'Trim: Baseboard material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate);
+        } else {
+          addItem(areaName, `Trim: Baseboards (${heightKey}" height)`, `${lft} lft`, lft * laborRate);
+        }
       }
     }
 
-    // ── Door Casing ─────────────────────────────────────────────────────────
     if (area.service.includes('Casing')) {
       const lft = parseFloat(area.casingLinearFeet) || 0;
       if (lft > 0) {
-        addItem(areaName, `Trim: Door Casing`, `${lft} lft`, lft * PRICING.trim.doorCasing);
+        const catalogUrl = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
+        const materialRate = catalogUrl ? pricePerLft(productPrices, catalogUrl) : null;
+        const laborRate = PRICING.trim.doorCasing;
+        if (materialRate != null) {
+          addItem(areaName, 'Trim: Casing labor', `${lft} lft`, lft * laborRate);
+          addItem(areaName, 'Trim: Casing material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate);
+        } else {
+          addItem(areaName, 'Trim: Door Casing', `${lft} lft`, lft * laborRate);
+        }
       }
     }
 

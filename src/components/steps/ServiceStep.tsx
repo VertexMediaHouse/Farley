@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { AreaValues } from '../../types/form';
-import { drywallConfig } from '../../data/drywallConfig';
+import type { ServicePath } from '../../data/stepConfig';
+import { STEP_CONFIGS, STEP_META, TOTAL_STEPS } from '../../data/stepConfig';
 import StepHeader from '../StepHeader';
 import NavigationButtons from '../NavigationButtons';
 import AreaManager from '../AreaManager';
@@ -8,52 +9,56 @@ import { validateConfig } from '../FormRenderer';
 import { useQuestionCopy } from '../../context/CopyProvider';
 
 interface Props {
+  path: ServicePath;
   areas: AreaValues[];
   onChange: (areas: AreaValues[]) => void;
-  onNext: () => void;
   onBack: () => void;
+  onNext: () => void;
+  isLast?: boolean;
 }
 
-export default function DrywallStep({ areas, onChange, onNext, onBack }: Props) {
+export default function ServiceStep({ path, areas, onChange, onBack, onNext, isLast }: Props) {
   const [errors, setErrors] = useState<Record<number, Record<string, string>>>({});
-  const questions = useQuestionCopy(drywallConfig, 'drywall');
+  const baseConfig = STEP_CONFIGS[path];
+  const questions = useQuestionCopy(baseConfig, path);
+  const { step, title } = STEP_META[path];
 
   const updateArea = (i: number, id: string, val: AreaValues[string]) => {
-    const next = areas.map((a, idx) => idx === i ? { ...a, [id]: val } : a);
-    onChange(next);
+    onChange(areas.map((a, idx) => idx === i ? { ...a, [id]: val } : a));
   };
-
-  const addArea = () => onChange([...areas, {}]);
-  const removeArea = (i: number) => onChange(areas.filter((_, idx) => idx !== i));
 
   const validate = () => {
     const errs: Record<number, Record<string, string>> = {};
     areas.forEach((area, i) => {
-      const e = validateConfig(drywallConfig, area);
+      const e = validateConfig(baseConfig, area);
       if (Object.keys(e).length) errs[i] = e;
     });
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
+  const proceed = () => { if (validate()) onNext(); };
+  const skip = () => { onChange([]); onNext(); };
+
   return (
     <div>
-      <StepHeader title="Drywall Assessment" step={2} total={4} />
+      <StepHeader title={title} step={step} total={TOTAL_STEPS} />
       <AreaManager
         areaLabel="Area"
         areas={areas}
         questions={questions}
         onAreaChange={updateArea}
-        onAddArea={addArea}
-        onRemoveArea={removeArea}
+        onAddArea={() => onChange([...areas, {}])}
+        onRemoveArea={i => onChange(areas.filter((_, idx) => idx !== i))}
         errors={errors}
       />
-      <NavigationButtons 
-        step={2} 
-        total={4} 
-        onBack={onBack} 
-        onNext={() => { if (validate()) onNext(); }} 
-        onSkip={() => { onChange([]); onNext(); }}
+      <NavigationButtons
+        step={step}
+        total={TOTAL_STEPS}
+        onBack={onBack}
+        onNext={proceed}
+        onSubmit={isLast ? proceed : undefined}
+        onSkip={skip}
       />
     </div>
   );

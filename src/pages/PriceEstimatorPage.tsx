@@ -21,6 +21,7 @@ export default function PriceEstimatorPage() {
     contact, setContact,
     sent, restored,
     customQuestions,
+    productPrices,
     handleSubmit,
   } = useEstimateDraft();
 
@@ -72,6 +73,7 @@ export default function PriceEstimatorPage() {
                 trim={trim}
                 paint={paint}
                 customQuestions={customQuestions}
+                productPrices={productPrices}
               />
             </div>
 

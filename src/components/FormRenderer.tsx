@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import type { QuestionConfig, AreaValues, Condition } from '../types/form';
 import UploadBox from './UploadBox';
 import InfoButton from './InfoButton';
+import { useProductPrices } from '../context/CopyProvider';
+import { pricePerLft } from '../lib/productPricesStore';
 import { input as inp, label as lbl, errorText } from './theme';
 
 // ─── Condition evaluator ─────────────────────────────────────────────────────
@@ -340,6 +342,7 @@ function MultiUpload({ files, onChange }: { files: File[]; onChange: (f: File[])
 
 function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: string; onChange: (v: string) => void }) {
   const [activeSize, setActiveSize] = useState('');
+  const productPrices = useProductPrices();
   const cats = q.catalog ?? [];
 
   const pill = (on: boolean) =>
@@ -370,11 +373,12 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
       {activeSize && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {cats.find(c => c.size === activeSize)?.products.map(p => {
-             const isSelected = value === p.name;
+             const isSelected = value === p.url || value === p.name;
+             const lftPrice = pricePerLft(productPrices, p.url);
              return (
               <div 
                 key={p.url} 
-                onClick={() => onChange(p.name)}
+                onClick={() => onChange(p.url)}
                 className={`relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-2 bg-white transition-all duration-200 hover:shadow-md ${
                   isSelected ? 'border-[#2F9BF0] shadow-md ring-4 ring-[#2F9BF0]/10' : 'border-slate-200 hover:border-[#2F9BF0]/40'
                 }`}
@@ -397,6 +401,9 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
                 <div className="flex flex-col flex-1 p-3">
                   <div className="mb-3 flex items-start justify-between gap-2">
                     <span className="text-sm font-semibold text-slate-700 leading-tight line-clamp-2">{p.name}</span>
+                    {lftPrice != null && (
+                      <span className="shrink-0 text-xs font-bold text-[#2F9BF0]">${lftPrice.toFixed(2)}/lft</span>
+                    )}
                     <a 
                       href={p.url} 
                       target="_blank" 
@@ -413,9 +420,9 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
                     <input 
                       type="radio" 
                       name={q.id} 
-                      value={p.name} 
+                      value={p.url} 
                       checked={isSelected} 
-                      onChange={() => onChange(p.name)} 
+                      onChange={() => onChange(p.url)} 
                       className="h-5 w-5 accent-[#2F9BF0] transition-transform cursor-pointer" 
                       style={{ transform: isSelected ? 'scale(1.15)' : 'scale(1)' }}
                     />

@@ -1,25 +1,29 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { applyOverrides, fetchOverrides, type OverrideMap } from '../lib/overrides';
 import { fetchCustomQuestions, type CustomQuestionRecord } from '../lib/customQuestionsStore';
+import { fetchProductPrices, type ProductPriceMap } from '../lib/productPricesStore';
 import type { QuestionConfig } from '../types/form';
 
 interface ContextType {
   overrides: OverrideMap;
   customQuestions: CustomQuestionRecord[];
+  productPrices: ProductPriceMap;
 }
 
-const Ctx = createContext<ContextType>({ overrides: {}, customQuestions: [] });
+const Ctx = createContext<ContextType>({ overrides: {}, customQuestions: [], productPrices: {} });
 
 export function CopyProvider({ children }: { children: ReactNode }) {
   const [overrides, setOverrides] = useState<OverrideMap>({});
   const [customQuestions, setCustomQuestions] = useState<CustomQuestionRecord[]>([]);
+  const [productPrices, setProductPrices] = useState<ProductPriceMap>({});
 
   useEffect(() => {
     fetchOverrides().then(setOverrides).catch(() => { /* fall back */ });
     fetchCustomQuestions().then(setCustomQuestions).catch(() => { /* fall back */ });
+    fetchProductPrices().then(setProductPrices).catch(() => {});
   }, []);
 
-  return <Ctx.Provider value={{ overrides, customQuestions }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ overrides, customQuestions, productPrices }}>{children}</Ctx.Provider>;
 }
 
 function insertCustomQuestions(
@@ -67,4 +71,9 @@ export function useQuestionCopy(config: QuestionConfig[], path?: 'drywall' | 'tr
 export function useCustomQuestions() {
   const { customQuestions } = useContext(Ctx);
   return customQuestions;
+}
+
+export function useProductPrices() {
+  const { productPrices } = useContext(Ctx);
+  return productPrices;
 }

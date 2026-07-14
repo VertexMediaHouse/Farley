@@ -6,7 +6,7 @@ import AdminAddQuestion from '../components/admin/AdminAddQuestion';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'questions' | 'pricing' | 'add_question'>('pricing');
+  const [activeTab, setActiveTab] = useState<'questions' | 'pricing' | 'custom_questions'>('pricing');
 
   return (
     <ErrorBoundary fallback={<div className="p-8 text-center text-red-600">Admin panel failed to load.</div>}>
@@ -22,7 +22,7 @@ export default function AdminDashboard() {
             {([
               { id: 'pricing',      label: 'Pricing Rules',       icon: '💲' },
               { id: 'questions',    label: 'Edit Questions',       icon: '✏️' },
-              { id: 'add_question', label: 'Add Question Section', icon: '➕' },
+              { id: 'custom_questions', label: 'Custom Questions', icon: '➕' },
             ] as const).map(tab => (
               <button
                 key={tab.id}
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
               <AdminPricingInner />
             </div>
           )}
-          {activeTab === 'add_question' && (
+          {activeTab === 'custom_questions' && (
             <div className="flex-1 overflow-y-auto">
               <AdminAddQuestion />
             </div>

@@ -247,7 +247,7 @@ export const drywallConfig: QuestionConfig[] = [
     label: 'What finish/texture do you want?',
     type: 'dropdown',
     required: true,
-    options: ['', 'Smooth Finish level 4', 'Orange Peel', 'Level 5 finish:', 'Knockdown'],
+    options: ['', 'Smooth Finish level 4', 'Orange Peel', 'Level 5 finish', 'Knockdown'],
   },
   {
     id: 'roomOccupied',

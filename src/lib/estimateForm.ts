@@ -2,6 +2,7 @@ import type { AreaValues } from '../types/form';
 import { calculateEstimate } from '../services/estimateEngine';
 import { adaptV2ToV1Estimate } from '../utils/estimateAdapter';
 import type { CustomQuestionRecord } from './customQuestionsStore';
+import type { ProductPriceMap } from './productPricesStore';
 
 export const ESTIMATE_DRAFT_KEY = 'fcd_estimate_v2';
 export const ESTIMATE_RESULT_KEY = 'fcd_estimate_data';
@@ -67,8 +68,9 @@ export function submitEstimate(
   paint: AreaValues[],
   contact: ContactData,
   customQuestions: CustomQuestionRecord[],
+  productPrices: ProductPriceMap = {},
 ): void {
-  const formData = adaptV2ToV1Estimate(drywall, trim, paint, contact);
+  const formData = adaptV2ToV1Estimate(drywall, trim, paint, contact, productPrices);
   const result = calculateEstimate(formData, { drywall, trim, paint }, customQuestions);
   localStorage.setItem(ESTIMATE_RESULT_KEY, JSON.stringify({ answers: formData, estimate: result }));
   window.open('/estimate', '_blank');

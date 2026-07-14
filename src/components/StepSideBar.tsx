@@ -22,6 +22,7 @@ interface Props {
   trim: AreaValues[];
   paint: AreaValues[];
   customQuestions?: any[];
+  productPrices?: import('../lib/productPricesStore').ProductPriceMap;
 }
 
 /** An area counts once the user has actually answered something in it. */
@@ -37,7 +38,7 @@ function fmt(amount: number): string {
 }
 
 export default function StepSidebar({
-  step, onStepClick, phone, phoneHref, drywall, trim, paint, customQuestions = [],
+  step, onStepClick, phone, phoneHref, drywall, trim, paint, customQuestions = [], productPrices = {},
 }: Props) {
   const [expanded, setExpanded] = useState(false);
 
@@ -50,7 +51,7 @@ export default function StepSidebar({
   ];
   const started = summary.some(s => s.n > 0);
 
-  const estimate = calculateEstimate({ drywall, trim, paint }, customQuestions);
+  const estimate = calculateEstimate({ drywall, trim, paint }, customQuestions, productPrices);
   const hasEstimate = estimate.lineItems.length > 0;
 
   return (

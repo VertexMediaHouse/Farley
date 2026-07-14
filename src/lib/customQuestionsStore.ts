@@ -32,14 +32,15 @@ export async function fetchCustomQuestions(path?: 'drywall' | 'trim' | 'paint'):
   return data as CustomQuestionRecord[];
 }
 
-export async function saveCustomQuestion(record: Omit<CustomQuestionRecord, 'id' | 'created_at' | 'updated_at'>) {
-  const { data, error } = await supabase.from('custom_questions').insert([
-    {
-      path: record.path,
-      insert_after_id: record.insert_after_id,
-      config: record.config,
-    }
-  ]).select();
+export async function saveCustomQuestion(record: Omit<CustomQuestionRecord, 'id' | 'created_at' | 'updated_at'> & { id?: string }) {
+  const payload: any = {
+    path: record.path,
+    insert_after_id: record.insert_after_id,
+    config: record.config,
+  };
+  if (record.id) payload.id = record.id;
+
+  const { data, error } = await supabase.from('custom_questions').upsert([payload]).select();
 
   if (error) throw error;
   return data?.[0] as CustomQuestionRecord;
