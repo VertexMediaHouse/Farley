@@ -1,22 +1,21 @@
-import { useState } from 'react';
-import { drywallConfig } from '../../data/drywallConfig';
-import { trimConfig } from '../../data/trimConfig';
-import { paintConfig } from '../../data/paintConfig';
+import { useState, useEffect } from 'react';
+import { STEP_CONFIGS } from '../../data/stepConfig';
 import { input as inp, btnPrimary, btnGhost, label as lbl } from '../theme';
-import { saveCustomQuestion, type CustomQuestionConfig, type PricingRule } from '../../lib/customQuestionsStore';
+import { saveCustomQuestion, fetchCustomQuestions, deleteCustomQuestion, type CustomQuestionConfig, type PricingRule, type CustomQuestionRecord } from '../../lib/customQuestionsStore';
 import type { QuestionConfig } from '../../types/form';
 
-const PATH_MAP = {
-  drywall: drywallConfig,
-  trim: trimConfig,
-  paint: paintConfig,
-};
+const PATH_MAP = STEP_CONFIGS;
 
 function flatten(qs: QuestionConfig[]): QuestionConfig[] {
   return qs.flatMap(q => [q, ...(q.children ? flatten(q.children) : [])]);
 }
 
 export default function AdminAddQuestion() {
+  const [questions, setQuestions] = useState<CustomQuestionRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Form State
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [path, setPath] = useState<'drywall' | 'trim' | 'paint'>('drywall');
   const [insertAfter, setInsertAfter] = useState<string>('');
   
@@ -37,7 +36,72 @@ export default function AdminAddQuestion() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
-  const currentQuestions = flatten(PATH_MAP[path]);
+  const baseQuestions = flatten(PATH_MAP[path]);
+  const customPathQuestions = questions.filter(q => q.path === path).map(q => q.config);
+  const currentQuestions = [...baseQuestions, ...customPathQuestions];
+
+  useEffect(() => {
+    loadQuestions();
+  }, []);
+
+  const loadQuestions = async () => {
+    setLoading(true);
+    const data = await fetchCustomQuestions();
+    setQuestions(data);
+    setLoading(false);
+  };
+
+  const handleDelete = async (recordId: string) => {
+    if (!window.confirm("Are you sure you want to delete this custom question?")) return;
+    try {
+      await deleteCustomQuestion(recordId);
+      loadQuestions();
+    } catch (e: any) {
+      alert(`Error deleting: ${e.message}`);
+    }
+  };
+
+  const handleEdit = (q: CustomQuestionRecord) => {
+    setEditingId(q.id);
+    setPath(q.path);
+    setInsertAfter(q.insert_after_id || '');
+    setId(q.config.id);
+    setLabel(q.config.label || '');
+    setType(q.config.type as any);
+    setRequired(!!q.config.required);
+    
+    if (q.config.type === 'dropdown' && q.config.options) {
+      setOptions(q.config.options.filter(o => o.trim() !== ''));
+    } else {
+      setOptions(['Yes', 'No']);
+    }
+
+    setPricing(q.config.pricingRules || {});
+
+    if (q.config.condition) {
+      setHasCondition(true);
+      setCondField(q.config.condition.field);
+      setCondValue(q.config.condition.is as string || '');
+    } else {
+      setHasCondition(false);
+      setCondField('');
+      setCondValue('');
+    }
+    
+    // Scroll to form
+    document.getElementById('question-form')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setId(`custom_${Date.now()}`);
+    setLabel('');
+    setOptions(['Yes', 'No']);
+    setPricing({});
+    setHasCondition(false);
+    setCondField('');
+    setCondValue('');
+  };
 
   const handleOptionChange = (idx: number, val: string) => {
     const next = [...options];
@@ -86,16 +150,14 @@ export default function AdminAddQuestion() {
 
     try {
       await saveCustomQuestion({
+        id: editingId || undefined,
         path,
         insert_after_id: insertAfter || null,
         config,
       });
-      setMessage('Question added successfully!');
-      // Reset form
-      setId(`custom_${Date.now()}`);
-      setLabel('');
-      setOptions(['Yes', 'No']);
-      setPricing({});
+      setMessage(editingId ? 'Question updated successfully!' : 'Question added successfully!');
+      resetForm();
+      loadQuestions();
     } catch (e: any) {
       setMessage(`Error: ${e.message}`);
     } finally {
@@ -104,15 +166,49 @@ export default function AdminAddQuestion() {
   };
 
   return (
-    <div className="p-8 max-w-3xl mx-auto space-y-8 pb-20">
+    <div className="p-8 max-w-4xl mx-auto space-y-12 pb-20">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Add Custom Question</h1>
+        <h1 className="text-2xl font-semibold text-slate-900">Custom Questions</h1>
         <p className="text-sm text-slate-500 mt-1">
-          Create a dynamic question and assign optional pricing rules. It will appear on the selected service page.
+          Manage dynamic questions and their optional pricing rules.
         </p>
       </div>
 
-      <div className="space-y-6 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+      {/* Existing Questions List */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-slate-800">Existing Custom Questions</h2>
+        {loading ? (
+          <p className="text-sm text-slate-500">Loading...</p>
+        ) : questions.length === 0 ? (
+          <p className="text-sm text-slate-500 italic bg-white p-4 rounded-lg border border-slate-200">No custom questions added yet.</p>
+        ) : (
+          <div className="grid gap-4">
+            {questions.map(q => (
+              <div key={q.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#2F9BF0] bg-[#2F9BF0]/10 px-2 py-0.5 rounded-full">{q.path}</span>
+                    <span className="text-sm font-semibold text-slate-900">{q.config.label}</span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">Type: {q.config.type} | ID: {q.config.id}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => handleEdit(q)} className="text-xs font-medium text-slate-600 hover:text-[#2F9BF0] bg-slate-100 hover:bg-[#2F9BF0]/10 px-3 py-1.5 rounded-md transition-colors">Edit</button>
+                  <button onClick={() => handleDelete(q.id)} className="text-xs font-medium text-red-600 hover:text-white bg-red-50 hover:bg-red-500 px-3 py-1.5 rounded-md transition-colors">Delete</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div id="question-form" className="space-y-6 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <h2 className="text-lg font-semibold text-slate-800">{editingId ? 'Edit Custom Question' : 'Add New Question'}</h2>
+          {editingId && (
+            <button onClick={resetForm} className="text-xs font-medium text-slate-500 hover:text-slate-700">Cancel Edit</button>
+          )}
+        </div>
         
         {/* Placement */}
         <div className="grid grid-cols-2 gap-4">
@@ -229,9 +325,9 @@ export default function AdminAddQuestion() {
 
         {/* Submit */}
         <div className="pt-4 flex items-center justify-between border-t border-slate-100">
-          <span className="text-sm font-medium text-slate-600">{message}</span>
+          <span className="text-sm font-medium text-emerald-600">{message}</span>
           <button onClick={handleSubmit} disabled={saving} className={btnPrimary}>
-            {saving ? 'Saving...' : 'Add Question'}
+            {saving ? 'Saving...' : (editingId ? 'Save Changes' : 'Add Question')}
           </button>
         </div>
       </div>
