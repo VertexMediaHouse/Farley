@@ -58,7 +58,7 @@ export default function AdminCopyInner() {
         </p>
       </div>
 
-      <div className="mx-auto max-w-4xl space-y-8 px-8 py-8">
+      <div className="mx-auto max-w-5xl space-y-8 px-8 py-8">
         {SECTIONS.map(({ title, questions }) => (
           <section key={title}>
             <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">

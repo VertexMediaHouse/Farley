@@ -144,7 +144,11 @@ export default function StepSidebar({
                       <p className="text-slate-300">{item.area}</p>
                     </div>
                     <span className="ml-3 shrink-0 font-semibold text-slate-600">
-                      {fmt(item.amount)}
+                      {item.isOutOfStock ? (
+                        <span className="text-red-500">Out of stock</span>
+                      ) : (
+                        fmt(item.amount)
+                      )}
                     </span>
                   </div>
                 ))}

@@ -1,5 +1,5 @@
 import type { AreaValues } from '../types/form';
-import { calculateEstimate } from '../services/estimateEngine';
+import { calculateEstimate } from './estimate';
 import { adaptV2ToV1Estimate } from '../utils/estimateAdapter';
 import type { CustomQuestionRecord } from './customQuestionsStore';
 import type { ProductPriceMap } from './productPricesStore';
@@ -71,7 +71,7 @@ export function submitEstimate(
   productPrices: ProductPriceMap = {},
 ): void {
   const formData = adaptV2ToV1Estimate(drywall, trim, paint, contact, productPrices);
-  const result = calculateEstimate(formData, { drywall, trim, paint }, customQuestions);
+  const result = calculateEstimate({ drywall, trim, paint }, customQuestions, productPrices);
   localStorage.setItem(ESTIMATE_RESULT_KEY, JSON.stringify({ answers: formData, estimate: result }));
   window.open('/estimate', '_blank');
   localStorage.removeItem(ESTIMATE_DRAFT_KEY);

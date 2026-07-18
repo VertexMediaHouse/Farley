@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parkan Enterprises Limited — Work in Progress</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * { 
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+            background: linear-gradient(160deg, #151515, #0a0a0a);
+
+            padding-bottom: 45px;
+        }
+
+        /* live checkered grid */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 44px 44px;
+            animation: gridPan 18s linear infinite;
+        }
+
+        @keyframes gridPan {
+            0% {
+                background-position: 0 0, 0 0;
+            }
+
+            100% {
+                background-position: 44px 44px, 44px 44px;
+            }
+        }
+
+        /* golden laser streaks running the full height of the page */
+        .lasers {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .laser {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            height: 100vh;
+        }
+
+        .laser-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2px;
+            height: 60px;
+            background: linear-gradient(180deg, transparent, rgba(255, 180, 84, 0.9) 70%, #FFB454 100%);
+            box-shadow: 0 0 10px 1px rgba(255, 180, 84, 0.6);
+            animation: dropFull 3.2s linear infinite;
+        }
+
+        .laser-dot {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #FFB454;
+            filter: blur(1.5px);
+            box-shadow: 0 0 12px 3px rgba(255, 180, 84, 0.7);
+            transform: translate(-50%, -50%);
+            animation: dropFull 3.2s linear infinite;
+        }
+
+        .laser-1 {
+            left: 9%;
+        }
+
+        .laser-2 {
+            left: 26%;
+        }
+
+        .laser-3 {
+            left: 41%;
+        }
+
+        .laser-4 {
+            left: 58%;
+        }
+
+        .laser-5 {
+            left: 74%;
+        }
+
+        .laser-6 {
+            left: 90%;
+        }
+
+        .laser-1 .laser-line,
+        .laser-1 .laser-dot {
+            animation-delay: 0s;
+        }
+
+        .laser-2 .laser-line,
+        .laser-2 .laser-dot {
+            animation-delay: 0.7s;
+        }
+
+        .laser-3 .laser-line,
+        .laser-3 .laser-dot {
+            animation-delay: 1.4s;
+        }
+
+        .laser-4 .laser-line,
+        .laser-4 .laser-dot {
+            animation-delay: 2.1s;
+        }
+
+        .laser-5 .laser-line,
+        .laser-5 .laser-dot {
+            animation-delay: 0.35s;
+        }
+
+        .laser-6 .laser-line,
+        .laser-6 .laser-dot {
+            animation-delay: 1.75s;
+        }
+
+        @keyframes dropFull {
+            0% {
+                transform: translateY(-70px);
+                opacity: 0;
+            }
+
+            8% {
+                opacity: 1;
+            }
+
+            92% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .grid-bg,
+            .laser-line,
+            .laser-dot {
+                animation: none;
+            }
+        }
+
+        /* thin copper accent line top & bottom, ties back to the brand */
+        .edge-top,
+        .edge-bottom {
+            position: fixed;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #C8804A, transparent);
+            z-index: 2;
+        }
+
+        .edge-top {
+            top: 0;
+        }
+
+        .edge-bottom {
+            bottom: 0;
+        }
+
+        header {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 28px 20px 0;
+            animation: fadeDown 0.8s ease both;
+        }
+
+        header .bolt {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+
+        header .bolt path {
+            fill: #C8804A;
+        }
+
+        header span {
+            font-size: 0.85rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #E8DDD0;
+            font-weight: 500;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 720px;
+            padding: 40px 32px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
+            font-size: 0.72rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #D9CFC1;
+            margin-bottom: 26px;
+            background: rgba(255, 255, 255, 0.04);
+            animation: fadeUp 0.8s ease both;
+            animation-delay: 0.1s;
+        }
+
+        .badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #C8804A;
+        }
+
+        h1 {
+            font-size: 58px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: -0.01em;
+            color: #F6EFE6;
+            animation: fadeUp 0.8s ease both;
+            animation-delay: 0.2s;
+        }
+
+        p.lead {
+            font-size: 20px;
+            color: #D2C7B8;
+            line-height: 1.8;
+            margin-bottom: 12px;
+            animation: fadeUp 0.8s ease both;
+            animation-delay: 0.3s;
+        }
+
+        .phone-line {
+            font-size: 0.95rem;
+            color: #C8804A;
+            font-weight: 500;
+            animation: fadeUp 0.8s ease both;
+            animation-delay: 0.35s;
+        }
+
+        .actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 46px;
+            animation: fadeUp 0.8s ease both;
+            animation-delay: 0.4s;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 40px;
+            text-decoration: none;
+            color: #fff;
+            border: 2px solid #fff;
+            border-radius: 50px;
+            transition: .3s;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn:hover svg path {
+            fill: #000;
+        }
+
+        .btn svg path {
+            fill: #fff;
+            transition: .3s;
+        }
+
+        .btn.outline-soft {
+            border-color: rgba(255, 255, 255, 0.35);
+            color: #ddd;
+        }
+
+        .btn.outline-soft:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .btn.outline-soft:hover svg path {
+            fill: #fff;
+        }
+
+        /* feature strip */
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            animation: fadeUp 0.8s ease both;
+            animation-delay: 0.5s;
+        }
+
+        .features .feature {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 0 28px;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .features .feature:last-child {
+            border-right: none;
+        }
+
+        .features .feature svg {
+            width: 22px;
+            height: 22px;
+            margin-bottom: 4px;
+        }
+
+        .features .feature svg path {
+            fill: #C8804A;
+        }
+
+        .features .feature strong {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #F0E6D8;
+        }
+
+        .features .feature span {
+            font-size: 0.72rem;
+            color: #A79A88;
+            letter-spacing: 0.03em;
+        }
+
+        .socials {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 36px;
+            animation: fadeUp 0.8s ease both;
+            animation-delay: 0.6s;
+        }
+
+        .socials a {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .3s;
+        }
+
+        .socials a:hover {
+            background: #fff;
+        }
+
+        .socials a:hover svg path {
+            fill: #000;
+        }
+
+        .socials svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .socials svg path {
+            fill: #D9CFC1;
+            transition: .3s;
+        }
+
+        footer {
+            position: static;
+            left: 0;
+            right: 0;
+            bottom: 20px;
+            text-align: center;
+            color: #B7AA98;
+            font-size: 14px;
+            z-index: 2;
+            animation: fadeUp 0.8s ease both;
+            animation-delay: 0.7s;
+        }
+
+        footer .tag {
+            display: block;
+            margin-top: 6px;
+            font-size: 18px;
+            color: #8C8072;
+            letter-spacing: 0.04em;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media(max-width:768px) {
+
+            h1 {
+                font-size: 42px;
+            }
+
+            p.lead {
+                font-size: 17px;
+            }
+
+            .features {
+                gap: 18px;
+            }
+
+            .features .feature {
+                border-right: none;
+                padding: 0 10px;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="grid-bg" aria-hidden="true"></div>
+    <div class="lasers" aria-hidden="true">
+        <div class="laser laser-1">
+            <div class="laser-line"></div>
+            <div class="laser-dot"></div>
+        </div>
+        <div class="laser laser-2">
+            <div class="laser-line"></div>
+            <div class="laser-dot"></div>
+        </div>
+        <div class="laser laser-3">
+            <div class="laser-line"></div>
+            <div class="laser-dot"></div>
+        </div>
+        <div class="laser laser-4">
+            <div class="laser-line"></div>
+            <div class="laser-dot"></div>
+        </div>
+        <div class="laser laser-5">
+            <div class="laser-line"></div>
+            <div class="laser-dot"></div>
+        </div>
+        <div class="laser laser-6">
+            <div class="laser-line"></div>
+            <div class="laser-dot"></div>
+        </div>
+    </div>
+
+    <div class="edge-top"></div>
+    <div class="edge-bottom"></div>
+
+    <header>
+        <svg class="bolt" viewBox="0 0 24 24">
+            <path d="M13 2 3 14h7l-1 8 11-13h-7z" />
+        </svg>
+        <span>Parkan Enterprises Limited</span>
+    </header>
+
+    <div class="container">
+
+        <div class="badge"><span class="dot"></span> Site under construction</div>
+
+        <h1>Work in Progress</h1>
+
+        <p class="lead">
+            Trading and project supply of electrical goods — powering infrastructure with quality and reliability.
+        </p>
+
+
+
+        <div class="actions">
+            <a href="tel:+919274337813" class="btn">
+                <svg viewBox="0 0 24 24">
+                    <path
+                        d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .7-.2 1z" />
+                </svg>
+                <div class="phone-line">+91 92743 37813</div>
+            </a>
+        </div>
+
+        <footer>
+            <span class="tag">© 2026 Parkan Enterprises Limited. All Rights Reserved.</span>
+            <span class="tag">Wire &amp; Cable Manufacturing — Electrical Goods Trading</span>
+        </footer>
+
+    </div>
+
+</body>
+
+</html>

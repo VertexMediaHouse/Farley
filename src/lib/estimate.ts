@@ -8,6 +8,7 @@ export interface LineItem {
   label: string;
   detail: string;
   amount: number;
+  isOutOfStock?: boolean;
 }
 
 export interface EstimateResult {
@@ -185,9 +186,19 @@ export function calculateEstimate(
         const height = area.baseboardHeight || '6';
         const heightKey = String(parseInt(height) || 6);
         const laborRate = PRICING.trim.baseboard[heightKey] ?? 5.00;
-        if (materialRate != null) {
+        if (catalogUrl) {
           addItem(areaName, 'Trim: Baseboard labor', `${lft} lft`, lft * laborRate);
-          addItem(areaName, 'Trim: Baseboard material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate);
+          if (materialRate != null) {
+            addItem(areaName, 'Trim: Baseboard material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate);
+          } else {
+            lineItems.push({
+              area: areaName,
+              label: 'Trim: Baseboard material',
+              detail: 'Out of stock',
+              amount: 0,
+              isOutOfStock: true
+            });
+          }
         } else {
           addItem(areaName, `Trim: Baseboards (${heightKey}" height)`, `${lft} lft`, lft * laborRate);
         }
@@ -200,9 +211,19 @@ export function calculateEstimate(
         const catalogUrl = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
         const materialRate = catalogUrl ? pricePerLft(productPrices, catalogUrl) : null;
         const laborRate = PRICING.trim.doorCasing;
-        if (materialRate != null) {
+        if (catalogUrl) {
           addItem(areaName, 'Trim: Casing labor', `${lft} lft`, lft * laborRate);
-          addItem(areaName, 'Trim: Casing material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate);
+          if (materialRate != null) {
+            addItem(areaName, 'Trim: Casing material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate);
+          } else {
+            lineItems.push({
+              area: areaName,
+              label: 'Trim: Casing material',
+              detail: 'Out of stock',
+              amount: 0,
+              isOutOfStock: true
+            });
+          }
         } else {
           addItem(areaName, 'Trim: Door Casing', `${lft} lft`, lft * laborRate);
         }
