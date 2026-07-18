@@ -155,6 +155,16 @@ export function calculateEstimate(
       addItem(areaName, `Texture: ${area.texture}`, `${sqft} sqft`, sqft * PRICING.texture[area.texture]);
     }
 
+    // Ceiling Height Surcharge (above 8ft)
+    if (area.ceilingAbove8 === 'Yes') {
+      const h = Math.floor(parseFloat(area.ceilingHeight) || 9);
+      const heightKey = String(Math.min(h, 12));
+      const rate = PRICING.ceilingHeightSurcharge[heightKey] ?? 0;
+      if (rate > 0 && sqft > 0) {
+        addItem(areaName, `High Ceiling Surcharge (${h}ft)`, `${sqft} sqft @ $${rate}/sqft`, sqft * rate);
+      }
+    }
+
     // Process Custom Questions
     customQuestions.filter(q => q.path === 'drywall').forEach(cq => {
       const val = area[cq.config.id];

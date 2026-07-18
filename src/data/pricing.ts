@@ -87,6 +87,9 @@ export const PRICING = {
     } as Record<string, number>;
   },
 
+  // Ceiling Height Surcharge (per sqft, keyed by height in ft)
+  get ceilingHeightSurcharge() { return CEILING_HEIGHT_SURCHARGE as Record<string, number>; },
+
   // Texture
   get texture() { return TEXTURE_RATES as Record<string, number>; },
 
@@ -213,6 +216,14 @@ export const CORNER_METAL: Record<string, number> = {
 
 export let ARCH_CORNER_METAL_PER_LFT = 75;
 export function setArchCornerMetal(v: number) { ARCH_CORNER_METAL_PER_LFT = v; }
+
+// -- Ceiling Height Surcharge (per sqft, keyed by ceiling height in ft) --
+export const CEILING_HEIGHT_SURCHARGE: Record<string, number> = {
+  '9': 7.00,
+  '10': 8.00,
+  '11': 9.00,
+  '12': 10.00,
+};
 
 // -- Texture / Finish --
 export const TEXTURE_RATES: Record<string, number> = {
