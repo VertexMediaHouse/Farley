@@ -9,6 +9,13 @@ export interface LineItem {
   detail: string;
   amount: number;
   isOutOfStock?: boolean;
+  /** Present only for measured items (lft/sqft/qty-based). When set, the UI
+   *  allows editing `quantity` and recomputes `amount = quantity * rate`.
+   *  Absent for flat-fee items (surcharges, trip charge, etc.) — those are
+   *  never quantity-editable. */
+  quantity?: number;
+  rate?: number;
+  unit?: 'lft' | 'sqft' | 'unit';
 }
 
 export interface EstimateResult {
@@ -28,9 +35,21 @@ export function calculateEstimate(
   const lineItems: LineItem[] = [];
   let subtotal = 0;
 
-  const addItem = (area: string, label: string, detail: string, amount: number) => {
+  const addItem = (
+    area: string,
+    label: string,
+    detail: string,
+    amount: number,
+    measured?: { quantity: number; rate: number; unit: 'lft' | 'sqft' | 'unit' },
+  ) => {
     if (amount > 0) {
-      lineItems.push({ area, label, detail, amount });
+      lineItems.push({
+        area,
+        label,
+        detail,
+        amount,
+        ...(measured ? { quantity: measured.quantity, rate: measured.rate, unit: measured.unit } : {}),
+      });
       subtotal += amount;
     }
   };
@@ -47,38 +66,66 @@ export function calculateEstimate(
     const sqft = parseFloat(area.squareFootage) || 0;
     const lft = parseFloat(area.linearFeet) || 0;
     let repairPrice = 0;
+    let repairRate = 0;
+    let repairQty = 0;
+    let repairUnit: 'lft' | 'sqft' = 'sqft';
 
-    if (repairType === 'Walls') repairPrice = sqft * PRICING.drywall.walls;
-    else if (repairType === 'Ceiling') repairPrice = sqft * PRICING.drywall.ceiling;
-    else if (repairType === 'Bathroom Walls') repairPrice = sqft * PRICING.drywall.bathroomWalls;
-    else if (repairType === 'Bathroom Ceiling') repairPrice = sqft * PRICING.drywall.bathroomCeiling;
-    else if (repairType === 'Crack Repair Wall') {
-      if (lft < 5) repairPrice = PRICING.crackRepairWall.flatFeeUnder5ft;
-      else {
+    if (repairType === 'Walls') {
+      repairRate = PRICING.drywall.walls; repairQty = sqft; repairUnit = 'sqft';
+      repairPrice = sqft * repairRate;
+    } else if (repairType === 'Ceiling') {
+      repairRate = PRICING.drywall.ceiling; repairQty = sqft; repairUnit = 'sqft';
+      repairPrice = sqft * repairRate;
+    } else if (repairType === 'Bathroom Walls') {
+      repairRate = PRICING.drywall.bathroomWalls; repairQty = sqft; repairUnit = 'sqft';
+      repairPrice = sqft * repairRate;
+    } else if (repairType === 'Bathroom Ceiling') {
+      repairRate = PRICING.drywall.bathroomCeiling; repairQty = sqft; repairUnit = 'sqft';
+      repairPrice = sqft * repairRate;
+    } else if (repairType === 'Crack Repair Wall') {
+      repairQty = lft; repairUnit = 'lft';
+      if (lft < 5) {
+        repairPrice = PRICING.crackRepairWall.flatFeeUnder5ft;
+        // Flat fee under 5ft — not a clean per-unit rate, so don't expose quantity editing
+        repairRate = 0;
+      } else {
         const tier = PRICING.crackRepairWall.tiers.find(t => lft <= t.maxFt);
-        repairPrice = lft * (tier?.price || 75);
+        repairRate = tier?.price || 75;
+        repairPrice = lft * repairRate;
       }
-    }
-    else if (repairType === 'Crack repair ceiling') {
-      if (lft < 5) repairPrice = PRICING.crackRepairCeiling.flatFeeUnder5ft;
-      else {
+    } else if (repairType === 'Crack repair ceiling') {
+      repairQty = lft; repairUnit = 'lft';
+      if (lft < 5) {
+        repairPrice = PRICING.crackRepairCeiling.flatFeeUnder5ft;
+        repairRate = 0;
+      } else {
         const tier = PRICING.crackRepairCeiling.tiers.find(t => lft <= t.maxFt);
-        repairPrice = lft * (tier?.price || 95);
+        repairRate = tier?.price || 95;
+        repairPrice = lft * repairRate;
       }
     }
-    addItem(areaName, `Repair: ${repairType}`, sqft > 0 ? `${sqft} sqft` : `${lft} lft`, repairPrice);
+
+    addItem(
+      areaName,
+      `Repair: ${repairType}`,
+      sqft > 0 ? `${sqft} sqft` : `${lft} lft`,
+      repairPrice,
+      repairRate > 0 ? { quantity: repairQty, rate: repairRate, unit: repairUnit } : undefined,
+    );
 
     // Dividing wall
     if (area.dividingWall === 'Yes') {
-      addItem(areaName, 'Dividing Wall Surcharge', `${sqft} sqft`, sqft * PRICING.drywall.dividingWall);
+      addItem(areaName, 'Dividing Wall Surcharge', `${sqft} sqft`, sqft * PRICING.drywall.dividingWall, {
+        quantity: sqft, rate: PRICING.drywall.dividingWall, unit: 'sqft',
+      });
     }
 
-    // Floor Level
+    // Floor Level (flat fee — no quantity)
     if (area.projectLocation && PRICING.floors[area.projectLocation]) {
       addItem(areaName, `Floor Surcharge: ${area.projectLocation}`, 'Flat Fee', PRICING.floors[area.projectLocation]);
     }
 
-    // Staircase
+    // Staircase (flat fee — no quantity)
     if (area.staircase === 'Yes') {
       addItem(areaName, 'Staircase Surcharge', 'Flat Fee', PRICING.staircase);
     }
@@ -86,26 +133,36 @@ export function calculateEstimate(
     // Demolition
     if (area.needDemolition && PRICING.demolition[area.needDemolition]) {
       const demoRate = PRICING.demolition[area.needDemolition];
-      const demoQty = area.needDemolition === 'Base board' || area.needDemolition === 'Door casing' 
-        ? parseFloat(area.demolitionLinearFeet) || 0 
+      const isLinear = area.needDemolition === 'Base board' || area.needDemolition === 'Door casing';
+      const demoQty = isLinear
+        ? parseFloat(area.demolitionLinearFeet) || 0
         : parseFloat(area.demolitionSquareFootage) || 0;
-      addItem(areaName, `Demolition: ${area.needDemolition}`, `${demoQty} unit(s)`, demoQty * demoRate);
+      addItem(areaName, `Demolition: ${area.needDemolition}`, `${demoQty} unit(s)`, demoQty * demoRate, {
+        quantity: demoQty, rate: demoRate, unit: isLinear ? 'lft' : 'sqft',
+      });
     } else if (area.needDemolition === 'Popcorn Ceiling scraping') {
       const h = parseFloat(area.ceilingHeight) || 8;
       const dSqft = parseFloat(area.demolitionSquareFootage) || 0;
       const tier = PRICING.popcornScraping.tiers.find(t => h <= t.maxFt);
       const rate = tier?.price || 4.00;
-      addItem(areaName, 'Popcorn Ceiling Scraping', `${dSqft} sqft @ ${h}ft height`, dSqft * rate);
+      addItem(areaName, 'Popcorn Ceiling Scraping', `${dSqft} sqft @ ${h}ft height`, dSqft * rate, {
+        quantity: dSqft, rate, unit: 'sqft',
+      });
     }
 
     // Haul Away
     if (area.needHaulAway === 'Yes') {
-      // User said "count haulaway same" -> use demolition sqft if not provided directly
       let hSqft = parseFloat(area.haulAwaySquareFootage);
       if (isNaN(hSqft)) hSqft = parseFloat(area.demolitionSquareFootage) || 0;
       if (hSqft > 0) {
-        if (hSqft < 50) addItem(areaName, 'Haul Away', 'Under 50 sqft', PRICING.haulAway.baseFeeUnder50);
-        else addItem(areaName, 'Haul Away', `${hSqft} sqft`, hSqft * PRICING.haulAway.perSqftAbove50);
+        if (hSqft < 50) {
+          // Flat fee under 50 sqft — no clean per-unit rate to edit against
+          addItem(areaName, 'Haul Away', 'Under 50 sqft', PRICING.haulAway.baseFeeUnder50);
+        } else {
+          addItem(areaName, 'Haul Away', `${hSqft} sqft`, hSqft * PRICING.haulAway.perSqftAbove50, {
+            quantity: hSqft, rate: PRICING.haulAway.perSqftAbove50, unit: 'sqft',
+          });
+        }
       }
     }
 
@@ -115,7 +172,9 @@ export function calculateEstimate(
       let insSqft = parseFloat(area.insulationSquareFootage) || 0;
       if (insSqft > 0) {
         if (insSqft < ins.minSqft) insSqft = ins.minSqft;
-        addItem(areaName, `Insulation: ${area.needInsulation}`, `${insSqft} sqft (min applied)`, insSqft * ins.price);
+        addItem(areaName, `Insulation: ${area.needInsulation}`, `${insSqft} sqft (min applied)`, insSqft * ins.price, {
+          quantity: insSqft, rate: ins.price, unit: 'sqft',
+        });
       }
     }
 
@@ -127,10 +186,12 @@ export function calculateEstimate(
           const mType = m.metalType as keyof typeof PRICING.cornerMetal;
           const qty = parseFloat(m.quantity) || 0;
           if (mType && qty > 0 && PRICING.cornerMetal[mType]) {
-            addItem(areaName, `Corner Metal: ${mType}`, `${qty} qty`, qty * PRICING.cornerMetal[mType]);
+            addItem(areaName, `Corner Metal: ${mType}`, `${qty} qty`, qty * PRICING.cornerMetal[mType], {
+              quantity: qty, rate: PRICING.cornerMetal[mType], unit: 'unit',
+            });
           }
         });
-      } catch (e) {}
+      } catch (e) { }
     }
 
     // Arch Corner Metals
@@ -144,15 +205,19 @@ export function calculateEstimate(
           const lft = (height + width) * qty; // Total linear feet
           if (lft > 0) {
             const mType = m.metalType === 'Arch Bullnose' ? 'archBullnose' : 'arch90';
-            addItem(areaName, `Arch Metal: ${m.metalType}`, `${lft} lft`, lft * PRICING.cornerMetal[mType]);
+            addItem(areaName, `Arch Metal: ${m.metalType}`, `${lft} lft`, lft * PRICING.cornerMetal[mType], {
+              quantity: lft, rate: PRICING.cornerMetal[mType], unit: 'lft',
+            });
           }
         });
-      } catch (e) {}
+      } catch (e) { }
     }
 
     // Texture
     if (area.texture && PRICING.texture[area.texture]) {
-      addItem(areaName, `Texture: ${area.texture}`, `${sqft} sqft`, sqft * PRICING.texture[area.texture]);
+      addItem(areaName, `Texture: ${area.texture}`, `${sqft} sqft`, sqft * PRICING.texture[area.texture], {
+        quantity: sqft, rate: PRICING.texture[area.texture], unit: 'sqft',
+      });
     }
 
     // Ceiling Height Surcharge (above 8ft)
@@ -161,7 +226,9 @@ export function calculateEstimate(
       const heightKey = String(Math.min(h, 12));
       const rate = PRICING.ceilingHeightSurcharge[heightKey] ?? 0;
       if (rate > 0 && sqft > 0) {
-        addItem(areaName, `High Ceiling Surcharge (${h}ft)`, `${sqft} sqft @ $${rate}/sqft`, sqft * rate);
+        addItem(areaName, `High Ceiling Surcharge (${h}ft)`, `${sqft} sqft @ $${rate}/sqft`, sqft * rate, {
+          quantity: sqft, rate, unit: 'sqft',
+        });
       }
     }
 
@@ -176,7 +243,9 @@ export function calculateEstimate(
         } else if (rule.type === 'per_unit') {
           const qty = parseFloat(val) || 0;
           if (qty > 0) {
-            addItem(areaName, `Custom: ${cq.config.label}`, `${qty} unit(s)`, qty * rule.amount);
+            addItem(areaName, `Custom: ${cq.config.label}`, `${qty} unit(s)`, qty * rule.amount, {
+              quantity: qty, rate: rule.amount, unit: 'unit',
+            });
           }
         }
       }
@@ -197,9 +266,13 @@ export function calculateEstimate(
         const heightKey = String(parseInt(height) || 6);
         const laborRate = PRICING.trim.baseboard[heightKey] ?? 5.00;
         if (catalogUrl) {
-          addItem(areaName, 'Trim: Baseboard labor', `${lft} lft`, lft * laborRate);
+          addItem(areaName, 'Trim: Baseboard labor', `${lft} lft`, lft * laborRate, {
+            quantity: lft, rate: laborRate, unit: 'lft',
+          });
           if (materialRate != null) {
-            addItem(areaName, 'Trim: Baseboard material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate);
+            addItem(areaName, 'Trim: Baseboard material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate, {
+              quantity: lft, rate: materialRate, unit: 'lft',
+            });
           } else {
             lineItems.push({
               area: areaName,
@@ -210,7 +283,9 @@ export function calculateEstimate(
             });
           }
         } else {
-          addItem(areaName, `Trim: Baseboards (${heightKey}" height)`, `${lft} lft`, lft * laborRate);
+          addItem(areaName, `Trim: Baseboards (${heightKey}" height)`, `${lft} lft`, lft * laborRate, {
+            quantity: lft, rate: laborRate, unit: 'lft',
+          });
         }
       }
     }
@@ -222,9 +297,13 @@ export function calculateEstimate(
         const materialRate = catalogUrl ? pricePerLft(productPrices, catalogUrl) : null;
         const laborRate = PRICING.trim.doorCasing;
         if (catalogUrl) {
-          addItem(areaName, 'Trim: Casing labor', `${lft} lft`, lft * laborRate);
+          addItem(areaName, 'Trim: Casing labor', `${lft} lft`, lft * laborRate, {
+            quantity: lft, rate: laborRate, unit: 'lft',
+          });
           if (materialRate != null) {
-            addItem(areaName, 'Trim: Casing material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate);
+            addItem(areaName, 'Trim: Casing material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate, {
+              quantity: lft, rate: materialRate, unit: 'lft',
+            });
           } else {
             lineItems.push({
               area: areaName,
@@ -235,7 +314,9 @@ export function calculateEstimate(
             });
           }
         } else {
-          addItem(areaName, 'Trim: Door Casing', `${lft} lft`, lft * laborRate);
+          addItem(areaName, 'Trim: Door Casing', `${lft} lft`, lft * laborRate, {
+            quantity: lft, rate: laborRate, unit: 'lft',
+          });
         }
       }
     }
@@ -258,7 +339,9 @@ export function calculateEstimate(
         } else if (rule.type === 'per_unit') {
           const qty = parseFloat(val) || 0;
           if (qty > 0) {
-            addItem(areaName, `Custom: ${cq.config.label}`, `${qty} unit(s)`, qty * rule.amount);
+            addItem(areaName, `Custom: ${cq.config.label}`, `${qty} unit(s)`, qty * rule.amount, {
+              quantity: qty, rate: rule.amount, unit: 'unit',
+            });
           }
         }
       }
@@ -276,14 +359,15 @@ export function calculateEstimate(
 
     if (qty > 0) {
       const rate = isLinear ? PRICING.paint.baseboard : PRICING.paint.wallsCeiling;
-      addItem(areaName, `Paint: ${area.paintArea}`, `${qty} ${isLinear ? 'lft' : 'sqft'}`, qty * rate);
+      addItem(areaName, `Paint: ${area.paintArea}`, `${qty} ${isLinear ? 'lft' : 'sqft'}`, qty * rate, {
+        quantity: qty, rate, unit: isLinear ? 'lft' : 'sqft',
+      });
 
-      // Paint material/labor tiers
+      // Paint material/labor tiers — tier-based, not a clean linear per-unit
+      // rate, so these are intentionally left non-quantity-editable (flat).
       let tierList = isLinear ? PRICING.paint.linearFtTiers : PRICING.paint.sqftTiers;
       const tier = tierList.find(t => isLinear ? qty <= (t as any).maxFt : qty <= (t as any).maxSqft);
       if (tier) {
-        // Calculate paint cost (round up gallons logic handles this inherently by step tiers)
-        // Wait, spec: "Always round up per square footage. Paint will be a standard Behr paint for HD... $45 per gallon based on square footage"
         const paintCost = tier.gallons * PRICING.paint.gallonPrice;
         addItem(areaName, `Paint Materials (${tier.gallons} gal)`, 'Behr Paint', paintCost);
         addItem(areaName, `Paint Base Labor`, 'Flat Fee', tier.baseLabor);
@@ -308,7 +392,9 @@ export function calculateEstimate(
         } else if (rule.type === 'per_unit') {
           const qty = parseFloat(val) || 0;
           if (qty > 0) {
-            addItem(areaName, `Custom: ${cq.config.label}`, `${qty} unit(s)`, qty * rule.amount);
+            addItem(areaName, `Custom: ${cq.config.label}`, `${qty} unit(s)`, qty * rule.amount, {
+              quantity: qty, rate: rule.amount, unit: 'unit',
+            });
           }
         }
       }

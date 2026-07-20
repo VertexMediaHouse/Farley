@@ -8,7 +8,6 @@ import ContactPage from './pages/ContactPage'
 import ServicesPage from './pages/ServicesPage'
 import EstimatePage from './pages/EstimatePage'
 import PriceEstimatorPage from './pages/PriceEstimatorPage'
-import SubcontractorPage from './pages/SubcontractorPage'
 import AdminDashboard from './pages/AdminDashboard'
 import RequireAuth from './components/RequireAuth'
 import { CopyProvider } from './context/CopyProvider'
@@ -89,7 +88,6 @@ export default function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/estimate" element={<EstimatePage />} />
         <Route path="/priceestimator" element={<PriceEstimatorPage />} />
-        <Route path="/subcontractor" element={<SubcontractorPage />} />
         <Route path="/admin/*" element={<RequireAuth><AdminDashboard /></RequireAuth>} />
       </Routes>
       <BackToTopButton />
