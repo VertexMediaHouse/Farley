@@ -8,6 +8,7 @@ export const ESTIMATE_DRAFT_KEY = 'fcd_estimate_v2';
 export const ESTIMATE_RESULT_KEY = 'fcd_estimate_data';
 
 export const DEFAULT_CONTACT = {
+  isCommercial: 'no',
   isSubcontractor: 'no',
   fullName: '',
   companyName: '',

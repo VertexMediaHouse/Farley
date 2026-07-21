@@ -84,24 +84,27 @@ export function calculateEstimate(
       repairPrice = sqft * repairRate;
     } else if (repairType === 'Crack Repair Wall') {
       repairQty = lft; repairUnit = 'lft';
-      if (lft < 5) {
-        repairPrice = PRICING.crackRepairWall.flatFeeUnder5ft;
-        // Flat fee under 5ft — not a clean per-unit rate, so don't expose quantity editing
+      if (lft <= 5) {
+        repairPrice = PRICING.crackRepairWall.baseFee;
+        // Flat fee for ≤5 lft — not a per-unit rate
         repairRate = 0;
       } else {
-        const tier = PRICING.crackRepairWall.tiers.find(t => lft <= t.maxFt);
-        repairRate = tier?.price || 75;
-        repairPrice = lft * repairRate;
+        const extraLft = lft - 5;
+        repairRate = PRICING.crackRepairWall.perExtraLft;
+        repairPrice = PRICING.crackRepairWall.baseFee + (extraLft * repairRate);
+        // For quantity editing, only the extra portion is rate-editable
+        repairRate = 0; // treat as flat since it's base + extra
       }
     } else if (repairType === 'Crack repair ceiling') {
       repairQty = lft; repairUnit = 'lft';
-      if (lft < 5) {
-        repairPrice = PRICING.crackRepairCeiling.flatFeeUnder5ft;
+      if (lft <= 5) {
+        repairPrice = PRICING.crackRepairCeiling.baseFee;
         repairRate = 0;
       } else {
-        const tier = PRICING.crackRepairCeiling.tiers.find(t => lft <= t.maxFt);
-        repairRate = tier?.price || 95;
-        repairPrice = lft * repairRate;
+        const extraLft = lft - 5;
+        repairRate = PRICING.crackRepairCeiling.perExtraLft;
+        repairPrice = PRICING.crackRepairCeiling.baseFee + (extraLft * repairRate);
+        repairRate = 0; // treat as flat since it's base + extra
       }
     }
 
@@ -155,13 +158,13 @@ export function calculateEstimate(
       let hSqft = parseFloat(area.haulAwaySquareFootage);
       if (isNaN(hSqft)) hSqft = parseFloat(area.demolitionSquareFootage) || 0;
       if (hSqft > 0) {
-        if (hSqft < 50) {
-          // Flat fee under 50 sqft — no clean per-unit rate to edit against
-          addItem(areaName, 'Haul Away', 'Under 50 sqft', PRICING.haulAway.baseFeeUnder50);
+        if (hSqft <= 50) {
+          // Flat fee up to 50 sqft — no clean per-unit rate to edit against
+          addItem(areaName, 'Haul Away', 'Up to 50 sqft', PRICING.haulAway.baseFeeUnder50);
         } else {
-          addItem(areaName, 'Haul Away', `${hSqft} sqft`, hSqft * PRICING.haulAway.perSqftAbove50, {
-            quantity: hSqft, rate: PRICING.haulAway.perSqftAbove50, unit: 'sqft',
-          });
+          const extraSqft = hSqft - 50;
+          const totalCost = PRICING.haulAway.baseFeeUnder50 + (extraSqft * PRICING.haulAway.perSqftAbove50);
+          addItem(areaName, 'Haul Away', `${hSqft} sqft`, totalCost);
         }
       }
     }
@@ -221,14 +224,19 @@ export function calculateEstimate(
     }
 
     // Ceiling Height Surcharge (above 8ft)
-    if (area.ceilingAbove8 === 'Yes') {
-      const h = Math.floor(parseFloat(area.ceilingHeight) || 9);
-      const heightKey = String(Math.min(h, 12));
-      const rate = PRICING.ceilingHeightSurcharge[heightKey] ?? 0;
-      if (rate > 0 && sqft > 0) {
-        addItem(areaName, `High Ceiling Surcharge (${h}ft)`, `${sqft} sqft @ $${rate}/sqft`, sqft * rate, {
-          quantity: sqft, rate, unit: 'sqft',
-        });
+    if (area.ceilingAbove8 === 'Yes' && area.ceilingHeight) {
+      const hStr = parseFloat(area.ceilingHeight);
+      if (!isNaN(hStr) && hStr > 8) {
+        const h = Math.floor(hStr);
+        const heightKey = String(Math.min(h, 12));
+        const rate = PRICING.ceilingHeightSurcharge[heightKey] ?? 0;
+        const qty = sqft > 0 ? sqft : lft;
+        const unit = sqft > 0 ? 'sqft' : 'lft';
+        if (rate > 0 && qty > 0) {
+          addItem(areaName, `High Ceiling Surcharge (${h}ft)`, `${qty} ${unit} @ $${rate}/${unit}`, qty * rate, {
+            quantity: qty, rate, unit,
+          });
+        }
       }
     }
 

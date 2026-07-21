@@ -14,28 +14,14 @@ export const PRICING = {
   // Crack Repair
   get crackRepairWall() {
     return {
-      flatFeeUnder5ft: CRACK_REPAIR_WALL_UNDER_5,
-      tiers: [
-        { maxFt: 4.99, price: CRACK_REPAIR_WALL_UNDER_5 },
-        { maxFt: 8, price: CRACK_REPAIR_WALL_LFT['5ft-8ft'] || 50 },
-        { maxFt: 9, price: CRACK_REPAIR_WALL_LFT['9ft'] || 60 },
-        { maxFt: 10, price: CRACK_REPAIR_WALL_LFT['10ft'] || 70 },
-        { maxFt: 11, price: CRACK_REPAIR_WALL_LFT['11ft'] || 70 },
-        { maxFt: Infinity, price: CRACK_REPAIR_WALL_LFT['12ft'] || 75 },
-      ]
+      baseFee: CRACK_REPAIR_WALL_UNDER_5,
+      perExtraLft: CRACK_REPAIR_WALL_EXTRA_LFT,
     };
   },
   get crackRepairCeiling() {
     return {
-      flatFeeUnder5ft: CRACK_REPAIR_CEILING_UNDER_5,
-      tiers: [
-        { maxFt: 4.99, price: CRACK_REPAIR_CEILING_UNDER_5 },
-        { maxFt: 8, price: CRACK_REPAIR_CEILING_LFT['5ft-8ft'] || 75 },
-        { maxFt: 9, price: CRACK_REPAIR_CEILING_LFT['9ft'] || 80 },
-        { maxFt: 10, price: CRACK_REPAIR_CEILING_LFT['10ft'] || 85 },
-        { maxFt: 11, price: CRACK_REPAIR_CEILING_LFT['11ft'] || 90 },
-        { maxFt: Infinity, price: CRACK_REPAIR_CEILING_LFT['12ft'] || 95 },
-      ]
+      baseFee: CRACK_REPAIR_CEILING_UNDER_5,
+      perExtraLft: CRACK_REPAIR_CEILING_EXTRA_LFT,
     };
   },
 
@@ -145,21 +131,12 @@ export function setCrackRepairWallUnder5(v: number) { CRACK_REPAIR_WALL_UNDER_5 
 export let CRACK_REPAIR_CEILING_UNDER_5 = 1200;
 export function setCrackRepairCeilingUnder5(v: number) { CRACK_REPAIR_CEILING_UNDER_5 = v; }
 
-// -- Crack Repair per-lft rates (keyed by height tier) --
-export const CRACK_REPAIR_WALL_LFT: Record<string, number> = {
-  '5ft-8ft': 50,
-  '9ft': 60,
-  '10ft': 70,
-  '12ft': 75,
-};
+// -- Crack Repair per-extra-lft rate (applied to each foot beyond 5 lft) --
+export let CRACK_REPAIR_WALL_EXTRA_LFT = 450;
+export function setCrackRepairWallExtraLft(v: number) { CRACK_REPAIR_WALL_EXTRA_LFT = v; }
 
-export const CRACK_REPAIR_CEILING_LFT: Record<string, number> = {
-  '5ft-8ft': 75,
-  '9ft': 80,
-  '10ft': 85,
-  '11ft': 90,
-  '12ft': 95,
-};
+export let CRACK_REPAIR_CEILING_EXTRA_LFT = 450;
+export function setCrackRepairCeilingExtraLft(v: number) { CRACK_REPAIR_CEILING_EXTRA_LFT = v; }
 
 // -- Floor surcharges --
 export const FLOOR_SURCHARGE: Record<string, number> = {

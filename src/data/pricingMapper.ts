@@ -8,8 +8,8 @@ export function getInitialPricingRules(): Record<string, PricingRule> {
     
     'crack_repair_wall_under_5': { shape: 'flat_if', amount: P.CRACK_REPAIR_WALL_UNDER_5 },
     'crack_repair_ceiling_under_5': { shape: 'flat_if', amount: P.CRACK_REPAIR_CEILING_UNDER_5 },
-    'crack_repair_wall_lft': { shape: 'per_unit', unit: 'lft', rate: 0, rateByOption: { ...P.CRACK_REPAIR_WALL_LFT } },
-    'crack_repair_ceiling_lft': { shape: 'per_unit', unit: 'lft', rate: 0, rateByOption: { ...P.CRACK_REPAIR_CEILING_LFT } },
+    'crack_repair_wall_extra_lft': { shape: 'per_unit', unit: 'lft', rate: P.CRACK_REPAIR_WALL_EXTRA_LFT },
+    'crack_repair_ceiling_extra_lft': { shape: 'per_unit', unit: 'lft', rate: P.CRACK_REPAIR_CEILING_EXTRA_LFT },
     
     'floor_surcharge': { shape: 'per_option', prices: { ...P.FLOOR_SURCHARGE } },
     'staircase_fee': { shape: 'flat_if', amount: P.STAIRCASE_FEE },
@@ -47,12 +47,8 @@ export function applyPricingRules(rules: Record<string, PricingRule> = {}) {
   if (rules.crack_repair_wall_under_5?.shape === 'flat_if' && typeof rules.crack_repair_wall_under_5.amount === 'number') P.setCrackRepairWallUnder5(rules.crack_repair_wall_under_5.amount);
   if (rules.crack_repair_ceiling_under_5?.shape === 'flat_if' && typeof rules.crack_repair_ceiling_under_5.amount === 'number') P.setCrackRepairCeilingUnder5(rules.crack_repair_ceiling_under_5.amount);
   
-  if (rules.crack_repair_wall_lft?.shape === 'per_unit' && rules.crack_repair_wall_lft.rateByOption) {
-    Object.assign(P.CRACK_REPAIR_WALL_LFT, rules.crack_repair_wall_lft.rateByOption);
-  }
-  if (rules.crack_repair_ceiling_lft?.shape === 'per_unit' && rules.crack_repair_ceiling_lft.rateByOption) {
-    Object.assign(P.CRACK_REPAIR_CEILING_LFT, rules.crack_repair_ceiling_lft.rateByOption);
-  }
+  if (rules.crack_repair_wall_extra_lft?.shape === 'per_unit' && typeof rules.crack_repair_wall_extra_lft.rate === 'number') P.setCrackRepairWallExtraLft(rules.crack_repair_wall_extra_lft.rate);
+  if (rules.crack_repair_ceiling_extra_lft?.shape === 'per_unit' && typeof rules.crack_repair_ceiling_extra_lft.rate === 'number') P.setCrackRepairCeilingExtraLft(rules.crack_repair_ceiling_extra_lft.rate);
   
   if (rules.floor_surcharge?.shape === 'per_option' && rules.floor_surcharge.prices) Object.assign(P.FLOOR_SURCHARGE, rules.floor_surcharge.prices);
   if (rules.staircase_fee?.shape === 'flat_if' && typeof rules.staircase_fee.amount === 'number') P.setStaircaseFee(rules.staircase_fee.amount);

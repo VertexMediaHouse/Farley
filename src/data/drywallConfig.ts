@@ -72,14 +72,14 @@ export const drywallConfig: QuestionConfig[] = [
     label: 'Add square footage',
     type: 'number',
     placeholder: 'sq ft',
-    condition: { field: 'needDemolition', not: 'No' },
+    condition: { field: 'needDemolition', notIn: ['No', 'Base board', 'Door casing'] },
   },
   {
     id: 'demolitionLinearFeet',
     label: 'Add linear feet',
     type: 'number',
     placeholder: 'lft',
-    condition: { field: 'needDemolition', not: 'No' },
+    condition: { field: 'needDemolition', in: ['Base board', 'Door casing'] },
   },
   {
     id: 'demolitionPhotos',
@@ -93,6 +93,7 @@ export const drywallConfig: QuestionConfig[] = [
     label: 'Do you need Haul Away?',
     type: 'dropdown',
     required: true,
+    helpText: 'Minimum area: 50 sq ft.',
     options: ['', 'Yes', 'No'],
   },
   {
@@ -107,8 +108,8 @@ export const drywallConfig: QuestionConfig[] = [
     label: 'Do you need insulation?',
     type: 'dropdown',
     required: true,
+    helpText: 'Minimum area: 50 sq ft.',
     options: ['', 'No', 'Wall Insulation (R13)', 'Ceiling Insulation (R19)'],
-    helpText: 'Explain where to install insulation.',
   },
   {
     id: 'insulationSquareFootage',
@@ -234,13 +235,14 @@ export const drywallConfig: QuestionConfig[] = [
         type: 'number',
         placeholder: 'ft',
       },
-      {
-        id: 'photos',
-        label: 'Attach photos',
-        type: 'photoUpload',
-        multiple: true,
-      },
     ]
+  },
+  {
+    id: 'archCornerMetalPhotos',
+    label: 'Attach photos of Arch corner metal',
+    type: 'photoUpload',
+    multiple: true,
+    condition: { field: 'needArchCornerMetal', is: 'Yes' },
   },
   {
     id: 'texture',

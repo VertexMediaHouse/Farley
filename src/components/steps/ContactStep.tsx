@@ -4,6 +4,7 @@ import NavigationButtons from "../NavigationButtons";
 import { input as inp, label as lbl, errorText } from "../theme";
 
 interface ContactData {
+  isCommercial: string;
   isSubcontractor: string;
   fullName: string;
   companyName: string;
@@ -46,6 +47,7 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
     });
   };
 
+  const isCom = data.isCommercial === 'yes';
   const isSub = data.isSubcontractor === 'yes';
 
   const validate = () => {
@@ -81,6 +83,29 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
   return (
     <div>
       <StepHeader title="Contact Information" step={1} total={4} />
+
+      {/* ── Commercial work toggle ───────────────────────────── */}
+      <div className="mt-8 flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
+        <span className="text-sm font-semibold text-slate-700">Is this commercial work?</span>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={isCom}
+          onClick={() => set('isCommercial', isCom ? 'no' : 'yes')}
+          className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2F9BF0] focus-visible:ring-offset-2 ${
+            isCom ? 'bg-[#2F9BF0]' : 'bg-slate-300'
+          }`}
+        >
+          <span
+            className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+              isCom ? 'translate-x-5' : 'translate-x-0'
+            }`}
+          />
+        </button>
+        <span className={`text-xs font-semibold ${isCom ? 'text-[#2F9BF0]' : 'text-slate-400'}`}>
+          {isCom ? 'Yes' : 'No'}
+        </span>
+      </div>
 
       {/* ── Subcontractor toggle ───────────────────────────── */}
       <div className="mt-8 flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">

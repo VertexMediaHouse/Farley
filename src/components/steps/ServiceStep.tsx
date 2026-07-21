@@ -59,6 +59,7 @@ export default function ServiceStep({ path, areas, onChange, onBack, onNext, isL
         onNext={proceed}
         onSubmit={isLast ? proceed : undefined}
         onSkip={skip}
+        skipLabel={`Skip ${path}`}
       />
     </div>
   );

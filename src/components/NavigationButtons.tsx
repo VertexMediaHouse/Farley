@@ -7,9 +7,10 @@ interface NavigationButtonsProps {
   onNext: () => void;
   onSubmit?: () => void;
   onSkip?: () => void;
+  skipLabel?: string;
 }
 
-export default function NavigationButtons({ step, total, onBack, onNext, onSubmit, onSkip }: NavigationButtonsProps) {
+export default function NavigationButtons({ step, total, onBack, onNext, onSubmit, onSkip, skipLabel }: NavigationButtonsProps) {
   const isLast = step === total;
   return (
     <div className="sticky bottom-0 -mx-6 mt-2 flex items-center justify-between border-t border-slate-100 bg-white/95 px-6 py-4 backdrop-blur sm:-mx-8 sm:px-8">
@@ -23,9 +24,9 @@ export default function NavigationButtons({ step, total, onBack, onNext, onSubmi
         </span>
       )}
       <div className="flex gap-3">
-        {onSkip && !isLast && (
+        {onSkip && (
           <button type="button" onClick={onSkip} className={btnGhost}>
-            Skip this step
+            {skipLabel || 'Skip this step'}
           </button>
         )}
         <button
