@@ -34,21 +34,12 @@ function groupByArea(lineItems: LineItem[]): Record<string, GroupedEntry[]> {
   return groups;
 }
 
-const inputBaseStyle: React.CSSProperties = {
-  border: '1px solid transparent',
-  background: 'transparent',
-  width: '100%',
-  fontSize: '0.9rem',
-  fontFamily: 'inherit',
-  color: 'inherit',
-  padding: '2px 4px',
-  borderRadius: '4px',
-};
-
 export default function EstimatePage() {
   const [data, setData] = useState<EstimateData | null>(null)
   const [editedItems, setEditedItems] = useState<LineItem[] | null>(null)
-
+  const [isEditing, setIsEditing] = useState(false)
+  
+  
   useEffect(() => {
     try {
       const stored = localStorage.getItem('fcd_estimate_data')
@@ -67,7 +58,7 @@ export default function EstimatePage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
-
+  
   if (!data) {
     return (
       <div className="estimate-error-container" style={{
@@ -94,7 +85,7 @@ export default function EstimatePage() {
   }
 
   const { answers, estimate } = data
-
+  
   // Guard against malformed / partial estimate objects
   if (!estimate || !Array.isArray(estimate.lineItems) || typeof estimate.subtotal !== 'number') {
     return (
@@ -137,15 +128,7 @@ export default function EstimatePage() {
     });
   };
 
-  const updateField = (idx: number, field: 'label' | 'detail' | 'area', value: string) => {
-    setEditedItems(prev => {
-      if (!prev) return prev;
-      const copy = [...prev];
-      copy[idx] = { ...copy[idx], [field]: value };
-      return copy;
-    });
-  };
-
+  const projectItems = items.filter(i => i.area === 'Project');
   const removeItem = (idx: number) => {
     setEditedItems(prev => (prev ? prev.filter((_, i) => i !== idx) : prev));
   };
@@ -345,14 +328,6 @@ export default function EstimatePage() {
             marginBottom: '35px'
           }}>
             <div>
-              <strong style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Project Address:</strong>
-              <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>{answers.address || 'Not Provided'}</span>
-            </div>
-            <div>
-              <strong style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Room Dimensions:</strong>
-              <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>{answers.length}'L x {answers.width}'W x {answers.height}'H</span>
-            </div>
-            <div>
               <strong style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Requested Services:</strong>
               <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
                 {Object.entries(answers.services || {})
@@ -378,15 +353,37 @@ export default function EstimatePage() {
             flexWrap: 'wrap',
             gap: '10px'
           }}>
-            <span>✏️ Adjust the measurement (lft/sqft/qty) on any item to recalculate its price, or remove items you don't want. Totals update automatically.</span>
-            {isEdited && (
+            <span>
+              {isEditing
+                ? "✏️ Editing enabled. Adjust measurements or remove items — totals update automatically."
+                : "🔒 This estimate is locked. Click Edit Estimate to make changes."}
+            </span>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              {isEditing && isEdited && (
+                <button
+                  type="button"
+                  onClick={resetToOriginal}
+                  style={{
+                    border: '1px solid #93c5fd',
+                    background: '#ffffff',
+                    color: '#1e40af',
+                    borderRadius: '6px',
+                    padding: '6px 12px',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Reset to original
+                </button>
+              )}
               <button
                 type="button"
-                onClick={resetToOriginal}
+                onClick={() => setIsEditing(v => !v)}
                 style={{
-                  border: '1px solid #93c5fd',
-                  background: '#ffffff',
-                  color: '#1e40af',
+                  border: isEditing ? '1px solid #1e40af' : '1px solid #93c5fd',
+                  background: isEditing ? '#1e40af' : '#ffffff',
+                  color: isEditing ? '#ffffff' : '#1e40af',
                   borderRadius: '6px',
                   padding: '6px 12px',
                   fontSize: '0.8rem',
@@ -394,9 +391,9 @@ export default function EstimatePage() {
                   cursor: 'pointer'
                 }}
               >
-                Reset to original
+                {isEditing ? 'Done editing' : 'Edit Estimate ✏️'}
               </button>
-            )}
+            </div>
           </div>
 
           {/* Tables Breakdowns */}
@@ -419,10 +416,17 @@ export default function EstimatePage() {
                 <span>Fixed Charge (Minimum $700):</span>
                 <span style={{ fontWeight: 700, color: '#0f172a' }}>${baseServiceFee.toFixed(2)}</span>
               </div>
+              {projectItems.map((item, i) => (
+                <div key={`project-${i}`} className="final-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#64748b' }}>
+                  <span>{item.label}{item.detail ? ` (${item.detail})` : ''}:</span>
+                  <span style={{ fontWeight: 700, color: '#0f172a' }}>${item.amount.toFixed(2)}</span>
+                </div>
+              ))}
 
               {/* Line Items grouped by Area — amounts read-only, removable */}
-              {Object.entries(groupedItems).map(([areaName, entries]) => (
-                <div key={areaName}>
+              {Object.entries(groupedItems)
+                .filter(([areaName]) => areaName !== 'Project')
+                .map(([areaName, entries]) => (<div key={areaName}>
                   <h3 style={{ marginTop: '20px', fontSize: '1rem', fontWeight: 600, color: '#0f172a' }}>{areaName}</h3>
                   <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
                     <thead>
@@ -437,25 +441,37 @@ export default function EstimatePage() {
                       {entries.map(({ item, idx }) => (
                         <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
                           <td style={{ padding: '6px' }}>
-                            <input
-                              value={item.label}
-                              onChange={e => updateField(idx, 'label', e.target.value)}
-                              style={inputBaseStyle}
-                              onFocus={e => (e.target.style.border = '1px solid #cbd5e1')}
-                              onBlur={e => (e.target.style.border = '1px solid transparent')}
-                            />
+                            <span>{item.label}</span>
                           </td>
                           <td style={{ padding: '6px' }}>
                             {item.isOutOfStock ? (
                               <span style={{ color: '#b45309', fontWeight: 700 }}>{item.detail}</span>
+                            ) : item.unit ? (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                {isEditing ? (
+                                  <input
+                                    type="number"
+                                    step="1"
+                                    min="1"
+                                    value={item.quantity}
+                                    onChange={e => updateQuantity(idx, e.target.value)}
+                                    style={{
+                                      width: '70px',
+                                      textAlign: 'right',
+                                      border: '1px solid #e2e8f0',
+                                      borderRadius: '4px',
+                                      padding: '4px 6px',
+                                      fontSize: '0.9rem',
+                                      fontFamily: 'inherit'
+                                    }}
+                                  />
+                                ) : (
+                                  <span style={{ fontWeight: 600 }}>{item.quantity}</span>
+                                )}
+                                <span style={{ fontSize: '0.9rem', color: '#64748b' }}>{item.unit}</span>
+                              </div>
                             ) : (
-                              <input
-                                value={item.detail}
-                                onChange={e => updateField(idx, 'detail', e.target.value)}
-                                style={inputBaseStyle}
-                                onFocus={e => (e.target.style.border = '1px solid #cbd5e1')}
-                                onBlur={e => (e.target.style.border = '1px solid transparent')}
-                              />
+                              <span>{item.detail}</span>
                             )}
                           </td>
                           <td style={{ padding: '6px', textAlign: 'right' }}>
@@ -463,7 +479,7 @@ export default function EstimatePage() {
                               <span style={{ fontWeight: 600 }}>—</span>
                             ) : item.quantity != null && item.rate != null ? (
                               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                {/* <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                   <input
                                     type="number"
                                     step="0.01"
@@ -481,37 +497,40 @@ export default function EstimatePage() {
                                     }}
                                   />
                                   <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.unit} @ ${item.rate}</span>
-                                </div>
+                                </div> */}
                                 <span style={{ fontWeight: 700 }}>${item.amount.toFixed(2)}</span>
                               </div>
                             ) : (
                               <span style={{ fontWeight: 600 }}>${item.amount.toFixed(2)}</span>
-                            )}
+                            )
+                            }
                           </td>
                           <td className="no-print" style={{ padding: '6px', textAlign: 'center' }}>
-                            <button
-                              type="button"
-                              onClick={() => removeItem(idx)}
-                              title="Remove item"
-                              style={{
-                                border: 'none',
-                                background: 'transparent',
-                                color: '#dc2626',
-                                cursor: 'pointer',
-                                fontSize: '1rem',
-                                lineHeight: 1,
-                                padding: '4px'
-                              }}
-                            >
-                              ✕
-                            </button>
+                            {isEditing && (
+                              <button
+                                type="button"
+                                onClick={() => removeItem(idx)}
+                                title="Remove item"
+                                style={{
+                                  border: 'none',
+                                  background: 'transparent',
+                                  color: '#dc2626',
+                                  cursor: 'pointer',
+                                  fontSize: '1rem',
+                                  lineHeight: 1,
+                                  padding: '4px'
+                                }}
+                              >
+                                ✕
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-              ))}
+                ))}
 
               <div className="final-row grand-total-row" style={{
                 display: 'flex',
@@ -543,7 +562,8 @@ export default function EstimatePage() {
       </div>
 
       {/* Printing Styles specific for this dedicated page wrapper */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media print {
           body {
             background: #ffffff !important;
