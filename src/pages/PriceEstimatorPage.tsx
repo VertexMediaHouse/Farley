@@ -1,5 +1,6 @@
 import StepSidebar from '../components/StepSideBar';
 import ContactStep from '../components/steps/ContactStep';
+import ClientInfoStep from '../components/steps/ClientInfoStep';
 import ServiceStep from '../components/steps/ServiceStep';
 import { useEstimateDraft } from '../hooks/useEstimateDraft';
 
@@ -23,21 +24,34 @@ export default function PriceEstimatorPage() {
     customQuestions,
     productPrices,
     handleSubmit,
+    handleReset,
   } = useEstimateDraft();
+
+  const showModal = step === 5;
 
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="bg-[#12294A]">
-        <div className="mx-auto max-w-6xl px-6 pb-20 pt-10 sm:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#2F9BF0]">
-            Free project estimate
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
-            Tell us about your project
-          </h1>
-          <p className="mt-2 max-w-lg text-sm leading-relaxed text-slate-300">
-            Four short steps — about three minutes. We’ll send your quote within 24 hours.
-          </p>
+        <div className="mx-auto max-w-6xl px-6 pb-20 pt-10 sm:px-8 flex justify-between items-start">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#2F9BF0]">
+              Free project estimate
+            </p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+              Tell us about your project
+            </h1>
+            <p className="mt-2 max-w-lg text-sm leading-relaxed text-slate-300">
+              Four short steps &mdash; about three minutes. We&rsquo;ll send your quote within 24 hours.
+            </p>
+          </div>
+          {!sent && (
+            <button
+              onClick={handleReset}
+              className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-400 hover:bg-red-500/20 hover:text-red-300 transition"
+            >
+              Reset Form
+            </button>
+          )}
         </div>
       </div>
 
@@ -51,7 +65,7 @@ export default function PriceEstimatorPage() {
               Request received
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-500">
-              We’ve got your project details. Expect a quote within 24 hours.
+              We've got your project details. Expect a quote within 24 hours.
             </p>
             <a
               href={PHONE_HREF}
@@ -61,14 +75,14 @@ export default function PriceEstimatorPage() {
             </a>
           </div>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] items-start">
+          <div className="relative grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] items-start">
             <div className="hidden lg:block">
               <StepSidebar
-                step={step}
+                step={Math.min(step, 4)}
                 onStepClick={goTo}
                 restored={restored}
-                phone="(555) 555-5555"
-                phoneHref="tel:5555555555"
+                phone={PHONE}
+                phoneHref={PHONE_HREF}
                 drywall={drywall}
                 trim={trim}
                 paint={paint}
@@ -82,7 +96,7 @@ export default function PriceEstimatorPage() {
                 id="estimate-scroll"
                 className="panel-scroll flex-1 overflow-y-auto px-6 sm:px-8"
               >
-                <div key={step} className="animate-[fadeSlide_0.3s_ease-out]">
+                <div key={Math.min(step, 4)} className="animate-[fadeSlide_0.3s_ease-out]">
                   {step === 1 && (
                     <ContactStep data={contact} onChange={setContact} onNext={() => goTo(2)} />
                   )}
@@ -104,19 +118,52 @@ export default function PriceEstimatorPage() {
                       onNext={() => goTo(4)}
                     />
                   )}
-                  {step === 4 && (
+                  {(step === 4 || step === 5) && (
                     <ServiceStep
                       path="paint"
                       areas={paint}
                       onChange={setPaint}
                       onBack={() => goTo(3)}
-                      onNext={handleSubmit}
+                      onNext={() => goTo(5)}
                       isLast
                     />
                   )}
                 </div>
               </div>
             </div>
+
+            {/* ── Client Info Modal Overlay ───────────────────── */}
+            {showModal && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+                onClick={(e) => { if (e.target === e.currentTarget) goTo(4); }}
+              >
+                <div
+                  className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl animate-[fadeSlide_0.25s_ease-out]"
+                  style={{ maxHeight: '90vh', overflowY: 'auto' }}
+                >
+                  {/* Close button */}
+                  <button
+                    type="button"
+                    onClick={() => goTo(4)}
+                    className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+                    aria-label="Close"
+                  >
+                    ✕
+                  </button>
+
+                  <div className="p-8">
+                    <ClientInfoStep
+                      data={contact}
+                      onChange={setContact}
+                      onBack={() => goTo(4)}
+                      onNext={handleSubmit}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

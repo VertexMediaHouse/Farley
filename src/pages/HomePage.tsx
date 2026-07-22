@@ -111,13 +111,8 @@ export default function HomePage() {
               Professional drywall repair, texture matching, ceiling repair, patchwork,  drywall installation, and interior maintenance services for homes, offices, retail spaces, apartments, and commercial properties.
             </p>
             <div className="btn-row">
-              <a href="#contact" className="btn btn-orange">Get a Free Estimate<span aria-hidden="true">→</span></a>
-              <Link
-                to="/priceestimator"
-                className="btn btn-navy"
-              >
-                Get Started
-              </Link>
+             <Link
+                to="/priceestimator" className="btn btn-orange">Get a Free Estimate<span aria-hidden="true">→</span></Link>
               <a href="tel:+19497924283" className="btn btn-glass">Call Now<span aria-hidden="true">→</span></a>
             </div>
             <div className="hero-avatars">

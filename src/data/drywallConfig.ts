@@ -6,7 +6,7 @@ export const drywallConfig: QuestionConfig[] = [
     label: 'What type of drywall repair is this?',
     type: 'dropdown',
     required: true,
-    options: ['', 'Walls', 'Ceiling', 'Bathroom Walls', 'Bathroom Ceiling', 'Crack Repair Wall', 'Crack repair ceiling', 'Other'],
+    options: ['', 'Walls', 'Ceiling', 'Bathroom Walls', 'Bathroom Ceiling', 'Crack Repair Wall', 'Crack repair ceiling', 'Arch', 'Soffit', 'Other'],
   },
   {
     id: 'squareFootage',

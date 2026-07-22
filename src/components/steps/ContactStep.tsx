@@ -47,7 +47,7 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
     });
   };
 
-  const isCom = data.isCommercial === 'yes';
+  const isCom = data.isCommercial === 'Commercial';
   const isSub = data.isSubcontractor === 'yes';
 
   const validate = () => {
@@ -64,14 +64,6 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
         e.emailAddress = "Enter a valid email address";
     }
 
-    if (!data.clientName.trim()) e.clientName = "Required";
-
-    if (data.clientEmail.trim() && !isValidEmail(data.clientEmail))
-      e.clientEmail = "Enter a valid email address";
-
-    if (data.clientPhone.trim() && !isValidPhone(data.clientPhone))
-      e.clientPhone = "Enter a valid 10-digit phone number";
-
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -84,50 +76,66 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
     <div>
       <StepHeader title="Contact Information" step={1} total={4} />
 
-      {/* ── Commercial work toggle ───────────────────────────── */}
-      <div className="mt-8 flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
-        <span className="text-sm font-semibold text-slate-700">Is this commercial work?</span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={isCom}
-          onClick={() => set('isCommercial', isCom ? 'no' : 'yes')}
-          className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2F9BF0] focus-visible:ring-offset-2 ${
-            isCom ? 'bg-[#2F9BF0]' : 'bg-slate-300'
-          }`}
-        >
-          <span
-            className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-              isCom ? 'translate-x-5' : 'translate-x-0'
-            }`}
-          />
-        </button>
-        <span className={`text-xs font-semibold ${isCom ? 'text-[#2F9BF0]' : 'text-slate-400'}`}>
-          {isCom ? 'Yes' : 'No'}
-        </span>
+      {/* ── Commercial work ───────────────────────────── */}
+      <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
+        <p className="text-sm font-semibold text-slate-700">
+          Work Type of work is it?
+        </p>
+
+        <div className="mt-3 flex items-center gap-8">
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="radio"
+              name="isCommercial"
+              checked={isCom}
+              onChange={() => set("isCommercial", "Commercial")}
+              className="h-4 w-4"
+            />
+            <span className="text-sm text-slate-700">Commercial</span>
+          </label>
+
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="radio"
+              name="isCommercial"
+              checked={!isCom}
+              onChange={() => set("isCommercial", "Residential")}
+              className="h-4 w-4"
+            />
+            <span className="text-sm text-slate-700">Residential</span>
+          </label>
+        </div>
       </div>
 
-      {/* ── Subcontractor toggle ───────────────────────────── */}
-      <div className="mt-8 flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
-        <span className="text-sm font-semibold text-slate-700">Are you a subcontractor?</span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={isSub}
-          onClick={() => set('isSubcontractor', isSub ? 'no' : 'yes')}
-          className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2F9BF0] focus-visible:ring-offset-2 ${
-            isSub ? 'bg-[#2F9BF0]' : 'bg-slate-300'
-          }`}
-        >
-          <span
-            className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-              isSub ? 'translate-x-5' : 'translate-x-0'
-            }`}
-          />
-        </button>
-        <span className={`text-xs font-semibold ${isSub ? 'text-[#2F9BF0]' : 'text-slate-400'}`}>
-          {isSub ? 'Yes' : 'No'}
-        </span>
+      {/* ── Subcontractor ───────────────────────────── */}
+      <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
+        <p className="text-sm font-semibold text-slate-700">
+          Are you a subcontractor?
+        </p>
+
+        <div className="mt-3 flex items-center gap-8">
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="radio"
+              name="isSubcontractor"
+              checked={isSub}
+              onChange={() => set("isSubcontractor", "yes")}
+              className="h-4 w-4"
+            />
+            <span className="text-sm text-slate-700">Yes</span>
+          </label>
+
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="radio"
+              name="isSubcontractor"
+              checked={!isSub}
+              onChange={() => set("isSubcontractor", "no")}
+              className="h-4 w-4"
+            />
+            <span className="text-sm text-slate-700">No</span>
+          </label>
+        </div>
       </div>
 
       {/* ── Subcontractor Referral Registration ─────────────── */}
@@ -181,55 +189,7 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
         </div>
       )}
 
-      {/* ── Client Info ────────────────────────────────────── */}
-      <div className="mt-10">
-        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400 mb-4">
-          Client's Info
-        </p>
-        <div className="space-y-5">
-          <div>
-            <label className={lbl}>Name{req()}</label>
-            <input className={inp} placeholder="Client name" value={data.clientName} onChange={e => set("clientName", e.target.value)} />
-            {errors.clientName && <p className={errorText}>{errors.clientName}</p>}
-          </div>
-
-          <div>
-            <label className={lbl}>Address</label>
-            <input className={inp} placeholder="Street address" value={data.clientAddress} onChange={e => set("clientAddress", e.target.value)} />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={lbl}>Email</label>
-              <input
-                className={inp}
-                type="email"
-                inputMode="email"
-                placeholder="client@email.com"
-                value={data.clientEmail}
-                onChange={e => set("clientEmail", e.target.value)}
-                aria-invalid={!!errors.clientEmail}
-              />
-              {errors.clientEmail && <p className={errorText}>{errors.clientEmail}</p>}
-            </div>
-            <div>
-              <label className={lbl}>Phone</label>
-              <input
-                className={inp}
-                type="tel"
-                inputMode="tel"
-                placeholder="(000) 000-0000"
-                value={data.clientPhone}
-                onChange={e => set("clientPhone", e.target.value)}
-                aria-invalid={!!errors.clientPhone}
-              />
-              {errors.clientPhone && <p className={errorText}>{errors.clientPhone}</p>}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <NavigationButtons step={1} total={4} onBack={() => {}} onNext={handleNext} />
+      <NavigationButtons step={1} total={4} onBack={() => { }} onNext={handleNext} />
     </div>
   );
 }

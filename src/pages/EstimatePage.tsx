@@ -16,9 +16,9 @@ interface EstimateData {
     };
   };
   estimate: EstimateResult;
+  thumbnails?: string[];
 }
-
-const BASE_SERVICE_FEE_MIN = 700;
+const BASE_SERVICE_FEE_MIN = 1250;
 
 interface GroupedEntry {
   item: LineItem;
@@ -84,7 +84,7 @@ export default function EstimatePage() {
     )
   }
 
-  const { answers, estimate } = data
+  const { answers, estimate, thumbnails } = data
   
   // Guard against malformed / partial estimate objects
   if (!estimate || !Array.isArray(estimate.lineItems) || typeof estimate.subtotal !== 'number') {
@@ -137,6 +137,21 @@ export default function EstimatePage() {
     setEditedItems(estimate.lineItems.map(i => ({ ...i })));
   };
 
+  const resetArea = (areaName: string) => {
+    setEditedItems(prev => {
+      if (!prev) return prev;
+      const withoutArea = prev.filter(i => i.area !== areaName);
+      const originalArea = estimate.lineItems.filter(i => i.area === areaName).map(i => ({ ...i }));
+      const combined = [...withoutArea, ...originalArea];
+      
+      // Preserve the original area grouping order
+      const areaOrder = Array.from(new Set(estimate.lineItems.map(i => i.area)));
+      combined.sort((a, b) => areaOrder.indexOf(a.area) - areaOrder.indexOf(b.area));
+      
+      return combined;
+    });
+  };
+
   const outOfStockItems = items.filter(item => item.isOutOfStock);
   const isPendingReview = outOfStockItems.length > 0;
   const followUpQuestions = outOfStockItems.map(
@@ -145,7 +160,7 @@ export default function EstimatePage() {
 
   // Totals recalculate live off the edited items, not the original estimate.subtotal
   const liveSubtotal = items.reduce((sum, i) => sum + (i.isOutOfStock ? 0 : i.amount), 0);
-  const baseServiceFee = Math.max(700, BASE_SERVICE_FEE_MIN - liveSubtotal);
+  const baseServiceFee = Math.max(1250, BASE_SERVICE_FEE_MIN - liveSubtotal);
   const grandTotal = liveSubtotal + baseServiceFee;
 
   const groupedItems = groupByArea(items);
@@ -426,8 +441,36 @@ export default function EstimatePage() {
               {/* Line Items grouped by Area — amounts read-only, removable */}
               {Object.entries(groupedItems)
                 .filter(([areaName]) => areaName !== 'Project')
-                .map(([areaName, entries]) => (<div key={areaName}>
-                  <h3 style={{ marginTop: '20px', fontSize: '1rem', fontWeight: 600, color: '#0f172a' }}>{areaName}</h3>
+                .map(([areaName, entries]) => {
+                  // Check if this specific area has been modified
+                  const originalAreaItems = estimate.lineItems.filter(i => i.area === areaName);
+                  const currentAreaItems = entries.map(e => e.item);
+                  const isAreaEdited = JSON.stringify(originalAreaItems) !== JSON.stringify(currentAreaItems);
+
+                  return (
+                  <div key={areaName}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
+                    <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#0f172a' }}>{areaName}</h3>
+                    {isEditing && isAreaEdited && (
+                      <button
+                        type="button"
+                        onClick={() => resetArea(areaName)}
+                        className="no-print"
+                        style={{
+                          border: '1px solid #93c5fd',
+                          background: '#ffffff',
+                          color: '#1e40af',
+                          borderRadius: '6px',
+                          padding: '4px 8px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Reset Area
+                      </button>
+                    )}
+                  </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
                     <thead>
                       <tr style={{ background: '#f1f5f9' }}>
@@ -530,7 +573,8 @@ export default function EstimatePage() {
                     </tbody>
                   </table>
                 </div>
-                ))}
+                );
+              })}
 
               <div className="final-row grand-total-row" style={{
                 display: 'flex',
@@ -545,6 +589,36 @@ export default function EstimatePage() {
                 <span style={{ fontSize: '1.6rem', color: '#2faeff', fontWeight: 900 }}>${grandTotal.toFixed(2)}</span>
               </div>
             </div>
+            
+
+            {/* Render Thumbnails if available */}
+            {thumbnails && thumbnails.length > 0 && (
+              <div className="estimate-thumbnails-section" style={{
+                marginTop: '15px',
+                padding: '24px',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px'
+              }}>
+                <h3 style={{ marginTop: 0, fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: '16px' }}>
+                  Project Photos
+                </h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                  {thumbnails.map((src, i) => (
+                    <div key={i} style={{ 
+                      width: '120px', 
+                      height: '120px', 
+                      borderRadius: '8px', 
+                      overflow: 'hidden', 
+                      border: '1px solid #cbd5e1',
+                      background: '#fff'
+                    }}>
+                      <img src={src} alt={`Project photo ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Note Bottom */}
             <div style={{

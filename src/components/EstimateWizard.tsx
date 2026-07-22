@@ -139,6 +139,8 @@ const initialAnswers: FormAnswers = {
   drywall_has_dims: '',
   paint_primer: '',
   paint_area: [],
+  paint_type: '',
+  paint_has_paint: '',
   paint_wall_sqft: '',
   paint_wall_photo: '',
   paint_ceiling_sqft: '',
@@ -193,7 +195,23 @@ const initialAnswers: FormAnswers = {
 
 export default function EstimateWizard() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
-  const [answers, setAnswers] = useState<FormAnswers>(initialAnswers)
+  
+  // Initialize answers from localStorage if they exist, otherwise use initialAnswers
+  const [answers, setAnswers] = useState<FormAnswers>(() => {
+    try {
+      const stored = localStorage.getItem('fcd_estimate_data')
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (parsed.answers) {
+          return { ...initialAnswers, ...parsed.answers }
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse stored estimate data', e)
+    }
+    return initialAnswers
+  })
+  
   const [estimate, setEstimate] = useState<EstimateResult | null>(null)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
@@ -289,7 +307,43 @@ export default function EstimateWizard() {
 
   const [combinedItems, setCombinedItems] = useState<
     Record<string, { photo: File | null; sqft: string }[]>
-  >({})
+  >(() => {
+    try {
+      const stored = localStorage.getItem('fcd_estimate_data')
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (parsed.answers) {
+          const loadedAnswers = parsed.answers
+          const initialItems: Record<string, { photo: File | null; sqft: string }[]> = {}
+          
+          // Map stored dimension totals back to the first row of each combined step
+          const mappings = [
+            { stepId: 'drywall_wall', dimId: 'drywall_wall_sqft' },
+            { stepId: 'drywall_ceiling', dimId: 'drywall_ceiling_sqft' },
+            { stepId: 'drywall_bathroom_wall', dimId: 'drywall_bathroom_wall_sqft' },
+            { stepId: 'drywall_bathroom_ceiling', dimId: 'drywall_bathroom_ceiling_sqft' },
+            { stepId: 'drywall_soffits', dimId: 'drywall_soffits_sqft' },
+            { stepId: 'paint_wall', dimId: 'paint_wall_sqft' },
+            { stepId: 'paint_ceiling', dimId: 'paint_ceiling_sqft' },
+            { stepId: 'paint_bath_ceiling', dimId: 'paint_bath_ceiling_sqft' },
+            { stepId: 'paint_bath_wall', dimId: 'paint_bath_wall_sqft' },
+            { stepId: 'paint_trim', dimId: 'paint_trim_linear_ft' },
+            { stepId: 'paint_baseboards', dimId: 'paint_baseboards_linear_ft' },
+            { stepId: 'trim_baseboard', dimId: 'trim_baseboard_height' },
+            { stepId: 'trim_casing_combined', dimId: 'trim_casing_linear_feet' },
+          ]
+          
+          for (const m of mappings) {
+            if (loadedAnswers[m.dimId]) {
+              initialItems[m.stepId] = [{ photo: null, sqft: loadedAnswers[m.dimId] }]
+            }
+          }
+          return initialItems
+        }
+      }
+    } catch (e) {}
+    return {}
+  })
 
   // Track thumbnail object URLs to avoid re-creating them
   const [thumbUrls, setThumbUrls] = useState<Record<string, string>>({})
@@ -626,6 +680,28 @@ export default function EstimateWizard() {
         type: 'checkbox',
         options: ['Wall', 'Ceiling', 'Bath ceiling', 'Bath wall'],
       })
+
+      // ── Paint type: Corner to corner vs Touch ups ──
+      stepsList.push({
+        id: 'paint_type',
+        title: 'Would you like corner to corner painting or just touch ups?',
+        type: 'radio',
+        options: ['Corner to corner', 'Touch ups'],
+        warningCondition: 'Touch ups',
+        warningMessage: 'Touch-ups can only be possible if you already have the paint for this area. We cannot match existing paint.',
+      })
+
+      // ── Has paint already (only if corner to corner) ──
+      if (answers.paint_type === 'Corner to corner') {
+        stepsList.push({
+          id: 'paint_has_paint',
+          title: 'Do you have the paint already to paint corner to corner for your project?',
+          type: 'radio',
+          options: ['Yes', 'No'],
+          warningCondition: 'No',
+          warningMessage: 'Please select from the HD paint options and we will include the correct amount of paint in your proposal based on the info you have entered above.',
+        })
+      }
 
       const selectedPaintAreas: string[] = Array.isArray(answers.paint_area)
         ? answers.paint_area
@@ -967,8 +1043,50 @@ export default function EstimateWizard() {
 
   // ─── Submit ──────────────────────────────────────────────────────────────────
 
+  const generateThumbnails = async (files: File[]): Promise<string[]> => {
+    return Promise.all(
+      files.map(
+        (file) =>
+          new Promise<string>((resolve) => {
+            const reader = new FileReader()
+            reader.onload = (e) => {
+              const img = new Image()
+              img.onload = () => {
+                const canvas = document.createElement('canvas')
+                const MAX_SIZE = 400
+                let width = img.width
+                let height = img.height
+                if (width > height) {
+                  if (width > MAX_SIZE) {
+                    height *= MAX_SIZE / width
+                    width = MAX_SIZE
+                  }
+                } else {
+                  if (height > MAX_SIZE) {
+                    width *= MAX_SIZE / height
+                    height = MAX_SIZE
+                  }
+                }
+                canvas.width = width
+                canvas.height = height
+                const ctx = canvas.getContext('2d')
+                ctx?.drawImage(img, 0, 0, width, height)
+                resolve(canvas.toDataURL('image/jpeg', 0.7))
+              }
+              img.src = e.target?.result as string
+            }
+            reader.readAsDataURL(file)
+          })
+      )
+    )
+  }
+
   const handleSubmit = async () => {
     if (!isStepValid()) return
+    
+    // Generate thumbnails before storing in localStorage
+    const thumbnails = uploadedFiles.length > 0 ? await generateThumbnails(uploadedFiles) : []
+
     const enrichedAnswers = {
       ...answers,
       has_photos: uploadedFiles.length > 0 ? 'Yes' : 'No',
@@ -980,7 +1098,7 @@ export default function EstimateWizard() {
     const result = calculateEstimate(enrichedAnswers)
     setEstimate(result)
     try {
-      localStorage.setItem('fcd_estimate_data', JSON.stringify({ answers: enrichedAnswers, estimate: result }))
+      localStorage.setItem('fcd_estimate_data', JSON.stringify({ answers: enrichedAnswers, estimate: result, thumbnails }))
     } catch (e) {
       console.error('Failed to store estimate in localStorage', e)
     }
@@ -1059,6 +1177,17 @@ export default function EstimateWizard() {
   }
 
   // ─── Wizard UI ───────────────────────────────────────────────────────────────
+  const handleResetForm = () => {
+    if (window.confirm('Are you sure you want to reset the entire form? All your answers will be lost.')) {
+      setAnswers(initialAnswers)
+      setCombinedItems({})
+      setThumbUrls({})
+      setUploadedFiles([])
+      setCurrentStepIndex(0)
+      setEstimate(null)
+      localStorage.removeItem('fcd_estimate_data')
+    }
+  }
 
   const currentStep = dynamicSteps[currentStepIndex - 1]
 
@@ -1104,7 +1233,26 @@ export default function EstimateWizard() {
 
       <div className="wizard-header">
         <h3>Estimate Calculator</h3>
-        <span className="step-indicator">Step {currentStepIndex + 1} of {totalSteps}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button 
+            type="button" 
+            onClick={handleResetForm}
+            style={{
+              background: 'transparent',
+              border: '1px solid #ef4444',
+              color: '#ef4444',
+              borderRadius: '6px',
+              padding: '4px 10px',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
+            title="Clear all answers and start over"
+          >
+            Reset Form
+          </button>
+          <span className="step-indicator">Step {currentStepIndex + 1} of {totalSteps}</span>
+        </div>
       </div>
 
       <div className="wizard-progress-bar">

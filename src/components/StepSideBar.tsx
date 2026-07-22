@@ -5,7 +5,7 @@ import { calculateEstimate } from '../lib/estimate';
 import type { LineItem } from '../lib/estimate';
 
 const STEPS = [
-  { label: 'Contact',  hint: 'Where to send the quote',    Icon: FaAddressCard },
+  { label: 'Referral', hint: 'Commercial & Subcontractor info', Icon: FaAddressCard },
   { label: 'Drywall',  hint: 'Repairs, texture, location', Icon: FaTools },
   { label: 'Trim',     hint: 'Baseboard and casing',       Icon: FaRuler },
   { label: 'Painting', hint: 'Areas and finish level',     Icon: FaPaintRoller },

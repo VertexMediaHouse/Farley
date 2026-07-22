@@ -5,6 +5,8 @@ import {
   loadDraft,
   saveDraft,
   submitEstimate,
+  ESTIMATE_DRAFT_KEY,
+  ESTIMATE_RESULT_KEY,
   type ContactData,
 } from '../lib/estimateForm';
 import { useCustomQuestions, useProductPrices } from '../context/CopyProvider';
@@ -52,6 +54,19 @@ export function useEstimateDraft() {
     }
   };
 
+  const handleReset = () => {
+    if (window.confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
+      setStep(1);
+      setDrywall([{}]);
+      setTrim([{}]);
+      setPaint([{}]);
+      setContact(DEFAULT_CONTACT);
+      setSent(false);
+      setRestored(false);
+      localStorage.removeItem(ESTIMATE_DRAFT_KEY);
+      localStorage.removeItem(ESTIMATE_RESULT_KEY);
+    }
+  };
   return {
     step,
     goTo,
@@ -64,5 +79,6 @@ export function useEstimateDraft() {
     customQuestions,
     productPrices,
     handleSubmit,
+    handleReset,
   };
 }
