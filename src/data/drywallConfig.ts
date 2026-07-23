@@ -13,14 +13,14 @@ export const drywallConfig: QuestionConfig[] = [
     label: 'Add Square Footage',
     type: 'number',
     placeholder: 'sq ft',
-    condition: { field: 'repairType', notIn: ['Crack Repair Wall', 'Crack repair ceiling'] },
+    condition: { field: 'repairType', notIn: ['Crack Repair Wall', 'Crack repair ceiling', 'Arch'] },
   },
   {
     id: 'linearFeet',
     label: 'Add linear ft',
     type: 'number',
     placeholder: 'lft',
-    condition: { field: 'repairType', in: ['Crack Repair Wall', 'Crack repair ceiling'] },
+    condition: { field: 'repairType', in: ['Crack Repair Wall', 'Crack repair ceiling', 'Arch'] },
   },
   {
     id: 'photos',
@@ -193,6 +193,12 @@ export const drywallConfig: QuestionConfig[] = [
         type: 'number',
         placeholder: 'qty',
         required: true,
+      },
+      {
+        id: 'photos',
+        label: 'Upload Photos',
+        type: 'photoUpload',
+        multiple: true,
       },
     ]
   },

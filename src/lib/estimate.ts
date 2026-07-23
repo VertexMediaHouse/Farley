@@ -82,32 +82,18 @@ export function calculateEstimate(
     } else if (repairType === 'Bathroom Ceiling') {
       repairRate = PRICING.drywall.bathroomCeiling; repairQty = sqft; repairUnit = 'sqft';
       repairPrice = sqft * repairRate;
+    } else if (repairType === 'Arch') {
+      repairRate = PRICING.drywall.arch; repairQty = lft; repairUnit = 'lft';
+      repairPrice = lft * repairRate;
     } else if (repairType === 'Crack Repair Wall') {
       repairQty = lft; repairUnit = 'lft';
-      if (lft <= 5) {
-        repairPrice = PRICING.crackRepairWall.baseFee;
-        // Flat fee for ≤5 lft — not a per-unit rate
-        repairRate = 0;
-      } else {
-        const extraLft = lft - 5;
-        repairRate = PRICING.crackRepairWall.perExtraLft;
-        repairPrice = PRICING.crackRepairWall.baseFee + (extraLft * repairRate);
-        // For quantity editing, only the extra portion is rate-editable
-        repairRate = 0; // treat as flat since it's base + extra
-      }
-    } else if (repairType === 'Crack repair ceiling') {
+      repairRate = 0;
+      repairPrice = PRICING.crackRepairWall.calc(lft);
+    } else if (repairType?.toLowerCase() === 'crack repair ceiling') {
       repairQty = lft; repairUnit = 'lft';
-      if (lft <= 5) {
-        repairPrice = PRICING.crackRepairCeiling.baseFee;
-        repairRate = 0;
-      } else {
-        const extraLft = lft - 5;
-        repairRate = PRICING.crackRepairCeiling.perExtraLft;
-        repairPrice = PRICING.crackRepairCeiling.baseFee + (extraLft * repairRate);
-        repairRate = 0; // treat as flat since it's base + extra
-      }
+      repairRate = 0;
+      repairPrice = PRICING.crackRepairCeiling.calc(lft);
     }
-
     addItem(
       areaName,
       `Repair: ${repairType}`,
@@ -144,11 +130,9 @@ export function calculateEstimate(
         quantity: demoQty, rate: demoRate, unit: isLinear ? 'lft' : 'sqft',
       });
     } else if (area.needDemolition === 'Popcorn Ceiling scraping') {
-      const h = parseFloat(area.ceilingHeight) || 8;
       const dSqft = parseFloat(area.demolitionSquareFootage) || 0;
-      const tier = PRICING.popcornScraping.tiers.find(t => h <= t.maxFt);
-      const rate = tier?.price || 4.00;
-      addItem(areaName, 'Popcorn Ceiling Scraping', `${dSqft} sqft @ ${h}ft height`, dSqft * rate, {
+      const rate = PRICING.popcornScraping.rateFor(dSqft);
+      addItem(areaName, 'Popcorn Ceiling Scraping', `${dSqft} sqft`, dSqft * rate, {
         quantity: dSqft, rate, unit: 'sqft',
       });
     }
@@ -223,20 +207,16 @@ export function calculateEstimate(
       });
     }
 
-    // Ceiling Height Surcharge (above 8ft)
+// Ceiling Height Surcharge (above 8ft)
     if (area.ceilingAbove8 === 'Yes' && area.ceilingHeight) {
-      const hStr = parseFloat(area.ceilingHeight);
-      if (!isNaN(hStr) && hStr > 8) {
-        const h = Math.floor(hStr);
-        const heightKey = String(Math.min(h, 12));
-        const rate = PRICING.ceilingHeightSurcharge[heightKey] ?? 0;
-        const qty = sqft > 0 ? sqft : lft;
-        const unit = sqft > 0 ? 'sqft' : 'lft';
-        if (rate > 0 && qty > 0) {
-          addItem(areaName, `High Ceiling Surcharge (${h}ft)`, `${qty} ${unit} @ $${rate}/${unit}`, qty * rate, {
-            quantity: qty, rate, unit,
-          });
-        }
+      const h = parseFloat(area.ceilingHeight);
+      const rate = PRICING.ceilingHeightSurcharge.rateFor(h);
+      const qty = sqft > 0 ? sqft : lft;
+      const unit: 'lft' | 'sqft' = sqft > 0 ? 'sqft' : 'lft';
+      if (rate > 0 && qty > 0) {
+        addItem(areaName, `High Ceiling Surcharge (${h}ft)`, `${qty} ${unit} @ $${rate}/${unit}`, qty * rate, {
+          quantity: qty, rate, unit,
+        });
       }
     }
 

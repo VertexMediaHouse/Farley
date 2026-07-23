@@ -11,11 +11,11 @@ import { input as inp, label as lbl, errorText } from './theme';
 export function evalCondition(cond: Condition, values: AreaValues): boolean {
   const raw = values[cond.field];
   const val = typeof raw === 'string' ? raw : '';
-  if (cond.is  !== undefined) return val === cond.is;
+  if (cond.is !== undefined) return val === cond.is;
   if (cond.not !== undefined) return val !== cond.not;
-  if (cond.notNo)             return val !== 'No' && val !== '';
-  if (cond.in)                return cond.in.includes(val);
-  if (cond.notIn)             return val !== '' && !cond.notIn.includes(val);
+  if (cond.notNo) return val !== 'No' && val !== '';
+  if (cond.in) return cond.in.includes(val);
+  if (cond.notIn) return val !== '' && !cond.notIn.includes(val);
   return true;
 }
 
@@ -75,7 +75,7 @@ export default function FormRenderer({ questions, values, onChange, errors = {} 
         if (!empty) onChange(q.id, q.type === 'photoUpload' ? [] : '');
       }
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions, JSON.stringify(Object.fromEntries(
     Object.entries(values).map(([k, v]) => [k, Array.isArray(v) ? v.length : v])
   ))]);
@@ -100,9 +100,9 @@ function Field({
   onChange: (id: string, v: AreaValues[string]) => void;
   errors: Record<string, string>;
 }) {
-  const val   = (values[q.id] ?? '') as string;
+  const val = (values[q.id] ?? '') as string;
   const files = (Array.isArray(values[q.id]) ? values[q.id] : []) as File[];
-  const err   = errors[q.id];
+  const err = errors[q.id];
 
   const Label = () => (
     <label className={lbl}>
@@ -229,6 +229,16 @@ function RepeatableGroup({
 
   const records = parseRecords(rawValue);
 
+  const [photos, setPhotos] = useState<Record<string, File[]>>({});
+
+  const setRowPhotos = (idx: number, fieldId: string, files: File[]) => {
+    const key = `${idx}:${fieldId}`;
+    setPhotos(prev => ({ ...prev, [key]: files }));
+    // mirror the count into the record so the JSON stays serializable
+    const next = records.map((r, i) => i === idx ? { ...r, [fieldId]: String(files.length) } : r);
+    commit(next);
+  };
+
   const commit = (next: RepeatableRecord[]) => {
     onChange(JSON.stringify(next));
   };
@@ -271,8 +281,26 @@ function RepeatableGroup({
           </div>
           {children.map(child => {
             if (child.type === 'photoUpload') {
-              // Photo upload inside repeatable is not stored in JSON, skip for now
-              return null;
+              const rowFiles = photos[`${idx}:${child.id}`] ?? [];
+              return (
+                <div key={child.id}>
+                  <label className={lbl}>
+                    {child.label}
+                    {child.required && <span className="ml-0.5 text-red-500">*</span>}
+                  </label>
+                  {child.multiple ? (
+                    <MultiUpload
+                      files={rowFiles}
+                      onChange={f => setRowPhotos(idx, child.id, f)}
+                    />
+                  ) : (
+                    <UploadBox
+                      value={rowFiles[0] ?? null}
+                      onChange={f => setRowPhotos(idx, child.id, f ? [f] : [])}
+                    />
+                  )}
+                </div>
+              );
             }
             if (child.type === 'dropdown') {
               return (
@@ -346,8 +374,7 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
   const cats = q.catalog ?? [];
 
   const pill = (on: boolean) =>
-    `rounded-full px-4 py-1.5 text-sm font-semibold transition-all ${
-      on ? 'bg-[#2F9BF0] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+    `rounded-full px-4 py-1.5 text-sm font-semibold transition-all ${on ? 'bg-[#2F9BF0] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
     }`;
 
   return (
@@ -373,15 +400,14 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
       {activeSize && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {cats.find(c => c.size === activeSize)?.products.map(p => {
-             const isSelected = value === p.url || value === p.name;
-             const lftPrice = pricePerLft(productPrices, p.url);
-             return (
-              <div 
-                key={p.url} 
+            const isSelected = value === p.url || value === p.name;
+            const lftPrice = pricePerLft(productPrices, p.url);
+            return (
+              <div
+                key={p.url}
                 onClick={() => onChange(p.url)}
-                className={`relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-2 bg-white transition-all duration-200 hover:shadow-md ${
-                  isSelected ? 'border-[#2F9BF0] shadow-md ring-4 ring-[#2F9BF0]/10' : 'border-slate-200 hover:border-[#2F9BF0]/40'
-                }`}
+                className={`relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-2 bg-white transition-all duration-200 hover:shadow-md ${isSelected ? 'border-[#2F9BF0] shadow-md ring-4 ring-[#2F9BF0]/10' : 'border-slate-200 hover:border-[#2F9BF0]/40'
+                  }`}
               >
                 {/* Image Placeholder */}
                 <div className="flex h-32 w-full flex-col items-center justify-center bg-slate-50 border-b border-slate-100 overflow-hidden">
@@ -396,7 +422,7 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
                     </>
                   )}
                 </div>
-                
+
                 {/* Content */}
                 <div className="flex flex-col flex-1 p-3">
                   <div className="mb-3 flex items-start justify-between gap-2">
@@ -404,9 +430,9 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
                     {lftPrice != null && (
                       <span className="shrink-0 text-xs font-bold text-[#2F9BF0]">${lftPrice.toFixed(2)}/lft</span>
                     )}
-                    <a 
-                      href={p.url} 
-                      target="_blank" 
+                    <a
+                      href={p.url}
+                      target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
                       className="shrink-0 rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
@@ -414,22 +440,22 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
                       View
                     </a>
                   </div>
-                  
+
                   {/* Radio button at bottom center */}
                   <div className="mt-auto flex justify-center pt-2">
-                    <input 
-                      type="radio" 
-                      name={q.id} 
-                      value={p.url} 
-                      checked={isSelected} 
-                      onChange={() => onChange(p.url)} 
-                      className="h-5 w-5 accent-[#2F9BF0] transition-transform cursor-pointer" 
+                    <input
+                      type="radio"
+                      name={q.id}
+                      value={p.url}
+                      checked={isSelected}
+                      onChange={() => onChange(p.url)}
+                      className="h-5 w-5 accent-[#2F9BF0] transition-transform cursor-pointer"
                       style={{ transform: isSelected ? 'scale(1.15)' : 'scale(1)' }}
                     />
                   </div>
                 </div>
               </div>
-             );
+            );
           })}
         </div>
       )}

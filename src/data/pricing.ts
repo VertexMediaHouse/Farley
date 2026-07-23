@@ -6,22 +6,23 @@ export const PRICING = {
       ceiling: DRYWALL_RATES['Ceiling'] || 8.50,
       bathroomWalls: DRYWALL_RATES['Bathroom Walls'] || 6.00,
       bathroomCeiling: DRYWALL_RATES['Bathroom Ceiling'] || 8.50,
+      arch: DRYWALL_RATES['Arch'] || 75.00,
       dividingWall: DIVIDING_WALL_SURCHARGE,
       dividingBathroomWall: DIVIDING_WALL_SURCHARGE,
     };
   },
-  
+
   // Crack Repair
   get crackRepairWall() {
     return {
-      baseFee: CRACK_REPAIR_WALL_UNDER_5,
-      perExtraLft: CRACK_REPAIR_WALL_EXTRA_LFT,
+      tiers: CRACK_REPAIR_WALL_TIERS,
+      calc: (lft: number) => calcCrackRepair(lft, 'wall'),
     };
   },
   get crackRepairCeiling() {
     return {
-      baseFee: CRACK_REPAIR_CEILING_UNDER_5,
-      perExtraLft: CRACK_REPAIR_CEILING_EXTRA_LFT,
+      tiers: CRACK_REPAIR_CEILING_TIERS,
+      calc: (lft: number) => calcCrackRepair(lft, 'ceiling'),
     };
   },
 
@@ -37,18 +38,14 @@ export const PRICING = {
       ...DEMOLITION_LFT,
     } as Record<string, number>;
   },
-  
+
   get popcornScraping() {
     return {
-      tiers: [
-        { maxFt: 8, price: POPCORN_SCRAPING['8ft'] || 2.50 },
-        { maxFt: 9, price: POPCORN_SCRAPING['9ft'] || 3.00 },
-        { maxFt: 10, price: POPCORN_SCRAPING['10ft'] || 3.50 },
-        { maxFt: Infinity, price: POPCORN_SCRAPING['12ft'] || 4.00 },
-      ]
+      tiers: POPCORN_SCRAPING_TIERS,
+      rateFor: (sqft: number) => calcPopcornRate(sqft),
     };
   },
-  
+
   get haulAway() {
     return {
       baseFeeUnder50: HAUL_AWAY_UNDER_50_FLAT,
@@ -74,8 +71,12 @@ export const PRICING = {
   },
 
   // Ceiling Height Surcharge (per sqft, keyed by height in ft)
-  get ceilingHeightSurcharge() { return CEILING_HEIGHT_SURCHARGE as Record<string, number>; },
-
+  get ceilingHeightSurcharge() {
+    return {
+      tiers: CEILING_HEIGHT_TIERS,
+      rateFor: (ft: number) => calcCeilingHeightRate(ft),
+    };
+  },
   // Texture
   get texture() { return TEXTURE_RATES as Record<string, number>; },
 
@@ -94,11 +95,11 @@ export const PRICING = {
       wallsCeiling: PAINT_SQFT['Room Walls'] || 9.00,
       doorCasing: PAINT_LINEAR['Door Casing'] || 5.00,
       baseboard: PAINT_LINEAR['Baseboards'] || 5.00,
-      
+
       sqftTiers: [
         { maxSqft: 350, gallons: 1, baseLabor: 50 },
         { maxSqft: 650, gallons: 2, baseLabor: 100 },
-        { maxSqft: Infinity, gallons: 3, baseLabor: 150 }, 
+        { maxSqft: Infinity, gallons: 3, baseLabor: 150 },
       ],
       linearFtTiers: [
         { maxFt: 400, gallons: 1, baseLabor: 50 },
@@ -119,24 +120,39 @@ export const DRYWALL_RATES: Record<string, number> = {
   'Ceiling': 8.50,
   'Bathroom Walls': 6.00,
   'Bathroom Ceiling': 8.50,
+  'Arch': 75.00,
 };
 
 export let DIVIDING_WALL_SURCHARGE = 3.00;
 export function setDividingWallSurcharge(v: number) { DIVIDING_WALL_SURCHARGE = v; }
 
-// -- Crack Repair flat fees --
-export let CRACK_REPAIR_WALL_UNDER_5 = 850;
-export function setCrackRepairWallUnder5(v: number) { CRACK_REPAIR_WALL_UNDER_5 = v; }
+// -- Crack Repair: flat total price by total crack length --
+export const CRACK_REPAIR_WALL_TIERS: Array<{ maxFt: number; price: number }> = [
+  { maxFt: 5, price: 850 },
+  { maxFt: 8, price: 900 },
+  { maxFt: 9, price: 910 },
+  { maxFt: 11, price: 920 },
+  { maxFt: 12, price: 925 },
+  { maxFt: Infinity, price: 925 },
+];
 
-export let CRACK_REPAIR_CEILING_UNDER_5 = 1200;
-export function setCrackRepairCeilingUnder5(v: number) { CRACK_REPAIR_CEILING_UNDER_5 = v; }
+// TODO: confirm ceiling numbers — these are placeholders scaled off the $1200 base
+export const CRACK_REPAIR_CEILING_TIERS: Array<{ maxFt: number; price: number }> = [
+  { maxFt: 5, price: 1200 },
+  { maxFt: 8, price: 1275 },
+  { maxFt: 9, price: 1280 },
+  { maxFt: 10, price: 1285 },
+  { maxFt: 11, price: 1290 },
+  { maxFt: 12, price: 1295 },
+  { maxFt: Infinity, price: 1300 },
+];
 
-// -- Crack Repair per-extra-lft rate (applied to each foot beyond 5 lft) --
-export let CRACK_REPAIR_WALL_EXTRA_LFT = 450;
-export function setCrackRepairWallExtraLft(v: number) { CRACK_REPAIR_WALL_EXTRA_LFT = v; }
-
-export let CRACK_REPAIR_CEILING_EXTRA_LFT = 450;
-export function setCrackRepairCeilingExtraLft(v: number) { CRACK_REPAIR_CEILING_EXTRA_LFT = v; }
+export function calcCrackRepair(lft: number, kind: 'wall' | 'ceiling'): number {
+  if (!(lft > 0)) return 0;
+  const tiers = kind === 'wall' ? CRACK_REPAIR_WALL_TIERS : CRACK_REPAIR_CEILING_TIERS;
+  const tier = tiers.find(t => lft <= t.maxFt)!;
+  return tier.price;
+}
 
 // -- Floor surcharges --
 export const FLOOR_SURCHARGE: Record<string, number> = {
@@ -165,12 +181,19 @@ export const DEMOLITION_LFT: Record<string, number> = {
 };
 
 // -- Popcorn Scraping (keyed by ceiling height) --
-export const POPCORN_SCRAPING: Record<string, number> = {
-  '8ft': 2.50,
-  '9ft': 3.00,
-  '10ft': 3.50,
-  '12ft': 4.00,
-};
+// -- Popcorn Scraping: per-sqft rate by total area --
+export const POPCORN_SCRAPING_TIERS: Array<{ maxSqft: number; price: number }> = [
+  { maxSqft: 100, price: 2.50 },
+  { maxSqft: 250, price: 3.00 },
+  { maxSqft: 500, price: 3.50 },
+  { maxSqft: Infinity, price: 4.00 },
+];
+
+export function calcPopcornRate(sqft: number): number {
+  if (!(sqft > 0)) return 0;
+  const tier = POPCORN_SCRAPING_TIERS.find(t => sqft <= t.maxSqft)!;
+  return tier.price;
+}
 
 // -- Haul Away --
 export let HAUL_AWAY_UNDER_50_FLAT = 350.00;
@@ -195,12 +218,20 @@ export let ARCH_CORNER_METAL_PER_LFT = 75;
 export function setArchCornerMetal(v: number) { ARCH_CORNER_METAL_PER_LFT = v; }
 
 // -- Ceiling Height Surcharge (per sqft, keyed by ceiling height in ft) --
-export const CEILING_HEIGHT_SURCHARGE: Record<string, number> = {
-  '9': 7.00,
-  '10': 8.00,
-  '11': 9.00,
-  '12': 10.00,
-};
+// -- Ceiling Height Surcharge: per-sqft rate by ceiling height --
+export const CEILING_HEIGHT_TIERS: Array<{ maxFt: number; price: number }> = [
+  { maxFt: 8, price: 0 },
+  { maxFt: 9, price: 7.00 },
+  { maxFt: 10, price: 8.00 },
+  { maxFt: 11, price: 9.00 },
+  { maxFt: Infinity, price: 10.00 },
+];
+
+export function calcCeilingHeightRate(ft: number): number {
+  if (!(ft > 8)) return 0;
+  const tier = CEILING_HEIGHT_TIERS.find(t => ft <= t.maxFt)!;
+  return tier.price;
+}
 
 // -- Texture / Finish --
 export const TEXTURE_RATES: Record<string, number> = {

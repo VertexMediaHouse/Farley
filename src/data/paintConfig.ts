@@ -30,6 +30,22 @@ export const paintConfig: QuestionConfig[] = [
     options: ['', 'Yes', 'No'],
     condition: { field: 'paintType', is: 'Corner to corner' },
   },
+{
+  id: 'hdPaintCode',
+  label: 'Enter HD paint code:',
+  type: 'text',
+  placeholder: 'e.g. PPU18-06',
+  required: true,
+  condition: { field: 'paintHasPaint', is: 'No' },
+},
+{
+  id: 'hdPaintCodeNotice',
+  label: '',
+  type: 'notice',
+  noticeText:
+    'Please visit https://www.homedepot.com/b/Paint-Paint-Colors/8-Ounce/N-5yc1vZcaw8Z1z1dqqgX to get the paint code.',
+  condition: { field: 'paintHasPaint', is: 'No' },
+},
   {
     id: 'paintHasPaintNotice',
     label: '',
