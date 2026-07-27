@@ -158,10 +158,11 @@ export default function EstimatePage() {
     item => `${item.label} (${item.area}) is currently out of stock — we'll follow up with material alternatives.`
   );
 
-  // Totals recalculate live off the edited items, not the original estimate.subtotal
   const liveSubtotal = items.reduce((sum, i) => sum + (i.isOutOfStock ? 0 : i.amount), 0);
-  const baseServiceFee = Math.max(1250, BASE_SERVICE_FEE_MIN - liveSubtotal);
-  const grandTotal = liveSubtotal + baseServiceFee;
+  // TRUE MINIMUM: $1250 floor. If work < $1250, total = $1250.
+  // Once work exceeds $1250, the minimum cancels out and the actual price is shown.
+  const baseServiceFee = liveSubtotal < BASE_SERVICE_FEE_MIN ? BASE_SERVICE_FEE_MIN - liveSubtotal : 0;
+  const grandTotal = Math.max(liveSubtotal, BASE_SERVICE_FEE_MIN);
 
   const groupedItems = groupByArea(items);
   const isEdited = editedItems !== null &&
@@ -427,10 +428,12 @@ export default function EstimatePage() {
                 <span>Subtotal (All Items):</span>
                 <span style={{ fontWeight: 700, color: '#0f172a' }}>${liveSubtotal.toFixed(2)}</span>
               </div>
+              {baseServiceFee > 0 && (
               <div className="final-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#64748b' }}>
-                <span>Fixed Charge (Minimum $700):</span>
+                <span>Minimum Job Charge (Floor $1,250):</span>
                 <span style={{ fontWeight: 700, color: '#0f172a' }}>${baseServiceFee.toFixed(2)}</span>
               </div>
+              )}
               {projectItems.map((item, i) => (
                 <div key={`project-${i}`} className="final-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#64748b' }}>
                   <span>{item.label}{item.detail ? ` (${item.detail})` : ''}:</span>

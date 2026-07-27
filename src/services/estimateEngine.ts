@@ -3,7 +3,7 @@
  *
  * Main estimate calculation engine.
  *
- * - Minimum job = TRUE minimum ($700 floor on grand total, NOT a fixed add-on fee)
+ * - Minimum job = TRUE minimum ($1250 floor on grand total, NOT a fixed add-on fee)
  * - BASE_SERVICE_FEE removed entirely
  * - Ceiling multiplier (1.15) applied to all ceiling drywall labor
  * - Two-story, occupied room, emergency, late-day multipliers wired in
@@ -778,9 +778,11 @@ export function calculateEstimate(
   const subtotalMaterials = materialItems.reduce((s, i) => s + i.total, 0);
   const finalSubtotalAdditional = additionalCharges.reduce((s, i) => s + i.total, 0);
 
-  // Add mandatory $700 fixed charge to the total
-  const baseServiceFee = MINIMUM_JOB_CHARGE_CONFIG.VALUE;
-  let grandTotal = subtotalLabor + subtotalMaterials + finalSubtotalAdditional + baseServiceFee;
+  // TRUE MINIMUM: if calculated total is under $1250, the grand total is $1250.
+  // Once the work exceeds $1250, the minimum cancels out and the actual price is shown.
+  const calculatedTotal = subtotalLabor + subtotalMaterials + finalSubtotalAdditional;
+  const minimumCharge = MINIMUM_JOB_CHARGE_CONFIG.VALUE; // $1250
+  let grandTotal = Math.max(calculatedTotal, minimumCharge);
 
   const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -791,7 +793,7 @@ export function calculateEstimate(
     subtotalLabor: round2(subtotalLabor),
     subtotalMaterials: round2(subtotalMaterials),
     subtotalAdditional: round2(finalSubtotalAdditional),
-    baseServiceFee: MINIMUM_JOB_CHARGE_CONFIG.VALUE,
+    baseServiceFee: grandTotal > calculatedTotal ? grandTotal - calculatedTotal : 0,
     grandTotal: round2(grandTotal),
     isPendingReview,
     reviewStatus: isPendingReview ? 'Pending Final Review' : 'Calculated',

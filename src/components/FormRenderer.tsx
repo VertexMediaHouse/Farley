@@ -372,6 +372,7 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
   const [activeSize, setActiveSize] = useState('');
   const productPrices = useProductPrices();
   const cats = q.catalog ?? [];
+  const [previewImage, setPreviewImage] = useState<{ url: string; name: string } | null>(null);
 
   const pill = (on: boolean) =>
     `rounded-full px-4 py-1.5 text-sm font-semibold transition-all ${on ? 'bg-[#2F9BF0] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -398,7 +399,7 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
       </div>
 
       {activeSize && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {cats.find(c => c.size === activeSize)?.products.map(p => {
             const isSelected = value === p.url || value === p.name;
             const lftPrice = pricePerLft(productPrices, p.url);
@@ -406,13 +407,36 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
               <div
                 key={p.url}
                 onClick={() => onChange(p.url)}
-                className={`relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-2 bg-white transition-all duration-200 hover:shadow-md ${isSelected ? 'border-[#2F9BF0] shadow-md ring-4 ring-[#2F9BF0]/10' : 'border-slate-200 hover:border-[#2F9BF0]/40'
+                className={`relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-2 bg-white transition-all duration-200 hover:shadow-md ${isSelected ? 'border-[#2F9BF0] shadow-md ring-4' : 'border-slate-200 hover:border-[#2F9BF0]/40'
                   }`}
               >
-                {/* Image Placeholder */}
-                <div className="flex h-32 w-full flex-col items-center justify-center bg-slate-50 border-b border-slate-100 overflow-hidden">
+                {/* Image Container with larger height (h-72) and full width */}
+                <div
+                  className="group relative flex h-72 w-full flex-col items-center justify-center bg-white border-b border-slate-100 overflow-hidden p-4"
+                  onClick={(e) => {
+                    if (p.image) {
+                      e.stopPropagation();
+                      setPreviewImage({ url: p.image, name: p.name });
+                    }
+                  }}
+                  title="Click to view larger image"
+                >
                   {p.image ? (
-                    <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
+                    <>
+                      <img 
+                        src={p.image} 
+                        alt={p.name} 
+                        className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-110" 
+                      />
+                      {/* Zoom Icon overlay on hover */}
+                      <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <div className="bg-white/90 p-2 rounded-full shadow-lg">
+                          <svg className="h-5 w-5 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </>
                   ) : (
                     <>
                       <svg className="h-10 w-10 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -430,19 +454,18 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
                     {lftPrice != null && (
                       <span className="shrink-0 text-xs font-bold text-[#2F9BF0]">${lftPrice.toFixed(2)}/lft</span>
                     )}
+                  </div>
+                  <div className="mt-auto flex items-center justify-between gap-2 pt-2">
                     <a
                       href={p.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="shrink-0 rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
+                      className="rounded bg-slate-100 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
                     >
-                      View
+                      Store Link
                     </a>
-                  </div>
-
-                  {/* Radio button at bottom center */}
-                  <div className="mt-auto flex justify-center pt-2">
+                    {/* Radio button at bottom right */}
                     <input
                       type="radio"
                       name={q.id}
@@ -466,6 +489,42 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
           <p className="text-sm font-medium text-slate-700">Selected: <span className="font-bold text-[#2F9BF0]">{value}</span></p>
+        </div>
+      )}
+
+      {/* Lightbox Preview Modal */}
+      {previewImage && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 transition-opacity duration-300"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div 
+            className="relative max-w-4xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col p-6 max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+              <h3 className="text-base font-bold text-slate-900 pr-8 line-clamp-1">{previewImage.name}</h3>
+              <button 
+                type="button" 
+                onClick={() => setPreviewImage(null)}
+                className="absolute top-4 right-4 rounded-full p-2 bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden flex items-center justify-center bg-slate-50 rounded-xl min-h-[300px] md:min-h-[500px]">
+              <img 
+                src={previewImage.url} 
+                alt={previewImage.name} 
+                className="max-h-[70vh] object-contain rounded-lg shadow-sm"
+              />
+            </div>
+            <div className="mt-4 text-center text-xs text-slate-400 font-medium">
+              Click anywhere outside or hit the close button to return.
+            </div>
+          </div>
         </div>
       )}
     </div>

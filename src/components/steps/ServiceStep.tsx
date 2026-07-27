@@ -30,7 +30,7 @@ export default function ServiceStep({ path, areas, onChange, onBack, onNext, isL
   const validate = () => {
     const errs: Record<number, Record<string, string>> = {};
     areas.forEach((area, i) => {
-      const e = validateConfig(baseConfig, area);
+      const e = validateConfig(questions, area);
       if (Object.keys(e).length) errs[i] = e;
     });
     setErrors(errs);
