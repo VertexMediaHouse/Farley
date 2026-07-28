@@ -4,6 +4,7 @@ import { input as inp, label as lbl, errorText } from "../theme";
 interface ContactData {
   isCommercial: string;
   isSubcontractor: string;
+  areaCode: string;
   fullName: string;
   companyName: string;
   phoneNumber: string;

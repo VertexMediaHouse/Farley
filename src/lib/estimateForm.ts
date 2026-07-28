@@ -10,6 +10,7 @@ export const ESTIMATE_RESULT_KEY = 'fcd_estimate_data';
 export const DEFAULT_CONTACT = {
   isCommercial: 'no',
   isSubcontractor: 'no',
+  areaCode: '',
   fullName: '',
   companyName: '',
   phoneNumber: '',

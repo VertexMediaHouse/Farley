@@ -6,6 +6,7 @@ import { input as inp, label as lbl, errorText } from "../theme";
 interface ContactData {
   isCommercial: string;
   isSubcontractor: string;
+  areaCode: string;
   fullName: string;
   companyName: string;
   phoneNumber: string;
@@ -75,7 +76,13 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
   return (
     <div>
       <StepHeader title="Contact Information" step={1} total={4} />
-
+      <div className="space-y-5">
+        <div>
+          <label className={lbl}>Area Code / Zip / Pin Code{req()}</label>
+          <input required className={inp} placeholder="Area / Zip / Pin code" value={data.areaCode} onChange={e => set("areaCode", e.target.value)} />
+          {errors.areaCode && <p className={errorText}>{errors.areaCode}</p>}
+        </div>
+      </div>
       {/* ── Commercial work ───────────────────────────── */}
       <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
         <p className="text-sm font-semibold text-slate-700">

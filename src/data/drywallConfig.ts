@@ -27,6 +27,7 @@ export const drywallConfig: QuestionConfig[] = [
     label: 'Upload Photos',
     type: 'photoUpload',
     multiple: true,
+    required: true,
   },
   {
     id: 'dividingWall',
@@ -87,6 +88,7 @@ export const drywallConfig: QuestionConfig[] = [
     type: 'photoUpload',
     multiple: true,
     condition: { field: 'needDemolition', not: 'No' },
+    required:true,
   },
   {
     id: 'needHaulAway',
@@ -109,7 +111,7 @@ export const drywallConfig: QuestionConfig[] = [
     type: 'dropdown',
     required: true,
     helpText: 'Minimum area: 50 sq ft.',
-    options: ['', 'No', 'Wall Insulation (R13)', 'Ceiling Insulation (R19)'],
+    options: ['', 'No', 'Wall Insulation', 'Ceiling Insulation'],
   },
   {
     id: 'insulationSquareFootage',
@@ -124,6 +126,7 @@ export const drywallConfig: QuestionConfig[] = [
     type: 'photoUpload',
     multiple: true,
     condition: { field: 'needInsulation', not: 'No' },
+    required:true,
   },
   {
     id: 'haveSoffits',
@@ -131,27 +134,29 @@ export const drywallConfig: QuestionConfig[] = [
     type: 'dropdown',
     required: true,
     options: ['', 'No', 'Wall Soffits', 'Ceiling Soffits'],
+    condition: { field: 'repairType', is: 'Soffit' },
   },
   {
     id: 'soffitHeight',
     label: 'Soffit Height (ft)',
     type: 'number',
     placeholder: 'ft',
-    condition: { field: 'haveSoffits', not: 'No' },
+    condition: { field: 'haveSoffits', notIn: ['', 'No'] },
   },
   {
     id: 'soffitLength',
     label: 'Soffit Length (ft)',
     type: 'number',
     placeholder: 'ft',
-    condition: { field: 'haveSoffits', not: 'No' },
+    condition: { field: 'haveSoffits', notIn: ['', 'No'] },
   },
   {
     id: 'soffitPhotos',
     label: 'Upload Photo',
     type: 'photoUpload',
     multiple: true,
-    condition: { field: 'haveSoffits', not: 'No' },
+    condition: { field: 'haveSoffits', notIn: ['', 'No'] },
+    required:true,
   },
   {
     id: 'ceilingAbove8',
@@ -199,6 +204,7 @@ export const drywallConfig: QuestionConfig[] = [
         label: 'Upload Photos',
         type: 'photoUpload',
         multiple: true,
+        required: true,
       },
     ]
   },
@@ -208,6 +214,7 @@ export const drywallConfig: QuestionConfig[] = [
     type: 'dropdown',
     required: true,
     options: ['', 'Yes', 'No'],
+    condition: { field: 'repairType', is: 'Arch' },
   },
   {
     id: 'archCornerMetals',
@@ -249,6 +256,7 @@ export const drywallConfig: QuestionConfig[] = [
     type: 'photoUpload',
     multiple: true,
     condition: { field: 'needArchCornerMetal', is: 'Yes' },
+    required:true,
   },
   {
     id: 'texture',

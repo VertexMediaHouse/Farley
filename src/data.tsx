@@ -82,7 +82,7 @@ export const servicesPageData = {
   serviceDetails: [
     {
       title: 'Drywall Repair',
-      intro: 'We provide professional drywall repair services for damaged walls and ceilings, including drywall crack repair, hole in wall repair, dents, water damage, and surface restoration.',
+      intro: 'We provide professional drywall repair services for damaged wall and ceilings, including drywall crack repair, hole in wall repair, dents, water damage, and surface restoration.',
       image: '/images/img14.jpeg',
       deliverables: ['Drywall patch repair', 'Wall repair services', 'Water damage repair', 'Crack repair', 'Texture matching'],
     },

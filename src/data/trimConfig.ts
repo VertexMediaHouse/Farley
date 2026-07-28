@@ -20,6 +20,7 @@ export const trimConfig: QuestionConfig[] = [
     type: 'photoUpload',
     multiple: true,
     condition: { field: 'service', not: '' },
+    required: true,
   },
   {
     id: 'baseboardLinearFeet',
@@ -33,7 +34,7 @@ export const trimConfig: QuestionConfig[] = [
     id: 'baseboardHeight',
     label: 'Add height',
     type: 'dropdown',
-    options: ['', '6', '7', '8', '9', '10'],
+    options: ['', '6 or Below 6', '7', '8', '9', '10'],
     condition: { field: 'service', in: ['Install new Baseboards in place of old?', 'Replace existing Baseboards?'] },
   },
   {
@@ -53,9 +54,9 @@ export const trimConfig: QuestionConfig[] = [
   },
   {
     id: 'baseboardCatalog',
-    label: 'Select Baseboard / Casing from Catalog',
+    label: 'Select Baseboard from Catalog',
     type: 'catalogDropdown',
-    condition: { field: 'service', in: ['Install new Baseboards in place of old?', 'Replace existing Baseboards?', 'Install new door Casing?', 'Replace existing Casing?'] },
+    condition: { field: 'service', in: ['Install new Baseboards in place of old?', 'Replace existing Baseboards?'] },
     catalog: [
       {
         size: 'Baseboard 3”',
@@ -93,6 +94,14 @@ export const trimConfig: QuestionConfig[] = [
           { name: 'HOUSE OF FARA 11 16" D × 6" W × 96" L Primed Pine Wood Finger Joint Baseboard Moulding H20PFJ', url: 'https://www.homedepot.com/p/HOUSE-OF-FARA-11-16-in-D-x-6-in-W-x-96-in-L-Primed-Pine-Wood-Finger-Joint-Baseboard-Moulding-H20PFJ/339857100', image: '/images/Baseboard 6”-4.png' },
         ]
       },
+    ]
+  },
+  {
+    id: 'casingCatalog',
+    label: 'Select Casing from Catalog',
+    type: 'catalogDropdown',
+    condition: { field: 'service', in: ['Install new door Casing?', 'Replace existing Casing?'] },
+    catalog: [
       {
         size: 'Casing 2”',
         products: [
@@ -132,6 +141,7 @@ export const trimConfig: QuestionConfig[] = [
     type: 'photoUpload',
     multiple: true,
     condition: { field: 'staircase', is: 'Yes' },
+    required:true,
   },
   {
     id: 'staircaseHeight',

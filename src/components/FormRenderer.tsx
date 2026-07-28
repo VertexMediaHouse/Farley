@@ -472,7 +472,7 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
                       value={p.url}
                       checked={isSelected}
                       onChange={() => onChange(p.url)}
-                      className="h-5 w-5 accent-[#2F9BF0] transition-transform cursor-pointer"
+                      className="h-5 w-5 transition-transform cursor-pointer"
                       style={{ transform: isSelected ? 'scale(1.15)' : 'scale(1)' }}
                     />
                   </div>
@@ -488,7 +488,7 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
           <svg className="h-5 w-5 text-[#2F9BF0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          <p className="text-sm font-medium text-slate-700">Selected: <span className="font-bold text-[#2F9BF0]">{value}</span></p>
+          <p className="text-sm font-medium text-slate-700">Selected: <span className="font-bold text-[#2F9BF0]"><a href={value}>{value}</a></span></p>
         </div>
       )}
 

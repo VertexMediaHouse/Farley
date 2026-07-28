@@ -30,27 +30,27 @@ export const paintConfig: QuestionConfig[] = [
     options: ['', 'Yes', 'No'],
     condition: { field: 'paintType', is: 'Corner to corner' },
   },
-{
-  id: 'hdPaintCode',
-  label: 'Enter HD paint code:',
-  type: 'text',
-  placeholder: 'e.g. PPU18-06',
-  required: true,
-  condition: { field: 'paintHasPaint', is: 'No' },
-},
-{
-  id: 'hdPaintCodeNotice',
-  label: '',
-  type: 'notice',
-  noticeText:
-    'Please visit https://www.homedepot.com/b/Paint-Paint-Colors/8-Ounce/N-5yc1vZcaw8Z1z1dqqgX to get the paint code.',
-  condition: { field: 'paintHasPaint', is: 'No' },
-},
+  {
+    id: 'hdPaintCodeNotice',
+    label: '',
+    type: 'notice',
+    noticeText:
+      'Please visit https://www.homedepot.com/b/Paint-Paint-Colors/8-Ounce/N-5yc1vZcaw8Z1z1dqqgX to get the paint code.',
+    condition: { field: 'paintHasPaint', is: 'No' },
+  },
+  {
+    id: 'hdPaintCode',
+    label: 'Enter HD paint code:',
+    type: 'text',
+    placeholder: 'e.g. PPU18-06',
+    required: true,
+    condition: { field: 'paintHasPaint', is: 'No' },
+  },
   {
     id: 'paintHasPaintNotice',
     label: '',
     type: 'notice',
-    noticeText: 'Drew note: Please select from the HD paint options and we will include the correct amount of paint in your proposal based on the info you have entered above',
+    noticeText: ' Please select from the HD paint options and we will include the correct amount of paint in your proposal based on the info you have entered above.',
     condition: { field: 'paintHasPaint', is: 'No' },
   },
   {
@@ -73,6 +73,7 @@ export const paintConfig: QuestionConfig[] = [
     type: 'photoUpload',
     multiple: true,
     condition: { field: 'paintArea', not: '' },
+    required: true,
   },
   {
     id: 'projectLevel',
@@ -150,6 +151,7 @@ export const paintConfig: QuestionConfig[] = [
     label: 'Upload Paint Label Photo',
     type: 'photoUpload',
     condition: { field: 'selectedPaintColor', is: 'Yes' },
+    required: true,
   },
   {
     id: 'paintChartNotice',
@@ -163,5 +165,6 @@ export const paintConfig: QuestionConfig[] = [
     label: 'Add Photo',
     type: 'photoUpload',
     condition: { field: 'selectedPaintColor', is: 'No' },
+    required: true,
   },
 ];
