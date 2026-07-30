@@ -14,6 +14,7 @@ interface EstimateData {
       paint: boolean;
       trim: boolean;
     };
+    paintColorExplorer?: string;
   };
   estimate: EstimateResult;
   thumbnails?: string[];
@@ -352,6 +353,14 @@ export default function EstimatePage() {
                   .join(', ') || 'None Selected'}
               </span>
             </div>
+            {answers.paintColorExplorer && (
+              <div>
+                <strong style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Selected Paint Color:</strong>
+                <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
+                  {answers.paintColorExplorer}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Edit Mode Notice (hidden on print) */}

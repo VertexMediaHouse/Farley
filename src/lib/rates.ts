@@ -31,7 +31,9 @@ export function flattenRates(
         row(`prices.${value}`, optionLabels[value] ?? value, 'flat', amt));
 
     case 'per_unit': {
-      const rows = [row('rate', `${questionLabel} — default`, `/${rule.unit}`, rule.rate)];
+      const rows = rule.rate > 0
+        ? [row('rate', `${questionLabel} — default`, `/${rule.unit}`, rule.rate)]
+        : [];
       for (const [value, amt] of Object.entries(rule.rateByOption ?? {})) {
         rows.push(row(`rateByOption.${value}`, optionLabels[value] ?? value, `/${rule.unit}`, amt));
       }
@@ -46,7 +48,7 @@ export function flattenRates(
 
     case 'gallons':
       return [row('pricePerGallon', `${questionLabel} — per gallon`, '/gallon', rule.pricePerGallon)];
-      
+
     default:
       return [];
   }
@@ -70,7 +72,7 @@ export function bulkAdjust(rows: RateRow[], pct: number, round: 'none' | 'neares
   return rows.map(r => {
     let next = r.amount * (1 + pct / 100);
     if (round === 'nearest') next = Math.round(next * 4) / 4;   // to the quarter
-    if (round === 'up')      next = Math.ceil(next);
+    if (round === 'up') next = Math.ceil(next);
     return { ...r, amount: Number(next.toFixed(2)) };
   });
 }
@@ -81,38 +83,38 @@ export function previewImpact(
   recent: Submission[],           // last 30, with their frozen answers
 ): { avgDelta: number; rows: Array<{ id: string; was: number; now: number }> } {
   if (!recent.length) return { avgDelta: 0, rows: [] };
-  
+
   const rows = recent.map(s => {
     // Note: calculateEstimate needs to support FormSnapshot rules if implemented dynamically.
     // For now we assume calculateEstimate might be adapted or we use it directly
     // based on user's instruction that they don't want us to rewrite calculateEstimate yet.
     // Since the prompt asks to implement previewImpact like this, we'll write it as requested.
-    
+
     // In a real scenario where calculateEstimate reads global pricing.ts, 
     // it wouldn't inherently use draftSnapshot unless passed. 
     // We pass it here assuming calculateEstimate accepts it or handles it globally during this scope.
-    
+
     // Wait, let's use a workaround if calculateEstimate doesn't take it.
     // The prompt says: "calculateEstimate is already a pure function, so you're just calling it with a different snapshot."
     // This implies calculateEstimate *does* or *should* take it.
     // Wait, `calculateEstimate(draftSnapshot, s.answers)` is what they provided.
     // Let's implement it as they provided.
-    
+
     // @ts-ignore - The user's prompt passes draftSnapshot and s.answers
     const estimate = calculateEstimate(draftSnapshot, s.answers);
     const now = estimate?.subtotal ?? 0;
-    
+
     return {
       id: s.id,
       was: s.subtotal,
       now: now,
     };
   });
-  
+
   const avgDelta = rows.reduce((a, r) => {
     if (r.was === 0) return a;
     return a + ((r.now - r.was) / r.was);
   }, 0) / rows.length * 100;
-  
+
   return { avgDelta, rows };
 }

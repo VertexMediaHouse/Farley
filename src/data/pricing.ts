@@ -15,13 +15,15 @@ export const PRICING = {
   // Crack Repair
   get crackRepairWall() {
     return {
-      tiers: CRACK_REPAIR_WALL_TIERS,
+      under5: CRACK_REPAIR_WALL_UNDER_5,
+      perLft: CRACK_REPAIR_WALL_PER_LFT,
       calc: (lft: number) => calcCrackRepair(lft, 'wall'),
     };
   },
   get crackRepairCeiling() {
     return {
-      tiers: CRACK_REPAIR_CEILING_TIERS,
+      under5: CRACK_REPAIR_CEILING_UNDER_5,
+      perLft: CRACK_REPAIR_CEILING_PER_LFT,
       calc: (lft: number) => calcCrackRepair(lft, 'ceiling'),
     };
   },
@@ -97,13 +99,13 @@ export const PRICING = {
       baseboard: PAINT_LINEAR['Baseboards'] || 5.00,
 
       sqftTiers: [
-        { maxSqft: 350, gallons: 1, baseLabor: 50 },
-        { maxSqft: 650, gallons: 2, baseLabor: 100 },
-        { maxSqft: Infinity, gallons: 3, baseLabor: 150 },
+        { maxSqft: 350, gallons: 1, baseLabor: PAINT_SQFT_TIERS['350 or less (1 gal)'] },
+        { maxSqft: 650, gallons: 2, baseLabor: PAINT_SQFT_TIERS['above 350 (2 gal)'] },
+        { maxSqft: Infinity, gallons: 3, baseLabor: PAINT_SQFT_TIERS['above 650 (3 gal)'] },
       ],
       linearFtTiers: [
-        { maxFt: 400, gallons: 1, baseLabor: 50 },
-        { maxFt: Infinity, gallons: 2, baseLabor: 100 },
+        { maxFt: 400, gallons: 1, baseLabor: PAINT_LINEAR_TIERS['400 or less (1 gal)'] },
+        { maxFt: Infinity, gallons: 2, baseLabor: PAINT_LINEAR_TIERS['above 400 (2 gal)'] },
       ]
     };
   }
@@ -126,32 +128,48 @@ export const DRYWALL_RATES: Record<string, number> = {
 export let DIVIDING_WALL_SURCHARGE = 3.00;
 export function setDividingWallSurcharge(v: number) { DIVIDING_WALL_SURCHARGE = v; }
 
-// -- Crack Repair: flat total price by total crack length --
-export const CRACK_REPAIR_WALL_TIERS: Array<{ maxFt: number; price: number }> = [
-  { maxFt: 5, price: 850 },
-  { maxFt: 8, price: 900 },
-  { maxFt: 9, price: 910 },
-  { maxFt: 11, price: 920 },
-  { maxFt: 12, price: 925 },
-  { maxFt: Infinity, price: 925 },
-];
+// -- Crack Repair Wall --
+// Under 5ft: flat fee. Above 5ft: per-lft rate keyed by crack length.
+export let CRACK_REPAIR_WALL_UNDER_5 = 850;
+export function setCrackRepairWallUnder5(v: number) { CRACK_REPAIR_WALL_UNDER_5 = v; }
 
-// TODO: confirm ceiling numbers — these are placeholders scaled off the $1200 base
-export const CRACK_REPAIR_CEILING_TIERS: Array<{ maxFt: number; price: number }> = [
-  { maxFt: 5, price: 1200 },
-  { maxFt: 8, price: 1275 },
-  { maxFt: 9, price: 1280 },
-  { maxFt: 10, price: 1285 },
-  { maxFt: 11, price: 1290 },
-  { maxFt: 12, price: 1295 },
-  { maxFt: Infinity, price: 1300 },
-];
+export const CRACK_REPAIR_WALL_PER_LFT: Record<string, number> = {
+  '5-8': 50,
+  '9': 60,
+  '10': 70,
+  '12': 75,
+};
 
-export function calcCrackRepair(lft: number, kind: 'wall' | 'ceiling'): number {
-  if (!(lft > 0)) return 0;
-  const tiers = kind === 'wall' ? CRACK_REPAIR_WALL_TIERS : CRACK_REPAIR_CEILING_TIERS;
-  const tier = tiers.find(t => lft <= t.maxFt)!;
-  return tier.price;
+// -- Crack Repair Ceiling --
+export let CRACK_REPAIR_CEILING_UNDER_5 = 1200;
+export function setCrackRepairCeilingUnder5(v: number) { CRACK_REPAIR_CEILING_UNDER_5 = v; }
+
+export const CRACK_REPAIR_CEILING_PER_LFT: Record<string, number> = {
+  '5-8': 75,
+  '9': 80,
+  '10': 85,
+  '11': 90,
+  '12': 95,
+};
+
+// Helper: get the per-lft rate for a given crack length
+function getCrackPerLftRate(lft: number, rates: Record<string, number>): number {
+  if (lft <= 8) return rates['5-8'] ?? 0;
+  if (lft <= 9) return rates['9'] ?? 0;
+  if (lft <= 10) return rates['10'] ?? 0;
+  if (lft <= 11) return rates['11'] ?? rates['10'] ?? 0;
+  return rates['12'] ?? 0;
+}
+
+export function calcCrackRepair(lft: number, kind: 'wall' | 'ceiling'): { total: number; rate: number; isFlat: boolean } {
+  if (!(lft > 0)) return { total: 0, rate: 0, isFlat: true };
+  if (lft <= 5) {
+    const flat = kind === 'wall' ? CRACK_REPAIR_WALL_UNDER_5 : CRACK_REPAIR_CEILING_UNDER_5;
+    return { total: flat, rate: 0, isFlat: true };
+  }
+  const rates = kind === 'wall' ? CRACK_REPAIR_WALL_PER_LFT : CRACK_REPAIR_CEILING_PER_LFT;
+  const rate = getCrackPerLftRate(lft, rates);
+  return { total: lft * rate, rate, isFlat: false };
 }
 
 // -- Floor surcharges --
@@ -180,7 +198,6 @@ export const DEMOLITION_LFT: Record<string, number> = {
   'Door casing': 1.00,
 };
 
-// -- Popcorn Scraping (keyed by ceiling height) --
 // -- Popcorn Scraping: per-sqft rate by total area --
 export const POPCORN_SCRAPING_TIERS: Array<{ maxSqft: number; price: number }> = [
   { maxSqft: 100, price: 2.50 },
@@ -220,7 +237,6 @@ export function setArchCornerMetal(v: number) { ARCH_CORNER_METAL_PER_LFT = v; }
 // -- Ceiling Height Surcharge (per sqft, keyed by ceiling height in ft) --
 // -- Ceiling Height Surcharge: per-sqft rate by ceiling height --
 export const CEILING_HEIGHT_TIERS: Array<{ maxFt: number; price: number }> = [
-  { maxFt: 8, price: 0 },
   { maxFt: 9, price: 7.00 },
   { maxFt: 10, price: 8.00 },
   { maxFt: 11, price: 9.00 },
@@ -270,3 +286,16 @@ export const PAINT_LINEAR: Record<string, number> = {
 // -- Trip Charge --
 export let TRIP_CHARGE = 75;
 export function setTripCharge(v: number) { TRIP_CHARGE = v; }
+
+// -- Paint gallon tiers (base labor per gallon, keyed by tier label) --
+export const PAINT_SQFT_TIERS: Record<string, number> = {
+  '350 or less (1 gal)': 50,
+  'above 350 (2 gal)': 100,
+  'above 650 (3 gal)': 150,
+};
+
+export const PAINT_LINEAR_TIERS: Record<string, number> = {
+  '400 or less (1 gal)': 50,
+  'above 400 (2 gal)': 100,
+};
+

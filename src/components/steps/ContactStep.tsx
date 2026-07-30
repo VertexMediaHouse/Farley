@@ -54,12 +54,17 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
   const validate = () => {
     const e: Record<string, string> = {};
 
+    if (!data.areaCode.trim()) {
+      e.areaCode = "Required";
+    }
+
     if (isSub) {
       if (!data.fullName.trim()) e.fullName = "Required";
       if (!data.companyName.trim()) e.companyName = "Required";
 
       if (!data.phoneNumber.trim()) e.phoneNumber = "Required";
-      else if (!isValidPhone(data.phoneNumber)) e.phoneNumber = "Enter a valid 10-digit phone number";
+      else if (!isValidPhone(data.phoneNumber))
+        e.phoneNumber = "Enter a valid 10-digit phone number";
 
       if (data.emailAddress.trim() && !isValidEmail(data.emailAddress))
         e.emailAddress = "Enter a valid email address";

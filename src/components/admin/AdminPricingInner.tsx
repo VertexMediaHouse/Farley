@@ -8,28 +8,31 @@ import { getInitialPricingRules, applyPricingRules } from '../../data/pricingMap
 // ─── Label maps ───────────────────────────────────────────────────────────────
 
 const QUESTION_LABELS: Record<string, string> = {
-  'drywall':                      'Drywall surface rates',
-  'dividing_wall':                'Dividing wall surcharge',
-  'crack_repair_wall_under_5':    'Crack repair wall — under 5 lft',
+  'drywall': 'Drywall surface rates',
+  'dividing_wall': 'Dividing wall surcharge',
+  'crack_repair_wall_under_5': 'Crack repair wall — under 5 lft',
   'crack_repair_ceiling_under_5': 'Crack repair ceiling — under 5 lft',
-  'crack_repair_wall_extra_lft':    'Crack repair wall — per extra lft (above 5)',
+  'crack_repair_wall_extra_lft': 'Crack repair wall — per extra lft (above 5)',
   'crack_repair_ceiling_extra_lft': 'Crack repair ceiling — per extra lft (above 5)',
-  'floor_surcharge':              'Floor-level surcharge',
-  'staircase_fee':                'Staircase flat fee',
-  'demolition_sqft':              'Demolition (per sqft)',
-  'demolition_lft':               'Demolition (per lft)',
-  'popcorn_scraping':             'Popcorn ceiling scraping (by height)',
-  'haul_away_under_50':           'Haul away ≤ 50 sqft — flat',
-  'haul_away_above_50':           'Haul away > 50 sqft — per sqft',
-  'insulation_per_sqft':          'Insulation — per sqft',
-  'corner_metal':                 'Corner metal (per unit)',
-  'arch_corner_metal':            'Arch corner metal — per lft',
-  'texture_rates':                'Finish / Texture rates',
-  'baseboard_lft':                'Baseboard — per lft (by height)',
-  'door_casing_lft':              'Door casing — per lft',
-  'paint_sqft':                   'Painting labor — per sqft',
-  'paint_linear':                 'Painting labor — per lft',
-  'trip_charge':                  'Trip charge (per project)',
+  'floor_surcharge': 'Floor-level surcharge',
+  'staircase_fee': 'Staircase flat fee',
+  'demolition_sqft': 'Demolition (per sqft)',
+  'demolition_lft': 'Demolition (per lft)',
+  'popcorn_scraping': 'Popcorn ceiling scraping (by height)',
+  'haul_away_under_50': 'Haul away ≤ 50 sqft — flat',
+  'haul_away_above_50': 'Haul away > 50 sqft — per sqft',
+  'ceiling_height_surcharge': 'Ceiling height surcharge (over 8ft)',
+  'insulation_per_sqft': 'Insulation — per sqft',
+  'corner_metal': 'Corner metal (per unit)',
+  'arch_corner_metal': 'Arch corner metal — per lft',
+  'texture_rates': 'Finish / Texture rates',
+  'baseboard_lft': 'Baseboard — per lft (by height)',
+  'door_casing_lft': 'Door casing — per lft',
+  'paint_sqft': 'Painting labor — per sqft',
+  'paint_linear': 'Painting labor — per lft',
+  'paint_sqft_tiers': 'Paint — gallon/labor by area (sqft)',
+  'paint_linear_tiers': 'Paint — gallon/labor by length (lft)',
+  'trip_charge': 'Trip charge (per project)',
 };
 
 const SECTIONS = [
@@ -43,7 +46,7 @@ const SECTIONS = [
     id: 'sec_location',
     title: 'Location & Access',
     icon: '🏢',
-    questions: ['floor_surcharge', 'staircase_fee'],
+    questions: ['floor_surcharge', 'staircase_fee', 'ceiling_height_surcharge'],
   },
   {
     id: 'sec_demo',
@@ -73,7 +76,7 @@ const SECTIONS = [
     id: 'sec_paint',
     title: 'Painting',
     icon: '🖌️',
-    questions: ['paint_sqft', 'paint_linear', 'trip_charge'],
+    questions: ['paint_sqft', 'paint_linear', 'paint_sqft_tiers', 'paint_linear_tiers', 'trip_charge'],
   },
 ];
 
@@ -162,9 +165,10 @@ export default function AdminPricingInner() {
 
   const [showBulkAdjust, setShowBulkAdjust] = useState<string | null>(null);
   const [bulkPct, setBulkPct] = useState(5);
-  const [bulkRound, setBulkRound] = useState<'none'|'nearest'|'up'>('nearest');
+  const [bulkRound, setBulkRound] = useState<'none' | 'nearest' | 'up'>('nearest');
   const [preview, setPreview] = useState<{ avgDelta: number; rows: any[] } | null>(null);
   const [saving, setSaving] = useState(false);
+
 
   // ── Load on mount: Supabase overrides merged over hard-coded defaults ─────
   // This is the exact same pattern as question_overrides.
@@ -186,15 +190,27 @@ export default function AdminPricingInner() {
       .finally(() => setLoading(false));
   }, []);
 
+  const OPTION_LABELS: Record<string, Record<string, string>> = {
+    crack_repair_wall_extra_lft: {
+      '5-8': '5ft–8ft', '9': '9ft', '10': '10ft', '12': '12ft',
+    },
+    crack_repair_ceiling_extra_lft: {
+      '5-8': '5ft–8ft', '9': '9ft', '10': '10ft', '11': '11ft', '12': '12ft',
+    },
+    ceiling_height_surcharge: {
+      '9': '9ft', '10': '10ft', '11': '11ft', 'Infinity': '12ft+',
+    },
+  };
+
   // Flat rows for current section
   const originalRows = useMemo(() =>
     Object.entries(publishedRules).flatMap(([qid, rule]) =>
-      flattenRates(qid, QUESTION_LABELS[qid] || qid, rule, {})),
+      flattenRates(qid, QUESTION_LABELS[qid] || qid, rule, OPTION_LABELS[qid] ?? {})),
     [publishedRules]);
 
   const draftRows = useMemo(() =>
     Object.entries(draftRules).flatMap(([qid, rule]) =>
-      flattenRates(qid, QUESTION_LABELS[qid] || qid, rule, {})),
+      flattenRates(qid, QUESTION_LABELS[qid] || qid, rule, OPTION_LABELS[qid] ?? {})),
     [draftRules]);
 
   const changedCount = useMemo(() =>
@@ -222,7 +238,7 @@ export default function AdminPricingInner() {
     const next = { ...draftRules };
     for (const qid of section.questions) {
       const rule = next[qid]; if (!rule) continue;
-      const rows = flattenRates(qid, QUESTION_LABELS[qid] || qid, rule, {});
+      const rows = flattenRates(qid, QUESTION_LABELS[qid] || qid, rule, OPTION_LABELS[qid] ?? {});
       let updated = rule;
       for (const r of bulkAdjust(rows, bulkPct, bulkRound)) {
         updated = setRate(updated, r.path, r.amount);
@@ -315,9 +331,8 @@ export default function AdminPricingInner() {
                 <button
                   key={s.id}
                   onClick={() => setActiveSection(s.id)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between group transition-colors ${
-                    isActive ? 'bg-[#12294A] text-white' : 'text-slate-600 hover:bg-slate-200'
-                  }`}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between group transition-colors ${isActive ? 'bg-[#12294A] text-white' : 'text-slate-600 hover:bg-slate-200'
+                    }`}
                 >
                   <span className="flex items-center gap-2">
                     <span>{s.icon}</span>
@@ -414,11 +429,10 @@ export default function AdminPricingInner() {
           <button
             onClick={handlePublish}
             disabled={changedCount === 0 || saving}
-            className={`px-5 py-2 rounded-lg text-sm font-semibold transition ${
-              changedCount > 0 && !saving
-                ? 'bg-[#2F9BF0] text-white hover:bg-[#1e7bc4] shadow-sm'
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-            }`}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition ${changedCount > 0 && !saving
+              ? 'bg-[#2F9BF0] text-white hover:bg-[#1e7bc4] shadow-sm'
+              : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+              }`}
           >
             {saving ? 'Publishing…' : 'Publish changes'}
           </button>

@@ -19,7 +19,7 @@ interface Props {
   data: ContactData;
   onChange: (data: ContactData) => void;
   onBack: () => void;
-  onNext: () => void;
+  onSubmit: () => void;
 }
 
 const req = () => <span className="ml-0.5 text-red-500">*</span>;
@@ -33,7 +33,7 @@ const isValidPhone = (s: string) => {
   return d.length === 10 || (d.length === 11 && d.startsWith("1"));
 };
 
-export default function ClientInfoStep({ data, onChange, onBack, onNext }: Props) {
+export default function ClientInfoStep({ data, onChange, onBack, onSubmit }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const set = (key: keyof ContactData, val: string) => {
@@ -61,8 +61,8 @@ export default function ClientInfoStep({ data, onChange, onBack, onNext }: Props
     return Object.keys(e).length === 0;
   };
 
-  const handleNext = () => {
-    if (validate()) onNext();
+  const handleSubmit = () => {
+    if (validate()) onSubmit();
   };
 
   return (
@@ -126,7 +126,7 @@ export default function ClientInfoStep({ data, onChange, onBack, onNext }: Props
         </button>
         <button
           type="button"
-          onClick={handleNext}
+          onClick={handleSubmit}
           className="rounded-lg bg-[#2F9BF0] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#1E86D8] transition"
         >
           Submit Request

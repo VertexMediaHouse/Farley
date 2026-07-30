@@ -33,7 +33,8 @@ export type FieldType =
   | 'catalogDropdown'
   | 'notice'
   | 'section'
-  | 'repeatableGroup';
+  | 'repeatableGroup'
+  | 'paintColorExplorer';
 
 export interface QuestionConfig {
   id: string;

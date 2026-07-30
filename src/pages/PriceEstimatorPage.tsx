@@ -158,7 +158,7 @@ export default function PriceEstimatorPage() {
                       data={contact}
                       onChange={setContact}
                       onBack={() => goTo(4)}
-                      onNext={handleSubmit}
+                      onSubmit={handleSubmit}
                     />
                   </div>
                 </div>

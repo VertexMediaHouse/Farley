@@ -5,6 +5,8 @@ import InfoButton from './InfoButton';
 import { useProductPrices } from '../context/CopyProvider';
 import { pricePerLft } from '../lib/productPricesStore';
 import { input as inp, label as lbl, errorText } from './theme';
+import PaintExplorer from './paintexplorer/paintexplorer';
+import type { PaintColor } from './paintexplorer/types';
 
 // ─── Condition evaluator ─────────────────────────────────────────────────────
 
@@ -141,6 +143,19 @@ function Field({
             onChange={f => onChange(q.id, f ? [f] : [])}
           />
         )}
+      </div>
+    );
+  }
+
+  if (q.type === 'paintColorExplorer') {
+    return (
+      <div>
+        <Label />
+        <PaintExplorer
+          selected={val}
+          onSelect={(color: PaintColor) => onChange(q.id, color.number)}
+        />
+        {err && <p className={errorText}>{err}</p>}
       </div>
     );
   }
@@ -423,10 +438,10 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
                 >
                   {p.image ? (
                     <>
-                      <img 
-                        src={p.image} 
-                        alt={p.name} 
-                        className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-110" 
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-110"
                       />
                       {/* Zoom Icon overlay on hover */}
                       <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -494,18 +509,18 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
 
       {/* Lightbox Preview Modal */}
       {previewImage && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 transition-opacity duration-300"
           onClick={() => setPreviewImage(null)}
         >
-          <div 
+          <div
             className="relative max-w-4xl w-full bg-white rounded-2xl overflow-hidden shadow-2xl flex flex-col p-6 max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
               <h3 className="text-base font-bold text-slate-900 pr-8 line-clamp-1">{previewImage.name}</h3>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setPreviewImage(null)}
                 className="absolute top-4 right-4 rounded-full p-2 bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition"
               >
@@ -515,9 +530,9 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
               </button>
             </div>
             <div className="flex-1 overflow-hidden flex items-center justify-center bg-slate-50 rounded-xl min-h-[300px] md:min-h-[500px]">
-              <img 
-                src={previewImage.url} 
-                alt={previewImage.name} 
+              <img
+                src={previewImage.url}
+                alt={previewImage.name}
                 className="max-h-[70vh] object-contain rounded-lg shadow-sm"
               />
             </div>

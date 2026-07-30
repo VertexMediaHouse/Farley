@@ -118,7 +118,7 @@ export const drywallConfig: QuestionConfig[] = [
     label: 'Add square footage',
     type: 'number',
     placeholder: 'sq ft',
-    condition: { field: 'needInsulation', not: 'No' },
+    condition: { field: 'needInsulation', notIn: ['No', ''] },
   },
   {
     id: 'insulationPhotos',

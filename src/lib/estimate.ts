@@ -87,12 +87,14 @@ export function calculateEstimate(
       repairPrice = lft * repairRate;
     } else if (repairType === 'Crack Repair Wall') {
       repairQty = lft; repairUnit = 'lft';
-      repairRate = 0;
-      repairPrice = PRICING.crackRepairWall.calc(lft);
+      const result = PRICING.crackRepairWall.calc(lft);
+      repairPrice = result.total;
+      repairRate = result.rate;
     } else if (repairType?.toLowerCase() === 'crack repair ceiling') {
       repairQty = lft; repairUnit = 'lft';
-      repairRate = 0;
-      repairPrice = PRICING.crackRepairCeiling.calc(lft);
+      const result = PRICING.crackRepairCeiling.calc(lft);
+      repairPrice = result.total;
+      repairRate = result.rate;
     }
     addItem(
       areaName,
@@ -209,7 +211,7 @@ export function calculateEstimate(
 
 // Ceiling Height Surcharge (above 8ft)
     if (area.ceilingAbove8 === 'Yes' && area.ceilingHeight) {
-      const h = parseFloat(area.ceilingHeight);
+      const h = parseInt(area.ceilingHeight);  // handles '9ft' → 9
       const rate = PRICING.ceilingHeightSurcharge.rateFor(h);
       const qty = sqft > 0 ? sqft : lft;
       const unit: 'lft' | 'sqft' = sqft > 0 ? 'sqft' : 'lft';
@@ -367,6 +369,17 @@ export function calculateEstimate(
     }
     if (area.staircase === 'Yes') {
       addItem(areaName, 'Staircase Surcharge', 'Flat Fee', PRICING.staircase);
+    }
+
+    // Ceiling Height Surcharge (above 8ft)
+    if (area.ceilingAbove8 === 'Yes' && area.ceilingHeight) {
+      const h = parseInt(area.ceilingHeight);  // handles '9ft' → 9
+      const rate = PRICING.ceilingHeightSurcharge.rateFor(h);
+      if (rate > 0 && qty > 0) {
+        addItem(areaName, `High Ceiling Surcharge (${h}ft)`, `${qty} ${isLinear ? 'lft' : 'sqft'} @ $${rate}/${isLinear ? 'lft' : 'sqft'}`, qty * rate, {
+          quantity: qty, rate, unit: isLinear ? 'lft' : 'sqft',
+        });
+      }
     }
 
     // Process Custom Questions

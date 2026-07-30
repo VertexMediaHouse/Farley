@@ -6,8 +6,10 @@ export function getInitialPricingRules(): Record<string, PricingRule> {
     'drywall': { shape: 'per_option', prices: { ...P.DRYWALL_RATES } },
     'dividing_wall': { shape: 'flat_if', amount: P.DIVIDING_WALL_SURCHARGE },
 
-    'crack_repair_wall_tiers': { shape: 'per_unit', unit: 'lft', rate: 0, rateByOption: Object.fromEntries(P.CRACK_REPAIR_WALL_TIERS.map(t => [String(t.maxFt), t.price])) },
-    'crack_repair_ceiling_tiers': { shape: 'per_unit', unit: 'lft', rate: 0, rateByOption: Object.fromEntries(P.CRACK_REPAIR_CEILING_TIERS.map(t => [String(t.maxFt), t.price])) },
+    'crack_repair_wall_under_5': { shape: 'flat_if', amount: P.CRACK_REPAIR_WALL_UNDER_5 },
+    'crack_repair_ceiling_under_5': { shape: 'flat_if', amount: P.CRACK_REPAIR_CEILING_UNDER_5 },
+    'crack_repair_wall_extra_lft': { shape: 'per_option', prices: { ...P.CRACK_REPAIR_WALL_PER_LFT } },
+    'crack_repair_ceiling_extra_lft': { shape: 'per_option', prices: { ...P.CRACK_REPAIR_CEILING_PER_LFT } },
 
     'floor_surcharge': { shape: 'per_option', prices: { ...P.FLOOR_SURCHARGE } },
     'staircase_fee': { shape: 'flat_if', amount: P.STAIRCASE_FEE },
@@ -32,6 +34,10 @@ export function getInitialPricingRules(): Record<string, PricingRule> {
 
     'paint_sqft': { shape: 'per_option', prices: { ...P.PAINT_SQFT } },
     'paint_linear': { shape: 'per_option', prices: { ...P.PAINT_LINEAR } },
+
+    'paint_sqft_tiers': { shape: 'per_option', prices: { ...P.PAINT_SQFT_TIERS } },
+    'paint_linear_tiers': { shape: 'per_option', prices: { ...P.PAINT_LINEAR_TIERS } },
+
     'trip_charge': { shape: 'flat_if', amount: P.TRIP_CHARGE },
   };
 }
@@ -43,18 +49,11 @@ export function applyPricingRules(rules: Record<string, PricingRule> = {}) {
   if (rules.drywall?.shape === 'per_option' && rules.drywall.prices) Object.assign(P.DRYWALL_RATES, rules.drywall.prices);
   if (rules.dividing_wall?.shape === 'flat_if' && typeof rules.dividing_wall.amount === 'number') P.setDividingWallSurcharge(rules.dividing_wall.amount);
 
-  if (rules.crack_repair_wall_tiers?.shape === 'per_unit' && rules.crack_repair_wall_tiers.rateByOption) {
-    for (const t of P.CRACK_REPAIR_WALL_TIERS) {
-      const v = rules.crack_repair_wall_tiers.rateByOption[String(t.maxFt)];
-      if (typeof v === 'number') t.price = v;
-    }
-  }
-  if (rules.crack_repair_ceiling_tiers?.shape === 'per_unit' && rules.crack_repair_ceiling_tiers.rateByOption) {
-    for (const t of P.CRACK_REPAIR_CEILING_TIERS) {
-      const v = rules.crack_repair_ceiling_tiers.rateByOption[String(t.maxFt)];
-      if (typeof v === 'number') t.price = v;
-    }
-  }
+  // Crack Repair
+  if (rules.crack_repair_wall_under_5?.shape === 'flat_if' && typeof rules.crack_repair_wall_under_5.amount === 'number') P.setCrackRepairWallUnder5(rules.crack_repair_wall_under_5.amount);
+  if (rules.crack_repair_ceiling_under_5?.shape === 'flat_if' && typeof rules.crack_repair_ceiling_under_5.amount === 'number') P.setCrackRepairCeilingUnder5(rules.crack_repair_ceiling_under_5.amount);
+  if (rules.crack_repair_wall_extra_lft?.shape === 'per_option' && rules.crack_repair_wall_extra_lft.prices) Object.assign(P.CRACK_REPAIR_WALL_PER_LFT, rules.crack_repair_wall_extra_lft.prices);
+  if (rules.crack_repair_ceiling_extra_lft?.shape === 'per_option' && rules.crack_repair_ceiling_extra_lft.prices) Object.assign(P.CRACK_REPAIR_CEILING_PER_LFT, rules.crack_repair_ceiling_extra_lft.prices);
 
   if (rules.floor_surcharge?.shape === 'per_option' && rules.floor_surcharge.prices) Object.assign(P.FLOOR_SURCHARGE, rules.floor_surcharge.prices);
   if (rules.staircase_fee?.shape === 'flat_if' && typeof rules.staircase_fee.amount === 'number') P.setStaircaseFee(rules.staircase_fee.amount);
@@ -65,7 +64,7 @@ export function applyPricingRules(rules: Record<string, PricingRule> = {}) {
       if (typeof v === 'number') t.price = v;
     }
   }
-  
+
   if (rules.demolition_sqft?.shape === 'per_option' && rules.demolition_sqft.prices) Object.assign(P.DEMOLITION_SQFT, rules.demolition_sqft.prices);
   if (rules.demolition_lft?.shape === 'per_option' && rules.demolition_lft.prices) Object.assign(P.DEMOLITION_LFT, rules.demolition_lft.prices);
 
@@ -93,6 +92,9 @@ export function applyPricingRules(rules: Record<string, PricingRule> = {}) {
 
   if (rules.paint_sqft?.shape === 'per_option' && rules.paint_sqft.prices) Object.assign(P.PAINT_SQFT, rules.paint_sqft.prices);
   if (rules.paint_linear?.shape === 'per_option' && rules.paint_linear.prices) Object.assign(P.PAINT_LINEAR, rules.paint_linear.prices);
+
+  if (rules.paint_sqft_tiers?.shape === 'per_option' && rules.paint_sqft_tiers.prices) Object.assign(P.PAINT_SQFT_TIERS, rules.paint_sqft_tiers.prices);
+  if (rules.paint_linear_tiers?.shape === 'per_option' && rules.paint_linear_tiers.prices) Object.assign(P.PAINT_LINEAR_TIERS, rules.paint_linear_tiers.prices);
 
   if (rules.trip_charge?.shape === 'flat_if' && typeof rules.trip_charge.amount === 'number') P.setTripCharge(rules.trip_charge.amount);
 }
