@@ -310,7 +310,7 @@ export default function AdminPricingInner() {
   }
 
   return (
-    <div className="flex h-full relative">
+    <div className="flex h-full w-full min-w-0 relative">
       {/* Success toast */}
       {toast && (
         <div className="absolute top-4 right-4 z-[70] bg-slate-900 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg animate-[fadeSlide_0.3s_ease-out]">

@@ -61,7 +61,6 @@ export default function AdminDashboard() {
             </div>
           )}
           {activeTab === 'pricing' && (
-            // AdminPricingInner is itself flex-row so we just let it fill
             <div className="flex-1 flex min-h-0">
               <AdminPricingInner />
             </div>
