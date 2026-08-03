@@ -39,8 +39,9 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
 
   const set = (key: keyof ContactData, val: string) => {
     onChange({ ...data, [key]: val });
-    // clear the field's error as soon as the user edits it
-    setErrors(prev => {
+
+    // Clear field error as soon as user edits it
+    setErrors((prev) => {
       if (!prev[key]) return prev;
       const next = { ...prev };
       delete next[key];
@@ -48,8 +49,8 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
     });
   };
 
-  const isCom = data.isCommercial === 'Commercial';
-  const isSub = data.isSubcontractor === 'yes';
+  const isCom = data.isCommercial === "Commercial";
+  const isSub = data.isSubcontractor === "yes";
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -60,14 +61,20 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
 
     if (isSub) {
       if (!data.fullName.trim()) e.fullName = "Required";
+
       if (!data.companyName.trim()) e.companyName = "Required";
 
-      if (!data.phoneNumber.trim()) e.phoneNumber = "Required";
-      else if (!isValidPhone(data.phoneNumber))
+      if (!data.phoneNumber.trim()) {
+        e.phoneNumber = "Required";
+      } else if (!isValidPhone(data.phoneNumber)) {
         e.phoneNumber = "Enter a valid 10-digit phone number";
+      }
 
-      if (data.emailAddress.trim() && !isValidEmail(data.emailAddress))
+      if (!data.emailAddress.trim()) {
+        e.emailAddress = "Required";
+      } else if (!isValidEmail(data.emailAddress)) {
         e.emailAddress = "Enter a valid email address";
+      }
     }
 
     setErrors(e);
@@ -81,14 +88,26 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
   return (
     <div>
       <StepHeader title="Contact Information" step={1} total={4} />
+
       <div className="space-y-5">
         <div>
-          <label className={lbl}>Area Code / Zip / Pin Code{req()}</label>
-          <input required className={inp} placeholder="Area / Zip / Pin code" value={data.areaCode} onChange={e => set("areaCode", e.target.value)} />
-          {errors.areaCode && <p className={errorText}>{errors.areaCode}</p>}
+          <label className={lbl}>
+            Area Code / Zip / Pin Code{req()}
+          </label>
+          <input
+            required
+            className={inp}
+            placeholder="Area / Zip / Pin code"
+            value={data.areaCode}
+            onChange={(e) => set("areaCode", e.target.value)}
+          />
+          {errors.areaCode && (
+            <p className={errorText}>{errors.areaCode}</p>
+          )}
         </div>
       </div>
-      {/* ── Commercial work ───────────────────────────── */}
+
+      {/* Commercial */}
       <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
         <p className="text-sm font-semibold text-slate-700">
           Work Type of work is it?
@@ -119,10 +138,10 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
         </div>
       </div>
 
-      {/* ── Subcontractor ───────────────────────────── */}
-      {/* <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
+      {/* Referral Partner */}
+      <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
         <p className="text-sm font-semibold text-slate-700">
-          Are you a subcontractor?
+          Are you a Referral Partner?
         </p>
 
         <div className="mt-3 flex items-center gap-8">
@@ -148,60 +167,93 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
             <span className="text-sm text-slate-700">No</span>
           </label>
         </div>
-      </div> */}
+      </div>
 
-      {/* ── Subcontractor Referral Registration ─────────────── */}
+      {/* Referral Registration */}
       {isSub && (
         <div className="mt-8 animate-[fadeSlide_0.3s_ease-out]">
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400 mb-4">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">
             Subcontractor Referral Registration
           </p>
+
           <div className="space-y-5">
             <div>
-              <label className={lbl}>Full Name{req()}</label>
-              <input className={inp} placeholder="Full name" value={data.fullName} onChange={e => set("fullName", e.target.value)} />
-              {errors.fullName && <p className={errorText}>{errors.fullName}</p>}
+              <label className={lbl}>
+                Full Name{req()}
+              </label>
+              <input
+                className={inp}
+                placeholder="Full name"
+                value={data.fullName}
+                onChange={(e) => set("fullName", e.target.value)}
+              />
+              {errors.fullName && (
+                <p className={errorText}>{errors.fullName}</p>
+              )}
             </div>
 
             <div>
-              <label className={lbl}>Company Name{req()}</label>
-              <input className={inp} placeholder="Company name" value={data.companyName} onChange={e => set("companyName", e.target.value)} />
-              {errors.companyName && <p className={errorText}>{errors.companyName}</p>}
+              <label className={lbl}>
+                Company Name{req()}
+              </label>
+              <input
+                className={inp}
+                placeholder="Company name"
+                value={data.companyName}
+                onChange={(e) => set("companyName", e.target.value)}
+              />
+              {errors.companyName && (
+                <p className={errorText}>{errors.companyName}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={lbl}>Phone Number{req()}</label>
+                <label className={lbl}>
+                  Phone Number{req()}
+                </label>
                 <input
                   className={inp}
                   type="tel"
                   inputMode="tel"
                   placeholder="(000) 000-0000"
                   value={data.phoneNumber}
-                  onChange={e => set("phoneNumber", e.target.value)}
+                  onChange={(e) => set("phoneNumber", e.target.value)}
                   aria-invalid={!!errors.phoneNumber}
                 />
-                {errors.phoneNumber && <p className={errorText}>{errors.phoneNumber}</p>}
+                {errors.phoneNumber && (
+                  <p className={errorText}>{errors.phoneNumber}</p>
+                )}
               </div>
+
               <div>
-                <label className={lbl}>Email Address</label>
+                <label className={lbl}>
+                  Email Address{req()}
+                </label>
                 <input
                   className={inp}
                   type="email"
                   inputMode="email"
                   placeholder="your@email.com"
                   value={data.emailAddress}
-                  onChange={e => set("emailAddress", e.target.value)}
+                  onChange={(e) => set("emailAddress", e.target.value)}
                   aria-invalid={!!errors.emailAddress}
                 />
-                {errors.emailAddress && <p className={errorText}>{errors.emailAddress}</p>}
+                {errors.emailAddress && (
+                  <p className={errorText}>{errors.emailAddress}</p>
+                )}
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <NavigationButtons step={1} total={4} onBack={() => { }} onNext={handleNext} />
+      <NavigationButtons
+        step={1}
+        total={4}
+        onBack={() => { }}
+        onNext={handleNext}
+      />
     </div>
   );
 }
