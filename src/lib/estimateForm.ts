@@ -64,17 +64,86 @@ export function loadDraft(): Partial<EstimateDraft> | null {
   }
 }
 
-export function submitEstimate(
+function collectFilesFromAreas(areas: AreaValues[]): File[] {
+  const files: File[] = [];
+  for (const area of areas) {
+    for (const key in area) {
+      const val = area[key];
+      if (Array.isArray(val)) {
+        for (const item of val) {
+          if (item instanceof File) {
+            files.push(item);
+          }
+        }
+      }
+    }
+  }
+  return files;
+}
+
+const generateThumbnails = async (files: File[]): Promise<string[]> => {
+  return Promise.all(
+    files.map(
+      (file) =>
+        new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const MAX_SIZE = 400;
+              let width = img.width;
+              let height = img.height;
+
+              if (width > height) {
+                if (width > MAX_SIZE) {
+                  height *= MAX_SIZE / width;
+                  width = MAX_SIZE;
+                }
+              } else {
+                if (height > MAX_SIZE) {
+                  width *= MAX_SIZE / height;
+                  height = MAX_SIZE;
+                }
+              }
+
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              if (ctx) ctx.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL('image/jpeg', 0.7));
+            };
+            img.onerror = () => {
+              resolve(e.target?.result as string);
+            };
+            img.src = e.target?.result as string;
+          };
+          reader.onerror = () => resolve('');
+          reader.readAsDataURL(file);
+        })
+    )
+  );
+};
+
+export async function submitEstimate(
   drywall: AreaValues[],
   trim: AreaValues[],
   paint: AreaValues[],
   contact: ContactData,
   customQuestions: CustomQuestionRecord[],
   productPrices: ProductPriceMap = {},
-): void {
+): Promise<void> {
   const formData = adaptV2ToV1Estimate(drywall, trim, paint, contact, productPrices);
   const result = calculateEstimate({ drywall, trim, paint }, customQuestions, productPrices);
-  localStorage.setItem(ESTIMATE_RESULT_KEY, JSON.stringify({ answers: formData, estimate: result }));
+  
+  const allFiles = [
+    ...collectFilesFromAreas(drywall),
+    ...collectFilesFromAreas(trim),
+    ...collectFilesFromAreas(paint)
+  ];
+  const thumbnails = allFiles.length > 0 ? await generateThumbnails(allFiles) : [];
+  
+  localStorage.setItem(ESTIMATE_RESULT_KEY, JSON.stringify({ answers: formData, estimate: result, thumbnails }));
   window.open('/estimate', '_blank');
   localStorage.removeItem(ESTIMATE_DRAFT_KEY);
 }

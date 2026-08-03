@@ -120,7 +120,7 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
       </div>
 
       {/* ── Subcontractor ───────────────────────────── */}
-      <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
+      {/* <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
         <p className="text-sm font-semibold text-slate-700">
           Are you a subcontractor?
         </p>
@@ -148,7 +148,7 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
             <span className="text-sm text-slate-700">No</span>
           </label>
         </div>
-      </div>
+      </div> */}
 
       {/* ── Subcontractor Referral Registration ─────────────── */}
       {isSub && (

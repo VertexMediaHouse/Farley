@@ -34,7 +34,7 @@ export const trimConfig: QuestionConfig[] = [
     id: 'baseboardHeight',
     label: 'Add height',
     type: 'dropdown',
-    options: ['', '6 or Below 6', '7', '8', '9', '10'],
+    options: ['', '6" or Below 6"', '7"', '8"', '9"', '10"'],
     condition: { field: 'service', in: ['Install new Baseboards in place of old?', 'Replace existing Baseboards?'] },
   },
   {

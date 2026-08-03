@@ -127,6 +127,7 @@ function Field({
         q={q}
         rawValue={val}
         onChange={(v) => onChange(q.id, v)}
+        onFilesChange={(files) => onChange(`${q.id}_photos`, files as any)}
       />
     );
   }
@@ -153,7 +154,9 @@ function Field({
         <Label />
         <PaintExplorer
           selected={val}
-          onSelect={(color: PaintColor) => onChange(q.id, color.number)}
+          onSelect={(color: PaintColor) =>
+            onChange(q.id, `${color.name} (${color.number})`)
+          }
         />
         {err && <p className={errorText}>{err}</p>}
       </div>
@@ -218,10 +221,12 @@ function RepeatableGroup({
   q,
   rawValue,
   onChange,
+  onFilesChange,
 }: {
   q: QuestionConfig;
   rawValue: string;
   onChange: (v: string) => void;
+  onFilesChange?: (files: File[]) => void;
 }) {
   const children = q.children ?? [];
 
@@ -248,10 +253,12 @@ function RepeatableGroup({
 
   const setRowPhotos = (idx: number, fieldId: string, files: File[]) => {
     const key = `${idx}:${fieldId}`;
-    setPhotos(prev => ({ ...prev, [key]: files }));
+    const nextPhotos = { ...photos, [key]: files };
+    setPhotos(nextPhotos);
     // mirror the count into the record so the JSON stays serializable
     const next = records.map((r, i) => i === idx ? { ...r, [fieldId]: String(files.length) } : r);
     commit(next);
+    if (onFilesChange) onFilesChange(Object.values(nextPhotos).flat());
   };
 
   const commit = (next: RepeatableRecord[]) => {

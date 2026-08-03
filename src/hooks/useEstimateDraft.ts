@@ -45,9 +45,9 @@ export function useEstimateDraft() {
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     try {
-      submitEstimate(drywall, trim, paint, contact, customQuestions, productPrices);
+      await submitEstimate(drywall, trim, paint, contact, customQuestions, productPrices);
       setSent(true);
     } catch (e) {
       console.error('Failed to store estimate', e);

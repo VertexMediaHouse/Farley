@@ -1089,6 +1089,7 @@ export default function EstimateWizard() {
 
     const enrichedAnswers = {
       ...answers,
+        paintColorExplorer: answers.paint_brand_color || '',   // <-- add this
       has_photos: uploadedFiles.length > 0 ? 'Yes' : 'No',
       services: {
         ...answers.services,
