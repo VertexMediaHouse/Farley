@@ -172,9 +172,7 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
       {/* Referral Registration */}
       {isSub && (
         <div className="mt-8 animate-[fadeSlide_0.3s_ease-out]">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">
-            Subcontractor Referral Registration
-          </p>
+
 
           <div className="space-y-5">
             <div>
@@ -191,22 +189,6 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
                 <p className={errorText}>{errors.fullName}</p>
               )}
             </div>
-
-            <div>
-              <label className={lbl}>
-                Company Name{req()}
-              </label>
-              <input
-                className={inp}
-                placeholder="Company name"
-                value={data.companyName}
-                onChange={(e) => set("companyName", e.target.value)}
-              />
-              {errors.companyName && (
-                <p className={errorText}>{errors.companyName}</p>
-              )}
-            </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={lbl}>
