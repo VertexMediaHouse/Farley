@@ -13,12 +13,17 @@ import type { PaintColor } from './paintexplorer/types';
 export function evalCondition(cond: Condition, values: AreaValues): boolean {
   const raw = values[cond.field];
   const val = typeof raw === 'string' ? raw : '';
-  if (cond.is !== undefined) return val === cond.is;
-  if (cond.not !== undefined) return val !== cond.not;
-  if (cond.notNo) return val !== 'No' && val !== '';
-  if (cond.in) return cond.in.includes(val);
-  if (cond.notIn) return val !== '' && !cond.notIn.includes(val);
-  return true;
+  let result = true;
+  if (cond.is !== undefined) result = val === cond.is;
+  else if (cond.not !== undefined) result = val !== cond.not;
+  else if (cond.notNo) result = val !== 'No' && val !== '';
+  else if (cond.in) result = cond.in.includes(val);
+  else if (cond.notIn) result = val !== '' && !cond.notIn.includes(val);
+  // Evaluate chained AND condition
+  if (result && cond.and) {
+    result = evalCondition(cond.and, values);
+  }
+  return result;
 }
 
 export function validateConfig(config: QuestionConfig[], values: AreaValues): Record<string, string> {
@@ -425,6 +430,28 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
           {cats.find(c => c.size === activeSize)?.products.map(p => {
             const isSelected = value === p.url || value === p.name;
             const lftPrice = pricePerLft(productPrices, p.url);
+
+            if (p.name === 'None of the above') {
+              return (
+                <div
+                  key={p.url}
+                  onClick={() => onChange(p.url)}
+                  className={`relative col-span-1 sm:col-span-2 flex h-auto cursor-pointer items-center justify-between overflow-hidden rounded-xl border-2 bg-white p-4 transition-all duration-200 hover:shadow-md ${isSelected ? 'border-[#2F9BF0] shadow-md ring-4' : 'border-slate-200 hover:border-[#2F9BF0]/40'}`}
+                >
+                  <span className="text-sm font-semibold text-slate-700">{p.name}</span>
+                  <input
+                    type="radio"
+                    name={q.id}
+                    value={p.url}
+                    checked={isSelected}
+                    onChange={() => onChange(p.url)}
+                    className="h-5 w-5 transition-transform cursor-pointer"
+                    style={{ transform: isSelected ? 'scale(1.15)' : 'scale(1)' }}
+                  />
+                </div>
+              );
+            }
+
             return (
               <div
                 key={p.url}

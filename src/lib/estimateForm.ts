@@ -143,7 +143,7 @@ export async function submitEstimate(
   ];
   const thumbnails = allFiles.length > 0 ? await generateThumbnails(allFiles) : [];
   
-  localStorage.setItem(ESTIMATE_RESULT_KEY, JSON.stringify({ answers: formData, estimate: result, thumbnails }));
+  localStorage.setItem(ESTIMATE_RESULT_KEY, JSON.stringify({ answers: formData, estimate: result, thumbnails, contact }));
   window.open('/estimate', '_blank');
   localStorage.removeItem(ESTIMATE_DRAFT_KEY);
 }

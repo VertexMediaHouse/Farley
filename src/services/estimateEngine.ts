@@ -293,6 +293,24 @@ export function calculateEstimate(
       haulAwayNeeded = true;
     }
 
+    if (demolitionSelections.includes('Wallpaper Removal')) {
+      const wallpaperSqft = safeParseFloat(formData.drywall_wallpaper_sqft);
+      const WALLPAPER_RATE = 5.20;
+      if (wallpaperSqft > 0) {
+        laborItems.push({
+          name: 'Wallpaper Removal',
+          quantity: Math.round(wallpaperSqft),
+          unit: 'sqft',
+          unitPrice: WALLPAPER_RATE,
+          total: wallpaperSqft * WALLPAPER_RATE,
+        });
+        haulAwayNeeded = true;
+      } else {
+        isPendingReview = true;
+        followUpQuestions.push('Wallpaper removal selected — please provide sqft to confirm pricing.');
+      }
+    }
+
     if (haulAwayNeeded) {
       additionalCharges.push({
         name: 'Haul Away — Demo Debris',

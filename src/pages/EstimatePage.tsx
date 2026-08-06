@@ -2,6 +2,19 @@ import { useEffect, useState } from 'react'
 import type { EstimateResult, LineItem } from '../lib/estimate'
 import { Link } from 'react-router-dom'
 
+interface ContactInfo {
+  fullName?: string;
+  companyName?: string;
+  phoneNumber?: string;
+  emailAddress?: string;
+  clientName?: string;
+  clientAddress?: string;
+  clientEmail?: string;
+  clientPhone?: string;
+  isCommercial?: string;
+  isSubcontractor?: string;
+}
+
 interface EstimateData {
   answers: {
     has_photos: string;
@@ -14,17 +27,34 @@ interface EstimateData {
       paint: boolean;
       trim: boolean;
     };
-    paintColorExplorer: string;
+    paintColorExplorer?: string;
   };
   estimate: EstimateResult;
   thumbnails?: string[];
+  contact?: ContactInfo;
 }
 const BASE_SERVICE_FEE_MIN = 1250;
+
+interface GroupedEntry {
+  item: LineItem;
+  idx: number;
+}
+
+function groupByArea(lineItems: LineItem[]): Record<string, GroupedEntry[]> {
+  const groups: Record<string, GroupedEntry[]> = {};
+  lineItems.forEach((item, idx) => {
+    if (!groups[item.area]) groups[item.area] = [];
+    groups[item.area].push({ item, idx });
+  });
+  return groups;
+}
 
 export default function EstimatePage() {
   const [data, setData] = useState<EstimateData | null>(null)
   const [editedItems, setEditedItems] = useState<LineItem[] | null>(null)
-  
+  const [isEditing, setIsEditing] = useState(false)
+
+
   useEffect(() => {
     try {
       const stored = localStorage.getItem('fcd_estimate_data')
@@ -43,7 +73,7 @@ export default function EstimatePage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
-  
+
   if (!data) {
     return (
       <div className="estimate-error-container" style={{
@@ -70,7 +100,7 @@ export default function EstimatePage() {
   }
 
   const { answers, estimate, thumbnails } = data
-  
+
   // Guard against malformed / partial estimate objects
   if (!estimate || !Array.isArray(estimate.lineItems) || typeof estimate.subtotal !== 'number') {
     return (
@@ -99,6 +129,40 @@ export default function EstimatePage() {
 
   // Fall back to the original items until the edited copy is initialized
   const items = editedItems ?? estimate.lineItems;
+
+  const updateQuantity = (idx: number, value: string) => {
+    const q = parseFloat(value);
+    setEditedItems(prev => {
+      if (!prev) return prev;
+      const copy = [...prev];
+      const item = copy[idx];
+      if (item.rate != null && !isNaN(q) && q >= 0) {
+        copy[idx] = { ...item, quantity: q, amount: q * item.rate };
+      }
+      return copy;
+    });
+  };
+
+  const projectItems = items.filter(i => i.area === 'Project');
+  const resetToOriginal = () => {
+    setEditedItems(estimate.lineItems.map(i => ({ ...i })));
+  };
+
+  const resetArea = (areaName: string) => {
+    setEditedItems(prev => {
+      if (!prev) return prev;
+      const withoutArea = prev.filter(i => i.area !== areaName);
+      const originalArea = estimate.lineItems.filter(i => i.area === areaName).map(i => ({ ...i }));
+      const combined = [...withoutArea, ...originalArea];
+
+      // Preserve the original area grouping order
+      const areaOrder = Array.from(new Set(estimate.lineItems.map(i => i.area)));
+      combined.sort((a, b) => areaOrder.indexOf(a.area) - areaOrder.indexOf(b.area));
+
+      return combined;
+    });
+  };
+
   const outOfStockItems = items.filter(item => item.isOutOfStock);
   const isPendingReview = outOfStockItems.length > 0;
   const followUpQuestions = outOfStockItems.map(
@@ -108,8 +172,11 @@ export default function EstimatePage() {
   const liveSubtotal = items.reduce((sum, i) => sum + (i.isOutOfStock ? 0 : i.amount), 0);
   // TRUE MINIMUM: $1250 floor. If work < $1250, total = $1250.
   // Once work exceeds $1250, the minimum cancels out and the actual price is shown.
+  const baseServiceFee = liveSubtotal < BASE_SERVICE_FEE_MIN ? BASE_SERVICE_FEE_MIN - liveSubtotal : 0;
   const grandTotal = Math.max(liveSubtotal, BASE_SERVICE_FEE_MIN);
 
+  const groupedItems = groupByArea(items);
+  const isEdited = editedItems !== null &&
     JSON.stringify(editedItems) !== JSON.stringify(estimate.lineItems);
 
   return (
@@ -219,6 +286,65 @@ export default function EstimatePage() {
             </div>
           </div>
 
+          {/* Client & Project Info */}
+          {data.contact && (
+            <div className="estimate-client-info" style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+              gap: '24px',
+              borderBottom: '1px solid #e2e8f0',
+              paddingBottom: '24px',
+              marginBottom: '30px'
+            }}>
+              {/* Prepared For */}
+              <div>
+                <h3 style={{
+                  margin: '0 0 10px 0',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  color: '#94a3b8'
+                }}>Prepared For</h3>
+                <p style={{ margin: '0 0 4px 0', fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>
+                  {data.contact.clientName || data.contact.fullName || '—'}
+                </p>
+                {data.contact.companyName && (
+                  <p style={{ margin: '0 0 4px 0', fontSize: '0.9rem', color: '#475569' }}>
+                    {data.contact.companyName}
+                  </p>
+                )}
+                {(data.contact.clientPhone || data.contact.phoneNumber) && (
+                  <p style={{ margin: '0 0 4px 0', fontSize: '0.88rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>📞</span> {data.contact.clientPhone || data.contact.phoneNumber}
+                  </p>
+                )}
+                {(data.contact.clientEmail || data.contact.emailAddress) && (
+                  <p style={{ margin: 0, fontSize: '0.88rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>✉️</span> {data.contact.clientEmail || data.contact.emailAddress}
+                  </p>
+                )}
+              </div>
+
+              {/* Project Site */}
+              {(data.contact.clientAddress || answers.address) && (
+                <div>
+                  <h3 style={{
+                    margin: '0 0 10px 0',
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: '#94a3b8'
+                  }}>Project Site</h3>
+                  <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: '#0f172a', lineHeight: 1.5 }}>
+                    📍 {data.contact.clientAddress || answers.address}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Pending Review / Photo Warnings / Follow-Up Questions Banner */}
           {isPendingReview && (
             <div className="estimate-pending-review-banner" style={{
@@ -306,7 +432,63 @@ export default function EstimatePage() {
             )}
           </div>
 
-
+          {/* Edit Mode Notice (hidden on print) */}
+          <div className="no-print" style={{
+            background: '#eff6ff',
+            border: '1px solid #bfdbfe',
+            borderRadius: '10px',
+            padding: '14px 18px',
+            marginBottom: '20px',
+            fontSize: '0.85rem',
+            color: '#1e40af',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '10px'
+          }}>
+            <span>
+              {isEditing
+                ? "✏️ Editing enabled. Adjust measurements or remove items — totals update automatically."
+                : "🔒 This estimate is locked. Click Edit Estimate to make changes."}
+            </span>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              {isEditing && isEdited && (
+                <button
+                  type="button"
+                  onClick={resetToOriginal}
+                  style={{
+                    border: '1px solid #93c5fd',
+                    background: '#ffffff',
+                    color: '#1e40af',
+                    borderRadius: '6px',
+                    padding: '6px 12px',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Reset to original
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsEditing(v => !v)}
+                style={{
+                  border: isEditing ? '1px solid #1e40af' : '1px solid #93c5fd',
+                  background: isEditing ? '#1e40af' : '#ffffff',
+                  color: isEditing ? '#ffffff' : '#1e40af',
+                  borderRadius: '6px',
+                  padding: '6px 12px',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                {isEditing ? 'Done editing' : 'Edit Estimate ✏️'}
+              </button>
+            </div>
+          </div>
 
           {/* Tables Breakdowns */}
           <div className="estimate-tables-container" style={{ display: 'flex', flexDirection: 'column', gap: '35px' }}>
@@ -320,7 +502,170 @@ export default function EstimatePage() {
               gap: '14px',
               marginTop: '15px'
             }}>
+              <div className="final-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#64748b' }}>
+                <span>Subtotal (All Items):</span>
+                <span style={{ fontWeight: 700, color: '#0f172a' }}>${liveSubtotal.toFixed(2)}</span>
+              </div>
+              {baseServiceFee > 0 && (
+                <div className="final-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#64748b' }}>
+                  <span>Minimum Job Charge (Floor $1,250):</span>
+                  <span style={{ fontWeight: 700, color: '#0f172a' }}>${baseServiceFee.toFixed(2)}</span>
+                </div>
+              )}
+              {projectItems.map((item, i) => (
+                <div key={`project-${i}`} className="final-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#64748b' }}>
+                  <span>{item.label}{item.detail ? ` (${item.detail})` : ''}:</span>
+                  <span style={{ fontWeight: 700, color: '#0f172a' }}>${item.amount.toFixed(2)}</span>
+                </div>
+              ))}
 
+              {/* Line Items grouped by Area — amounts read-only, removable */}
+              {Object.entries(groupedItems)
+                .filter(([areaName]) => areaName !== 'Project')
+                .map(([areaName, entries]) => {
+                  // Check if this specific area has been modified
+                  const originalAreaItems = estimate.lineItems.filter(i => i.area === areaName);
+                  const currentAreaItems = entries.map(e => e.item);
+                  const isAreaEdited = JSON.stringify(originalAreaItems) !== JSON.stringify(currentAreaItems);
+
+                  return (
+                    <div key={areaName}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
+                        <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#0f172a' }}>{areaName}</h3>
+                        {isEditing && isAreaEdited && (
+                          <button
+                            type="button"
+                            onClick={() => resetArea(areaName)}
+                            className="no-print"
+                            style={{
+                              border: '1px solid #93c5fd',
+                              background: '#ffffff',
+                              color: '#1e40af',
+                              borderRadius: '6px',
+                              padding: '4px 8px',
+                              fontSize: '0.75rem',
+                              fontWeight: 600,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Reset Area
+                          </button>
+                        )}
+                      </div>
+                      <table
+                        style={{
+                          width: '100%',
+                          borderCollapse: 'collapse',
+                          tableLayout: 'fixed',
+                          marginTop: '8px'
+                        }}
+                      >
+                        <colgroup>
+                          <col style={{ width: '68%' }} />
+                          <col style={{ width: '32%' }} />
+                        </colgroup>
+
+                        <thead>
+                          <tr style={{ background: '#f1f5f9' }}>
+                            <th
+                              style={{
+                                textAlign: 'left',
+                                padding: '8px',
+                                fontWeight: 700
+                              }}
+                            >
+                              Description
+                            </th>
+                            <th
+                              style={{
+                                textAlign: 'right',
+                                padding: '8px',
+                                fontWeight: 700
+                              }}
+                            >
+                              Detail
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {entries.map(({ item, idx }) => (
+                            <tr
+                              key={idx}
+                              style={{
+                                borderBottom: '1px solid #e2e8f0'
+                              }}
+                            >
+                              <td
+                                style={{
+                                  padding: '8px',
+                                  verticalAlign: 'middle'
+                                }}
+                              >
+                                {item.label}
+                              </td>
+
+                              <td
+                                style={{
+                                  padding: '8px',
+                                  verticalAlign: 'middle',
+                                  textAlign: 'right'
+                                }}
+                              >
+                                {item.isOutOfStock ? (
+                                  <span style={{ color: '#b45309', fontWeight: 700 }}>
+                                    {item.detail}
+                                  </span>
+                                ) : item.unit ? (
+                                  <div
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'flex-end',
+                                      gap: '6px'
+                                    }}
+                                  >
+                                    {isEditing ? (
+                                      <input
+                                        type="number"
+                                        step="1"
+                                        min="1"
+                                        value={item.quantity}
+                                        onChange={e => updateQuantity(idx, e.target.value)}
+                                        style={{
+                                          width: '70px',
+                                          textAlign: 'right',
+                                          border: '1px solid #e2e8f0',
+                                          borderRadius: '4px',
+                                          padding: '4px 6px',
+                                          fontSize: '0.9rem',
+                                          fontFamily: 'inherit'
+                                        }}
+                                      />
+                                    ) : (
+                                      <span style={{ fontWeight: 600 }}>{item.quantity}</span>
+                                    )}
+
+                                    <span
+                                      style={{
+                                        fontSize: '0.9rem',
+                                        color: '#64748b'
+                                      }}
+                                    >
+                                      {item.unit}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <span>{item.detail}</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                })}
 
               <div className="final-row grand-total-row" style={{
                 display: 'flex',
@@ -335,7 +680,7 @@ export default function EstimatePage() {
                 <span style={{ fontSize: '1.6rem', color: '#2faeff', fontWeight: 900 }}>${grandTotal.toFixed(2)}</span>
               </div>
             </div>
-            
+
 
             {/* Render Thumbnails if available */}
             {thumbnails && thumbnails.length > 0 && (
@@ -351,11 +696,11 @@ export default function EstimatePage() {
                 </h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
                   {thumbnails.map((src, i) => (
-                    <div key={i} style={{ 
-                      width: '120px', 
-                      height: '120px', 
-                      borderRadius: '8px', 
-                      overflow: 'hidden', 
+                    <div key={i} style={{
+                      width: '120px',
+                      height: '120px',
+                      borderRadius: '8px',
+                      overflow: 'hidden',
                       border: '1px solid #cbd5e1',
                       background: '#fff'
                     }}>

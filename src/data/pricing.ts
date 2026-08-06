@@ -190,6 +190,7 @@ export const DEMOLITION_SQFT: Record<string, number> = {
   'Remove Existing Ceiling Drywall': 2.50,
   'Remove Existing wall Insulation': 1.50,
   'Remove existing ceiling Insulation': 2.00,
+  'Wallpaper Removal': 5.20,
 };
 
 // -- Demolition (linear ft items) --

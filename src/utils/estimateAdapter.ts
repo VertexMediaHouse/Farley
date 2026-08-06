@@ -27,6 +27,7 @@ export function adaptV2ToV1Estimate(
   let cornerMetal: string[] = [];
   let cornerCount = 0;
   let popcornSqft = 0;
+  let wallpaperSqft = 0;
   
   drywall.forEach(area => {
     const type = area.repairType;
@@ -45,6 +46,7 @@ export function adaptV2ToV1Estimate(
     if (demo === 'Remove Existing Wall Insulation' || demo === 'Remove Existing Ceiling Insulation') demoInsSqft += demoSqft;
     if (demo === 'Baseboard') demoBaseFt += demoFt;
     if (demo === 'Popcorn Ceiling Scraping') popcornSqft += demoSqft;
+    if (demo === 'Wallpaper Removal') wallpaperSqft += demoSqft;
     
     if (area.texture && !hasTexture) hasTexture = area.texture;
     if (area.needInsulation && area.needInsulation !== 'No') insulation = true;
@@ -70,12 +72,14 @@ export function adaptV2ToV1Estimate(
   if (demoInsSqft > 0) demoArr.push('Remove Insulation (sqft)');
   if (demoBaseFt > 0) demoArr.push('Remove Base Board (linear ft)');
   if (popcornSqft > 0) demoArr.push('Popcorn Ceiling Removal');
+  if (wallpaperSqft > 0) demoArr.push('Wallpaper Removal');
   formData.drywall_demolition = demoArr;
   formData.drywall_demo_wall_sqft = demoWallSqft;
   formData.drywall_demo_ceiling_sqft = demoCeilSqft;
   formData.drywall_demo_insulation_sqft = demoInsSqft;
   formData.drywall_demo_baseboard_ft = demoBaseFt;
   formData.drywall_popcorn_sqft = popcornSqft;
+  formData.drywall_wallpaper_sqft = wallpaperSqft;
 
   if (insulation) formData.drywall_insulation = 'Yes';
   if (cornerMetal.length > 0) {
@@ -88,21 +92,27 @@ export function adaptV2ToV1Estimate(
   let baseboardFeet = 0;
   let casingFeet = 0;
   let trimMaterialPrice = 0;
+  let clientProvidedTrim = false;
   trim.forEach(area => {
     const bf = parseFloat(area.baseboardLinearFeet) || 0;
     const cf = parseFloat(area.casingLinearFeet) || 0;
     baseboardFeet += bf;
     casingFeet += cf;
-    const url = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
-    const rate = url ? pricePerLft(productPrices, url) : null;
-    if (rate != null) {
-      if (bf > 0) trimMaterialPrice = rate;
-      else if (cf > 0) trimMaterialPrice = rate;
+    if (area.clientProvidedTrim === 'Yes') clientProvidedTrim = true;
+    // Only look up catalog material price if client is NOT providing trim
+    if (!clientProvidedTrim) {
+      const url = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
+      const rate = url ? pricePerLft(productPrices, url) : null;
+      if (rate != null) {
+        if (bf > 0) trimMaterialPrice = rate;
+        else if (cf > 0) trimMaterialPrice = rate;
+      }
     }
   });
   formData.trim_base_linear_feet = baseboardFeet;
   formData.trim_casing_linear_feet = casingFeet;
   if (trimMaterialPrice > 0) formData.trim_base_price = trimMaterialPrice;
+  if (clientProvidedTrim) formData.trim_client_provided = true;
   if (baseboardFeet > 0 || casingFeet > 0) {
      formData.trim_services = 'install new baseboard'; // default to install
   }

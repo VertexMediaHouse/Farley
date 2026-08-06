@@ -21,6 +21,8 @@ export interface Condition {
   in?: string[];
   /** Show when field value is NOT one of these */
   notIn?: string[];
+  /** Additional condition that must also be true (logical AND) */
+  and?: Condition;
 }
 
 export type FieldType =

@@ -506,6 +506,7 @@ export default function EstimateWizard() {
           'Remove Insulation (sqft)',
           'Remove Base Board (linear ft)',
           'Remove Popcorn Ceiling',
+          'Wallpaper Removal',
         ],
       })
 
@@ -1645,6 +1646,7 @@ export default function EstimateWizard() {
                           'Remove Insulation (sqft)': { id: 'drywall_demo_insulation_sqft', title: 'Remove Insulation (sqft)', placeholder: 'e.g. 100' },
                           'Remove Base Board (linear ft)': { id: 'drywall_demo_baseboard_ft', title: 'Remove Base Board (linear ft)', placeholder: 'e.g. 40' },
                           'Remove Popcorn Ceiling': { id: 'drywall_popcorn_sqft', title: 'Remove Popcorn Ceiling (sqft) - Base rate $300', placeholder: 'e.g. 150' },
+                          'Wallpaper Removal': { id: 'drywall_wallpaper_sqft', title: 'Wallpaper Removal (sqft) — $5.20/sqft', placeholder: 'e.g. 200' },
                         }
                         const field = map[item]
                         if (!field) return null
