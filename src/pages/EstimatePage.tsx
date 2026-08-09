@@ -666,8 +666,8 @@ export default function EstimatePage() {
                       </table>
 
                       {/* Paint color swatch — only shown for Paint Area rows */}
-                      {areaName.toLowerCase().includes('paint') && answers.paintColorExplorer && (() => {
-                        const hex = answers.paintColorExplorer_hex;
+                      {areaName.toLowerCase().includes('paint') && paintColorLabel && (() => {
+                        const hex = paintColorHex;
                         // Compute luminance to decide text color
                         let textColor = '#0f172a';
                         let labelColor = 'rgba(0,0,0,0.5)';
@@ -702,7 +702,7 @@ export default function EstimatePage() {
                             }} />
                             <div>
                               <div style={{ fontSize: '0.68rem', fontWeight: 700, color: labelColor, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Selected Paint Color</div>
-                              <div style={{ fontSize: '1rem', fontWeight: 800, color: textColor, marginTop: '2px', letterSpacing: '0.01em' }}>{answers.paintColorExplorer}</div>
+                              <div style={{ fontSize: '1rem', fontWeight: 800, color: textColor, marginTop: '2px', letterSpacing: '0.01em' }}>{paintColorLabel}</div>
                               {hex && <div style={{ fontSize: '0.72rem', fontWeight: 600, color: labelColor, marginTop: '2px', fontFamily: 'monospace' }}>{hex.toUpperCase()}</div>}
                             </div>
                           </div>

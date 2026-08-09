@@ -248,7 +248,7 @@ export default function PaintExplorer({ selected, onSelect }: PaintExplorerProps
             </div>
             <div className="overflow-x-auto pb-8 pl-1 pt-1">
               <ShadeStep
-                family={activeFamily.toLowerCase()}
+                family={activeFamily?.toLowerCase() || ''}
                 brand={activeBrandFilter === 'All brands' ? 'All' : activeBrandFilter === 'Glidden' ? 'PPG - Glidden' : activeBrandFilter}
                 selectedShade={activeShade}
                 onSelectShade={handleShadeSelect}
