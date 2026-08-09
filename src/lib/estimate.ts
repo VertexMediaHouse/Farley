@@ -251,7 +251,9 @@ export function calculateEstimate(
       const lft = parseFloat(area.baseboardLinearFeet) || 0;
       if (lft > 0) {
         const catalogUrl = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
-        const materialRate = catalogUrl ? pricePerLft(productPrices, catalogUrl) : null;
+        const userEnteredPrice = parseFloat(area.baseboardCatalog_userPrice) || 0;
+        const serverRate = catalogUrl ? pricePerLft(productPrices, catalogUrl) : null;
+        const materialRate = userEnteredPrice > 0 ? userEnteredPrice : serverRate;
         const height = area.baseboardHeight || '6';
         const heightKey = String(parseInt(height) || 6);
         const laborRate = PRICING.trim.baseboard[heightKey] ?? 5.00;
@@ -259,7 +261,7 @@ export function calculateEstimate(
           addItem(areaName, 'Trim: Baseboard labor', `${lft} lft`, lft * laborRate, {
             quantity: lft, rate: laborRate, unit: 'lft',
           });
-          if (materialRate != null) {
+          if (materialRate != null && materialRate > 0) {
             addItem(areaName, 'Trim: Baseboard material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate, {
               quantity: lft, rate: materialRate, unit: 'lft',
             });
@@ -267,7 +269,7 @@ export function calculateEstimate(
             lineItems.push({
               area: areaName,
               label: 'Trim: Baseboard material',
-              detail: 'Out of stock',
+              detail: 'Price not entered',
               amount: 0,
               isOutOfStock: true
             });
@@ -284,13 +286,15 @@ export function calculateEstimate(
       const lft = parseFloat(area.casingLinearFeet) || 0;
       if (lft > 0) {
         const catalogUrl = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
-        const materialRate = catalogUrl ? pricePerLft(productPrices, catalogUrl) : null;
+        const userEnteredPrice = parseFloat(area.baseboardCatalog_userPrice) || 0;
+        const serverRate = catalogUrl ? pricePerLft(productPrices, catalogUrl) : null;
+        const materialRate = userEnteredPrice > 0 ? userEnteredPrice : serverRate;
         const laborRate = PRICING.trim.doorCasing;
         if (catalogUrl) {
           addItem(areaName, 'Trim: Casing labor', `${lft} lft`, lft * laborRate, {
             quantity: lft, rate: laborRate, unit: 'lft',
           });
-          if (materialRate != null) {
+          if (materialRate != null && materialRate > 0) {
             addItem(areaName, 'Trim: Casing material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate, {
               quantity: lft, rate: materialRate, unit: 'lft',
             });
@@ -298,7 +302,7 @@ export function calculateEstimate(
             lineItems.push({
               area: areaName,
               label: 'Trim: Casing material',
-              detail: 'Out of stock',
+              detail: 'Price not entered',
               amount: 0,
               isOutOfStock: true
             });

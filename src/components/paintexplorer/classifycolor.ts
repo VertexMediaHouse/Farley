@@ -156,7 +156,12 @@ export function classifyColor(raw: RawPaintColor): PaintColor | null {
   if (!raw.hex || !raw.rgb || raw.rgb.length < 3 || !raw.name) return null;
   const [r, g, b] = raw.rgb;
   const hsl = rgbToHsl(r, g, b);
-  const family = classifyFamily(hsl);
+  
+  let family = classifyFamily(hsl);
+  if (raw.family && typeof raw.family === 'string') {
+    family = raw.family.charAt(0).toUpperCase() + raw.family.slice(1).toLowerCase();
+  }
+  
   const shade = classifyShade(family, hsl);
   return {
     name: raw.name,

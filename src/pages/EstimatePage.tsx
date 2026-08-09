@@ -28,6 +28,7 @@ interface EstimateData {
       trim: boolean;
     };
     paintColorExplorer?: string;
+    paintColorExplorer_hex?: string;
   };
   estimate: EstimateResult;
   thumbnails?: string[];
@@ -178,6 +179,14 @@ export default function EstimatePage() {
   const groupedItems = groupByArea(items);
   const isEdited = editedItems !== null &&
     JSON.stringify(editedItems) !== JSON.stringify(estimate.lineItems);
+
+  // Decode paint color: stored as "Name (Number)|#hex" or separately in paintColorExplorer_hex
+  // (supports both new pipe-encoded format and legacy split format)
+  const rawPaintColor = answers.paintColorExplorer ?? '';
+  const [paintColorLabel, paintColorHexFromLabel] = rawPaintColor.includes('|')
+    ? rawPaintColor.split('|').map((s: string) => s.trim())
+    : [rawPaintColor, undefined];
+  const paintColorHex = paintColorHexFromLabel ?? answers.paintColorExplorer_hex;
 
   return (
     <div className="estimate-page-wrapper" style={{
@@ -422,14 +431,6 @@ export default function EstimatePage() {
                   .join(', ') || 'None Selected'}
               </span>
             </div>
-            {answers.paintColorExplorer && (
-              <div>
-                <strong style={{ display: 'block', fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Selected Paint Color:</strong>
-                <span style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a' }}>
-                  {answers.paintColorExplorer}
-                </span>
-              </div>
-            )}
           </div>
 
           {/* Edit Mode Notice (hidden on print) */}
@@ -663,6 +664,50 @@ export default function EstimatePage() {
                           ))}
                         </tbody>
                       </table>
+
+                      {/* Paint color swatch — only shown for Paint Area rows */}
+                      {areaName.toLowerCase().includes('paint') && answers.paintColorExplorer && (() => {
+                        const hex = answers.paintColorExplorer_hex;
+                        // Compute luminance to decide text color
+                        let textColor = '#0f172a';
+                        let labelColor = 'rgba(0,0,0,0.5)';
+                        if (hex) {
+                          const r = parseInt(hex.slice(1, 3), 16) / 255;
+                          const g = parseInt(hex.slice(3, 5), 16) / 255;
+                          const b = parseInt(hex.slice(5, 7), 16) / 255;
+                          const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+                          if (lum < 0.45) { textColor = '#ffffff'; labelColor = 'rgba(255,255,255,0.65)'; }
+                        }
+                        return (
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '14px',
+                            marginTop: '10px',
+                            padding: '14px 16px',
+                            background: hex ?? '#f8fafc',
+                            border: `1px solid ${hex ? 'transparent' : '#e2e8f0'}`,
+                            borderRadius: '10px',
+                            boxShadow: hex ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
+                          }}>
+                            {/* Color circle */}
+                            <div style={{
+                              width: '40px',
+                              height: '40px',
+                              borderRadius: '50%',
+                              background: hex ?? '#e2e8f0',
+                              border: '3px solid rgba(255,255,255,0.55)',
+                              flexShrink: 0,
+                              boxShadow: '0 1px 6px rgba(0,0,0,0.18)',
+                            }} />
+                            <div>
+                              <div style={{ fontSize: '0.68rem', fontWeight: 700, color: labelColor, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Selected Paint Color</div>
+                              <div style={{ fontSize: '1rem', fontWeight: 800, color: textColor, marginTop: '2px', letterSpacing: '0.01em' }}>{answers.paintColorExplorer}</div>
+                              {hex && <div style={{ fontSize: '0.72rem', fontWeight: 600, color: labelColor, marginTop: '2px', fontFamily: 'monospace' }}>{hex.toUpperCase()}</div>}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 })}

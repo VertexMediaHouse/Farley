@@ -159,9 +159,11 @@ function Field({
         <Label />
         <PaintExplorer
           selected={val}
-          onSelect={(color: PaintColor) =>
-            onChange(q.id, `${color.name} (${color.number})`)
-          }
+          onSelect={(color: PaintColor) => {
+            // Encode hex into the value so only ONE onChange call is needed,
+            // avoiding the stale-closure race condition of two sequential setState calls.
+            onChange(q.id, `${color.name} (${color.number})|${color.hex}`);
+          }}
         />
         {err && <p className={errorText}>{err}</p>}
       </div>
@@ -169,7 +171,16 @@ function Field({
   }
 
   if (q.type === 'catalogDropdown') {
-    return <CatalogSelector q={q} value={val} onChange={v => onChange(q.id, v)} />;
+    const userPrice = (values[`${q.id}_userPrice`] ?? '') as string;
+    return (
+      <CatalogSelector
+        q={q}
+        value={val}
+        onChange={v => onChange(q.id, v)}
+        userPrice={userPrice}
+        onPriceChange={v => onChange(`${q.id}_userPrice`, v)}
+      />
+    );
   }
 
   if (q.type === 'dropdown') {
@@ -395,11 +406,22 @@ function MultiUpload({ files, onChange }: { files: File[]; onChange: (f: File[])
 
 // ─── Catalog selector ────────────────────────────────────────────────────────
 
-function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: string; onChange: (v: string) => void }) {
+function CatalogSelector({ q, value, onChange, userPrice, onPriceChange }: {
+  q: QuestionConfig;
+  value: string;
+  onChange: (v: string) => void;
+  userPrice?: string;
+  onPriceChange?: (v: string) => void;
+}) {
   const [activeSize, setActiveSize] = useState('');
   const productPrices = useProductPrices();
   const cats = q.catalog ?? [];
   const [previewImage, setPreviewImage] = useState<{ url: string; name: string } | null>(null);
+
+  // Find the selected product name for the note
+  const selectedProduct = value
+    ? cats.flatMap(c => c.products).find(p => p.url === value || p.name === value)
+    : null;
 
   const pill = (on: boolean) =>
     `rounded-full px-4 py-1.5 text-sm font-semibold transition-all ${on ? 'bg-[#2F9BF0] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -533,11 +555,49 @@ function CatalogSelector({ q, value, onChange }: { q: QuestionConfig; value: str
       )}
 
       {value && (
-        <div className="mt-4 rounded-lg bg-[#2F9BF0]/5 px-4 py-3 border border-[#2F9BF0]/10 flex items-center gap-2">
-          <svg className="h-5 w-5 text-[#2F9BF0]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          <p className="text-sm font-medium text-slate-700">Selected: <span className="font-bold text-[#2F9BF0]"><a href={value}>{value}</a></span></p>
+        <div className="mt-4 rounded-xl border border-[#2F9BF0]/20 bg-gradient-to-br from-blue-50 to-white p-5 space-y-4">
+          {/* Check icon + selected indicator */}
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#2F9BF0]">
+              <svg className="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div className="flex flex-col gap-1">
+              {selectedProduct && (
+                <p className="text-sm font-bold text-slate-800">{selectedProduct.name}</p>
+              )}
+              <p className="text-sm text-slate-600">
+                Please visit:{' '}
+                <a
+                  href={value}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-[#2F9BF0] underline decoration-[#2F9BF0]/30 underline-offset-2 transition hover:decoration-[#2F9BF0] break-all"
+                >
+                  {value}
+                </a>
+              </p>
+              <p className="text-xs font-medium text-slate-500">and enter price below</p>
+            </div>
+          </div>
+
+          {/* Price input */}
+          <div className="flex items-center gap-3 pl-9">
+            <div className="relative flex-1 max-w-xs">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">$</span>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                value={userPrice ?? ''}
+                onChange={e => onPriceChange?.(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-7 pr-14 text-sm font-semibold text-slate-800 shadow-sm transition focus:border-[#2F9BF0] focus:outline-none focus:ring-2 focus:ring-[#2F9BF0]/20"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">per piece</span>
+            </div>
+          </div>
         </div>
       )}
 

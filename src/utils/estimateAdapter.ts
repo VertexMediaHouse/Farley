@@ -102,7 +102,8 @@ export function adaptV2ToV1Estimate(
     // Only look up catalog material price if client is NOT providing trim
     if (!clientProvidedTrim) {
       const url = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
-      const rate = url ? pricePerLft(productPrices, url) : null;
+      const userPrice = parseFloat(area.baseboardCatalog_userPrice) || 0;
+      const rate = userPrice > 0 ? userPrice : (url ? pricePerLft(productPrices, url) : null);
       if (rate != null) {
         if (bf > 0) trimMaterialPrice = rate;
         else if (cf > 0) trimMaterialPrice = rate;
@@ -139,6 +140,15 @@ export function adaptV2ToV1Estimate(
   if (paintTrimFt > 0) paintTrimArr.push('Trim');
   formData.paint_trim_area = paintTrimArr;
   formData.paint_trim_linear_ft = paintTrimFt;
+
+  // Extract the selected paint color, if any.
+  // Value is stored as "Name (Number)|#hex" — split on pipe to get label and hex separately.
+  const rawPaintColor = paint.find(area => area.paintColorExplorer)?.paintColorExplorer as string | undefined;
+  if (rawPaintColor) {
+    const [label, hex] = rawPaintColor.split('|');
+    formData.paintColorExplorer = label.trim();
+    if (hex) formData.paintColorExplorer_hex = hex.trim();
+  }
 
   return formData;
 }
