@@ -125,6 +125,29 @@ const generateThumbnails = async (files: File[]): Promise<string[]> => {
   );
 };
 
+const generateAreaThumbnails = async (areas: AreaValues[], prefix: string): Promise<Record<string, string[]>> => {
+  const result: Record<string, string[]> = {};
+  for (let i = 0; i < areas.length; i++) {
+    const area = areas[i];
+    const areaName = `${prefix} Area ${i + 1}`;
+    const files: File[] = [];
+    for (const key in area) {
+      const val = area[key];
+      if (Array.isArray(val)) {
+        for (const item of val) {
+          if (item instanceof File) {
+            files.push(item);
+          }
+        }
+      }
+    }
+    if (files.length > 0) {
+      result[areaName] = await generateThumbnails(files);
+    }
+  }
+  return result;
+};
+
 export async function submitEstimate(
   drywall: AreaValues[],
   trim: AreaValues[],
@@ -141,9 +164,21 @@ export async function submitEstimate(
     ...collectFilesFromAreas(trim),
     ...collectFilesFromAreas(paint)
   ];
+  const drywallThumbs = await generateAreaThumbnails(drywall, 'Drywall');
+  const trimThumbs = await generateAreaThumbnails(trim, 'Trim');
+  const paintThumbs = await generateAreaThumbnails(paint, 'Paint');
+  const areaThumbnails = { ...drywallThumbs, ...trimThumbs, ...paintThumbs };
+  
   const thumbnails = allFiles.length > 0 ? await generateThumbnails(allFiles) : [];
   
-  localStorage.setItem(ESTIMATE_RESULT_KEY, JSON.stringify({ answers: formData, estimate: result, thumbnails, contact }));
+  localStorage.setItem(ESTIMATE_RESULT_KEY, JSON.stringify({ 
+    answers: formData, 
+    estimate: result, 
+    thumbnails, 
+    areaThumbnails,
+    rawAreas: { drywall, trim, paint },
+    contact 
+  }));
   window.open('/estimate', '_blank');
   localStorage.removeItem(ESTIMATE_DRAFT_KEY);
 }

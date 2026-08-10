@@ -1443,11 +1443,15 @@ export default function EstimateWizard() {
                         {[
                           { id: 'length', label: 'Room Length (ft)', placeholder: 'e.g. 15' },
                           { id: 'width', label: 'Room Width (ft)', placeholder: 'e.g. 12' },
-                          { id: 'height', label: 'Ceiling Height (ft)', placeholder: 'e.g. 9' },
+                          { id: 'height', label: 'Ceiling Height (ft)', placeholder: 'e.g. 9', max: 12 },
                         ].map((f) => (
                           <div key={f.id} className="input-group">
                             <label htmlFor={f.id} style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>{f.label}</label>
-                            <input id={f.id} type="number" placeholder={f.placeholder} value={(answers as any)[f.id]} onChange={(e) => handleTextChange(f.id, e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }} />
+                            <input id={f.id} type="number" max={f.max} placeholder={f.placeholder} value={(answers as any)[f.id] || ''} onChange={(e) => {
+                              let val = e.target.value;
+                              if (f.max && Number(val) > f.max) val = f.max.toString();
+                              handleTextChange(f.id, val);
+                            }} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }} />
                           </div>
                         ))}
                       </div>
@@ -1712,10 +1716,15 @@ export default function EstimateWizard() {
                             <input
                               id={currentStep.fields.yes.id}
                               type="number"
+                              max={currentStep.fields.yes.id.includes('height') ? 12 : undefined}
                               placeholder={currentStep.fields.yes.placeholder || 'e.g. 10'}
                               className="theme-text-input"
                               value={answers[currentStep.fields.yes.id] || ''}
-                              onChange={(e) => handleTextChange(currentStep.fields.yes.id, e.target.value)}
+                              onChange={(e) => {
+                                let val = e.target.value;
+                                if (currentStep.fields.yes.id.includes('height') && Number(val) > 12) val = '12';
+                                handleTextChange(currentStep.fields.yes.id, val);
+                              }}
                             />
                           )}
                         </div>

@@ -38,6 +38,14 @@ export const paintConfig: QuestionConfig[] = [
     condition: { field: 'paintHasPaint', is: 'No' },
   },
   {
+    id: 'paintSheen',
+    label: 'Paint Sheen',
+    type: 'dropdown',
+    required: true,
+    options: ['', 'Flat', 'Egg shell', 'Satin', 'Semi gloss'],
+    condition: { field: 'paintHasPaint', is: 'No' },
+  },
+  {
     id: 'paintHasPaintNotice',
     label: '',
     type: 'notice',

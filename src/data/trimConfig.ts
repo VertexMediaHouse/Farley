@@ -57,7 +57,7 @@ export const trimConfig: QuestionConfig[] = [
     id: 'clientProvidedNotice',
     label: '',
     type: 'notice',
-    noticeText: 'Since the baseboard/casing will be provided by the client, please ensure the material is on-site before the scheduled installation date. Farley Home Services is not responsible for material defects or shortages in client-provided trim.',
+    noticeText: 'Since the baseboard/casing will be provided by the client, please ensure the material is on-site before the scheduled installation date. FCD Drywall is not responsible for material defects or shortages in client-provided trim.',
     condition: { field: 'clientProvidedTrim', is: 'Yes' },
   },
   {

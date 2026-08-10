@@ -32,6 +32,8 @@ interface EstimateData {
   };
   estimate: EstimateResult;
   thumbnails?: string[];
+  areaThumbnails?: Record<string, string[]>;
+  rawAreas?: any;
   contact?: ContactInfo;
 }
 const BASE_SERVICE_FEE_MIN = 1250;
@@ -513,7 +515,10 @@ export default function EstimatePage() {
                   <span style={{ fontWeight: 700, color: '#0f172a' }}>${baseServiceFee.toFixed(2)}</span>
                 </div>
               )}
-              {projectItems.map((item, i) => (
+              {projectItems.filter(item => {
+                const lower = item.label.toLowerCase();
+                return !lower.includes('trip') && !lower.includes('setup charge');
+              }).map((item, i) => (
                 <div key={`project-${i}`} className="final-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#64748b' }}>
                   <span>{item.label}{item.detail ? ` (${item.detail})` : ''}:</span>
                   <span style={{ fontWeight: 700, color: '#0f172a' }}>${item.amount.toFixed(2)}</span>
@@ -528,6 +533,26 @@ export default function EstimatePage() {
                   const originalAreaItems = estimate.lineItems.filter(i => i.area === areaName);
                   const currentAreaItems = entries.map(e => e.item);
                   const isAreaEdited = JSON.stringify(originalAreaItems) !== JSON.stringify(currentAreaItems);
+
+                  // Look up description and thumbnail
+                  let description = '';
+                  let thumbs: string[] = [];
+                  
+                  if (data?.areaThumbnails && data.areaThumbnails[areaName]) {
+                    thumbs = data.areaThumbnails[areaName];
+                  }
+                  
+                  if (data?.rawAreas) {
+                    const match = areaName.match(/(\w+) Area (\d+)/);
+                    if (match) {
+                      const type = match[1].toLowerCase();
+                      const idx = parseInt(match[2]) - 1;
+                      const areaObj = (data.rawAreas as any)[type]?.[idx];
+                      if (areaObj) {
+                        description = areaObj.repairDescription || areaObj.projectDescription || '';
+                      }
+                    }
+                  }
 
                   return (
                     <div key={areaName}>
@@ -553,6 +578,20 @@ export default function EstimatePage() {
                           </button>
                         )}
                       </div>
+                      
+                      {description && (
+                        <p style={{ margin: '8px 0 16px', fontSize: '0.9rem', color: '#64748b', fontStyle: 'italic' }}>
+                          Description of work: {description}
+                        </p>
+                      )}
+                      
+                      {thumbs.length > 0 && (
+                        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                          {thumbs.map((src, idx) => (
+                            <img key={idx} src={src} alt={`${areaName} photo ${idx + 1}`} style={{ width: '120px', height: '120px', objectFit: 'cover', borderRadius: '6px' }} />
+                          ))}
+                        </div>
+                      )}
                       <table
                         style={{
                           width: '100%',
@@ -727,8 +766,8 @@ export default function EstimatePage() {
             </div>
 
 
-            {/* Render Thumbnails if available */}
-            {thumbnails && thumbnails.length > 0 && (
+            {/* Render Thumbnails if available and not already shown per area */}
+            {thumbnails && thumbnails.length > 0 && (!data?.areaThumbnails || Object.keys(data.areaThumbnails).length === 0) && (
               <div className="estimate-thumbnails-section" style={{
                 marginTop: '15px',
                 padding: '24px',
