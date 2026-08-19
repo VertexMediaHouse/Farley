@@ -25,9 +25,11 @@
 
 html {
   scroll-behavior: smooth;
+  /* Let the browser handle scrollbar-gutter naturally — do NOT set
+     overflow-x or width on <html>, otherwise Chrome on Windows
+     miscalculates 100% widths vs classic scrollbar width. */
 }
 
-html,
 body {
   margin: 0;
   padding: 0;
@@ -37,8 +39,7 @@ body {
   background: var(--white);
   color: var(--ink);
   overflow-x: hidden;
-  /* Prevent horizontal scroll */
-  width: 100%;
+  /* Prevent horizontal scroll — only on body, never on html */
 }
 
 img {
