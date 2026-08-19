@@ -560,7 +560,7 @@ p {
   --typing-width: 15ch;
   width: 0;
   max-width: max-content;
-  overflow: hidden;
+  overflow: visible;
   border-right: 0.08em solid transparent;
   white-space: nowrap;
 }
@@ -3230,7 +3230,7 @@ a.footer-contact-value:hover {
   }
 
   to {
-    width: var(--typing-width);
+    width: 100%;
   }
 }
 
