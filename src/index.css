@@ -87,10 +87,8 @@ p {
 }
 
 .container {
-  width: min(1200px, calc(100% - 64px));
-  max-width: 1200px;
+  width: min(1200px, calc(100% - 48px));
   margin-inline: auto;
-  box-sizing: border-box;
 }
 
 .section {
@@ -3402,8 +3400,7 @@ a.footer-contact-value:hover {
 
 @media (max-width: 1100px) {
   .container {
-    width: min(1040px, calc(100% - 48px));
-    max-width: 1040px;
+    width: calc(100% - 48px);
   }
 
   .hero-inner {
@@ -3439,7 +3436,6 @@ a.footer-contact-value:hover {
 @media (max-width: 860px) {
   .container {
     width: calc(100% - 36px);
-    max-width: none;
   }
 
   .header {
