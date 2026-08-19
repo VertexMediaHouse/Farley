@@ -70,13 +70,13 @@ export function calculateEstimate(
     let repairQty = 0;
     let repairUnit: 'lft' | 'sqft' = 'sqft';
 
-    if (repairType === 'Walls') {
+    if (repairType === 'Wall') {
       repairRate = PRICING.drywall.walls; repairQty = sqft; repairUnit = 'sqft';
       repairPrice = sqft * repairRate;
     } else if (repairType === 'Ceiling') {
       repairRate = PRICING.drywall.ceiling; repairQty = sqft; repairUnit = 'sqft';
       repairPrice = sqft * repairRate;
-    } else if (repairType === 'Bathroom Walls') {
+    } else if (repairType === 'Bathroom wall') {
       repairRate = PRICING.drywall.bathroomWalls; repairQty = sqft; repairUnit = 'sqft';
       repairPrice = sqft * repairRate;
     } else if (repairType === 'Bathroom Ceiling') {
@@ -85,12 +85,12 @@ export function calculateEstimate(
     } else if (repairType === 'Arch') {
       repairRate = PRICING.drywall.arch; repairQty = lft; repairUnit = 'lft';
       repairPrice = lft * repairRate;
-    } else if (repairType === 'Crack Repair Wall') {
+    } else if (repairType === 'Wall Crack Repair') {
       repairQty = lft; repairUnit = 'lft';
       const result = PRICING.crackRepairWall.calc(lft);
       repairPrice = result.total;
       repairRate = result.rate;
-    } else if (repairType?.toLowerCase() === 'crack repair ceiling') {
+    } else if (repairType === 'Ceiling Crack Repair') {
       repairQty = lft; repairUnit = 'lft';
       const result = PRICING.crackRepairCeiling.calc(lft);
       repairPrice = result.total;

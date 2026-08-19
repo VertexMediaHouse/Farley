@@ -35,7 +35,7 @@ export const drywallConfig: QuestionConfig[] = [
     type: 'dropdown',
     options: ['', 'Yes', 'No'],
     helpText: 'This is for wall only.',
-    condition: { field: 'repairType', in: ['wall', 'Bathroom wall', 'Wall Crack Repair'] },
+    condition: { field: 'repairType', in: ['Wall', 'Bathroom wall', 'Wall Crack Repair'] },
   },
   {
     id: 'projectLocation',
@@ -88,7 +88,7 @@ export const drywallConfig: QuestionConfig[] = [
     label: 'Add photo',
     type: 'photoUpload',
     multiple: true,
-    condition: { field: 'needDemolition', not: 'No' },
+    condition: { field: 'needDemolition', notNo: true },
     required: true,
   },
   {
@@ -126,7 +126,7 @@ export const drywallConfig: QuestionConfig[] = [
     label: 'Add photo',
     type: 'photoUpload',
     multiple: true,
-    condition: { field: 'needInsulation', not: 'No' },
+    condition: { field: 'needInsulation', notNo: true },
     required: true,
   },
   {

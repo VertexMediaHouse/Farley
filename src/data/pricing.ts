@@ -58,8 +58,8 @@ export const PRICING = {
   // Insulation
   get insulation() {
     return {
-      'Wall Insulation (R13)': { price: INSULATION_PER_SQFT, minSqft: 50 },
-      'Ceiling Insulation (R19)': { price: INSULATION_PER_SQFT, minSqft: 40 },
+      'Wall Insulation': { price: INSULATION_PER_SQFT, minSqft: 50 },
+      'Ceiling Insulation': { price: INSULATION_PER_SQFT, minSqft: 40 },
     } as Record<string, { price: number, minSqft: number }>;
   },
 
