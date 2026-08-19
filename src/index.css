@@ -25,11 +25,9 @@
 
 html {
   scroll-behavior: smooth;
-  /* Let the browser handle scrollbar-gutter naturally — do NOT set
-     overflow-x or width on <html>, otherwise Chrome on Windows
-     miscalculates 100% widths vs classic scrollbar width. */
 }
 
+html,
 body {
   margin: 0;
   padding: 0;
@@ -39,7 +37,8 @@ body {
   background: var(--white);
   color: var(--ink);
   overflow-x: hidden;
-  /* Prevent horizontal scroll — only on body, never on html */
+  /* Prevent horizontal scroll */
+  width: 100%;
 }
 
 img {
@@ -88,7 +87,8 @@ p {
 }
 
 .container {
-  width: min(1200px, calc(100% - 48px));
+  width: min(1200px, 100%);
+  padding-inline: clamp(20px, 5vw, 40px);
   margin-inline: auto;
 }
 
@@ -189,9 +189,11 @@ p {
 }
 
 .btn-blue:hover {
-  background: linear-gradient(135deg,
-      #2C7FD1 0%,
-      #1E5A96 100%);
+  background: linear-gradient(
+    135deg,
+    #2C7FD1 0%,
+    #1E5A96 100%
+  );
 
   transform: translateY(-4px) scale(1.04);
 
@@ -308,7 +310,7 @@ p {
 }
 
 .logo-img {
-  height: clamp(60px, 8vw, 100px);
+height: clamp(60px, 8vw, 100px);
   margin-top: -30px;
   width: auto;
   display: block;
@@ -437,13 +439,8 @@ p {
   }
 
   @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-
-    to {
-      opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 }
 
@@ -561,7 +558,7 @@ p {
   --typing-width: 15ch;
   width: 0;
   max-width: max-content;
-  overflow: visible;
+  overflow: hidden;
   border-right: 0.08em solid transparent;
   white-space: nowrap;
 }
@@ -953,15 +950,8 @@ p {
 }
 
 @keyframes aboutFloatIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(0.94);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(10px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
 }
 
 .about-float--tr {
@@ -978,15 +968,8 @@ p {
 }
 
 @keyframes aboutFloatInRight {
-  from {
-    opacity: 0;
-    transform: translateY(-50%) translateX(12px) scale(0.94);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(-50%) translateX(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(-50%) translateX(12px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(-50%) translateX(0)     scale(1);   }
 }
 
 .about-float-icon {
@@ -1179,10 +1162,7 @@ p {
 }
 
 @keyframes pillFloat {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .pill-icon {
@@ -1209,9 +1189,11 @@ p {
   background:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 72px),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.028) 0 1px, transparent 1px 72px),
-    linear-gradient(90deg,
-      rgba(39, 168, 220, 0.96),
-      rgba(15, 133, 184, 0.95));
+      linear-gradient(
+    90deg,
+    rgba(39, 168, 220, 0.96),
+    rgba(15, 133, 184, 0.95)
+  );
   color: var(--white);
   overflow: hidden;
 }
@@ -1640,9 +1622,11 @@ p {
   background:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 72px),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.026) 0 1px, transparent 1px 72px),
-    linear-gradient(90deg,
-      rgba(39, 168, 220, 0.96),
-      rgba(15, 133, 184, 0.95));
+      linear-gradient(
+    90deg,
+    rgba(39, 168, 220, 0.96),
+    rgba(15, 133, 184, 0.95)
+  );
   color: var(--white);
   overflow: visible;
 }
@@ -2046,20 +2030,26 @@ p {
   color: var(--white);
 
   background:
-    radial-gradient(circle at 75% 50%,
-      rgba(255, 255, 255, 0.10) 0 85px,
+    radial-gradient(
+      circle at 75% 50%,
+      rgba(255,255,255,0.10) 0 85px,
       rgba(184, 87, 87, 0.05) 86px 125px,
       /* rgba(255,255,255,0.02) 121px 165px, */
-      transparent 166px),
+      transparent 166px
+    ),
 
-    radial-gradient(circle at 79% 50%,
-      rgba(120, 210, 255, 0.10) 0,
-      transparent 230px),
+    radial-gradient(
+      circle at 79% 50%,
+      rgba(120,210,255,0.10) 0,
+      transparent 230px
+    ),
 
-    linear-gradient(105deg,
+    linear-gradient(
+      105deg,
       #3AABF0 0%,
       #2898E3 58%,
-      #1C8BD8 100%);
+      #1C8BD8 100%
+    );
 }
 
 
@@ -2791,24 +2781,30 @@ textarea {
   color: var(--white);
 
   background:
-    radial-gradient(circle at 79% 50%,
-      rgba(255, 255, 255, 0.10) 0 85px,
+    radial-gradient(
+      circle at 79% 50%,
+      rgba(255,255,255,0.10) 0 85px,
       rgba(184, 87, 87, 0.05) 86px 125px,
       /* rgba(255,255,255,0.02) 146px 190px, */
-      transparent 191px),
+      transparent 191px
+    ),
 
-    radial-gradient(circle at 79% 50%,
-      rgba(120, 210, 255, 0.18) 0,
-      transparent 260px),
+    radial-gradient(
+      circle at 79% 50%,
+      rgba(120,210,255,0.18) 0,
+      transparent 260px
+    ),
 
-    linear-gradient(105deg,
+    linear-gradient(
+      105deg,
       #3AABF0 0%,
       #2898E3 58%,
-      #1C8BD8 100%);
+      #1C8BD8 100%
+    );
 
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 10px 35px rgba(0, 0, 0, 0.18);
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 10px 35px rgba(0,0,0,0.18);
 }
 
 .cp-cta h2 {
@@ -3231,7 +3227,7 @@ a.footer-contact-value:hover {
   }
 
   to {
-    width: 100%;
+    width: var(--typing-width);
   }
 }
 
@@ -3401,7 +3397,7 @@ a.footer-contact-value:hover {
 
 @media (max-width: 1100px) {
   .container {
-    width: calc(100% - 48px);
+    width: min(1040px, calc(100% - 48px));
   }
 
   .hero-inner {
@@ -3677,7 +3673,7 @@ a.footer-contact-value:hover {
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 64px),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 64px),
     linear-gradient(105deg, #3AABF0 0%, #3AABF0 54%, #3a72bd 100%);
-  padding: 72px 0 92px;
+    padding: 72px 0 92px;
 }
 
 .page-hero-bg {
@@ -4936,7 +4932,7 @@ a.footer-contact-value:hover {
   .review-img {
     width: 96px;
     height: 39px;
-
+    
   }
 
   .trust-top,
@@ -5251,7 +5247,7 @@ a.footer-contact-value:hover {
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 64px),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 64px),
     linear-gradient(105deg, #3AABF0 0%, #3AABF0 54%, #3a72bd 100%);
-
+    
 }
 
 .services-hero .page-hero-kicker {
@@ -5786,7 +5782,6 @@ a.footer-contact-value:hover {
 }
 
 @media (max-width: 1100px) {
-
   .services-hero-inner,
   .services-sector-layout {
     grid-template-columns: 1fr;
@@ -5875,7 +5870,6 @@ a.footer-contact-value:hover {
 }
 
 @media (max-width: 700px) {
-
   .services-card-grid,
   .services-process-grid,
   .services-trust-grid,
@@ -5990,25 +5984,13 @@ a.footer-contact-value:hover {
 }
 
 @keyframes modalFadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes modalSlideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* Header Phone Styles */
@@ -6061,7 +6043,7 @@ a.footer-contact-value:hover {
   .desktop-only-phone {
     display: none;
   }
-
+  
   .mobile-only-phone {
     display: block;
     width: 100%;
@@ -6175,7 +6157,6 @@ a.footer-contact-value:hover {
     opacity: 0;
     transform: translateY(8px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -6550,26 +6531,22 @@ a.footer-contact-value:hover {
   border-bottom: 1px solid rgba(0, 0, 0, 0.03);
 }
 
-.estimate-table th.qty,
-.estimate-table td.qty {
+.estimate-table th.qty, .estimate-table td.qty {
   text-align: center;
   width: 60px;
 }
 
-.estimate-table th.unit,
-.estimate-table td.unit {
+.estimate-table th.unit, .estimate-table td.unit {
   text-align: center;
   width: 80px;
 }
 
-.estimate-table th.price,
-.estimate-table td.price {
+.estimate-table th.price, .estimate-table td.price {
   text-align: right;
   width: 90px;
 }
 
-.estimate-table th.total,
-.estimate-table td.total {
+.estimate-table th.total, .estimate-table td.total {
   text-align: right;
   font-weight: 700;
   width: 100px;
@@ -6636,18 +6613,17 @@ a.footer-contact-value:hover {
 
 /* Printing styles */
 @media print {
-
   /* Hide absolutely everything */
   body * {
     visibility: hidden !important;
   }
-
+  
   /* Show only the summary card and its children */
   .estimate-summary-card,
   .estimate-summary-card * {
     visibility: visible !important;
   }
-
+  
   /* Position the summary card at the top-left */
   .estimate-summary-card {
     position: absolute !important;
@@ -6661,7 +6637,7 @@ a.footer-contact-value:hover {
     margin: 0 !important;
     background: #fff !important;
   }
-
+  
   /* Hide the print/reset action buttons */
   .summary-actions,
   .summary-actions * {
