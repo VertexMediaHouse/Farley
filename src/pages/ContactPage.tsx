@@ -61,10 +61,17 @@ const galleryImages = [
   '/images/img6.jpeg',
 ]
 
+import { Helmet } from 'react-helmet-async'
+
 export default function ContactPage() {
   const [showSuccess, setShowSuccess] = useState(false)
   return (
     <>
+      <Helmet>
+        <title>Contact Farley CD Inc - Request a Free Estimate</title>
+        <meta name="description" content="Contact Farley CD Inc in Mission Viejo, CA for a free estimate on drywall repair, installation, and interior maintenance services." />
+        <link rel="canonical" href="https://drywallfcdinc.com/contact" />
+      </Helmet>
       <section className="cp-hero">
         <div className="cp-hero-rings" aria-hidden="true" />
         <div className="container cp-hero-inner">

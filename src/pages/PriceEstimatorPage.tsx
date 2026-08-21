@@ -13,6 +13,8 @@ const NEXT_STEPS = [
 const PHONE = '(949) 792-4283';
 const PHONE_HREF = 'tel:+19497924283';
 
+import { Helmet } from 'react-helmet-async'
+
 export default function PriceEstimatorPage() {
   const {
     step, goTo,
@@ -30,8 +32,14 @@ export default function PriceEstimatorPage() {
   const showModal = step === 5;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="bg-[#12294A]">
+    <>
+      <Helmet>
+        <title>Free Drywall &amp; Interior Repair Estimate - Farley CD Inc</title>
+        <meta name="description" content="Get a free, instant estimate for drywall repair, texture matching, and interior painting projects in Mission Viejo, CA from Farley CD Inc." />
+        <link rel="canonical" href="https://drywallfcdinc.com/priceestimator" />
+      </Helmet>
+      <div className="min-h-screen bg-slate-50">
+        <div className="bg-[#12294A]">
         <div className="mx-auto max-w-6xl px-6 pb-20 pt-10 sm:px-8 flex justify-between items-start">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#2F9BF0]">
@@ -207,5 +215,6 @@ export default function PriceEstimatorPage() {
         }
       `}</style>
     </div>
+    </>
   );
 }

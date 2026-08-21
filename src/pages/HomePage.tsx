@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Counter, FadeSection, SectionLabel, StaggerRow } from '../utils'
+import { Helmet } from 'react-helmet-async'
 import SuccessModal from '../components/SuccessModal'
 import { featuredProjects, stats, testimonials } from '../data'
 
@@ -99,13 +100,18 @@ export default function HomePage() {
   const [showSuccess, setShowSuccess] = useState(false)
   return (
     <>
+      <Helmet>
+        <title>Farley CD Inc - Drywall Repair &amp; Interior Services</title>
+        <meta name="description" content="Professional drywall repair, installation, texture matching, ceiling repair, and interior maintenance services by Farley CD Inc in Mission Viejo, CA." />
+        <link rel="canonical" href="https://drywallfcdinc.com/" />
+      </Helmet>
       <section id="home" className="hero">
         <div className="container hero-inner">
           <div className="hero-copy fade-in-up">
             <p className="hero-eyebrow">Residential &amp; Commercial</p>
             <h1 className="home-hero-title">
-              <span className="hero-title-line typing-line typing-line--first">Drywall Repairs</span>
-              <span className="hero-title-line typing-line typing-line--second">Specialists</span>
+              <span className="hero-title-line typing-line typing-line--first">Farley CD Inc -</span>
+              <span className="hero-title-line typing-line typing-line--second">Drywall Repair &amp; Interior Services</span>
             </h1>
             <p className="hero-sub">
               Professional drywall repair, texture matching, ceiling repair, patchwork,  drywall installation, and interior maintenance services for homes, offices, retail spaces, apartments, and commercial properties.

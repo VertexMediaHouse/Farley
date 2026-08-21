@@ -59,6 +59,7 @@ function BackToTopButton() {
 
 import { fetchPriceOverrides } from './lib/priceOverrides'
 import { applyPricingRules } from './data/pricingMapper'
+import { HelmetProvider } from 'react-helmet-async'
 
 export default function App() {
   const { pathname } = useLocation()
@@ -77,23 +78,25 @@ export default function App() {
   }, [])
 
   return (
-    <CopyProvider>
-      <div className="site">
-        <ScrollToTop />
-        {!isEstimatePage && !isAdmin && <Navbar />}
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/services" element={<ServicesPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/estimate" element={<EstimatePage />} />
-        <Route path="/priceestimator" element={<PriceEstimatorPage />} />
-        <Route path="/admin/*" element={<RequireAuth><AdminDashboard /></RequireAuth>} />
-      </Routes>
-      <BackToTopButton />
-      {!isEstimatePage && !isAdmin && <FCDChatbot />}
-      {!isEstimatePage && !isAdmin && <Footer />}
-    </div>
-    </CopyProvider>
+    <HelmetProvider>
+      <CopyProvider>
+        <div className="site">
+          <ScrollToTop />
+          {!isEstimatePage && !isAdmin && <Navbar />}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/estimate" element={<EstimatePage />} />
+          <Route path="/priceestimator" element={<PriceEstimatorPage />} />
+          <Route path="/admin/*" element={<RequireAuth><AdminDashboard /></RequireAuth>} />
+        </Routes>
+        <BackToTopButton />
+        {!isEstimatePage && !isAdmin && <FCDChatbot />}
+        {!isEstimatePage && !isAdmin && <Footer />}
+      </div>
+      </CopyProvider>
+    </HelmetProvider>
   )
 }

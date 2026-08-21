@@ -20,9 +20,16 @@ const trustPoints = [
 
 
 
+import { Helmet } from 'react-helmet-async'
+
 export default function AboutPage() {
   return (
     <>
+      <Helmet>
+        <title>About Farley CD Inc - Drywall &amp; Interior Experts</title>
+        <meta name="description" content="Learn about Farley CD Inc, your trusted drywall repair and interior maintenance experts in Mission Viejo, CA. Built on trust and precision." />
+        <link rel="canonical" href="https://drywallfcdinc.com/about" />
+      </Helmet>
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section className="page-hero about-hero">
         <div className="page-hero-bg" aria-hidden="true" />

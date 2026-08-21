@@ -96,9 +96,16 @@ function ServiceSpotlight({
   )
 }
 
+import { Helmet } from 'react-helmet-async'
+
 export default function ServicesPage() {
   return (
     <>
+      <Helmet>
+        <title>Drywall Services &amp; Interior Repair - Farley CD Inc</title>
+        <meta name="description" content="Explore our professional drywall services including repair, installation, finishing, ceiling repair, and texture matching for commercial and residential properties." />
+        <link rel="canonical" href="https://drywallfcdinc.com/services" />
+      </Helmet>
       <section className="page-hero services-hero">
         <div className="page-hero-bg services-hero-bg" aria-hidden="true" />
         <div className="container services-hero-inner">
