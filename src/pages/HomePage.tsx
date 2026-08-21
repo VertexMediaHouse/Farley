@@ -110,8 +110,8 @@ export default function HomePage() {
           <div className="hero-copy fade-in-up">
             <p className="hero-eyebrow">Residential &amp; Commercial</p>
             <h1 className="home-hero-title">
-              <span className="hero-title-line typing-line typing-line--first">Farley CD Inc -</span>
-              <span className="hero-title-line typing-line typing-line--second">Drywall Repair &amp; Interior Services</span>
+              <span className="hero-title-line typing-line typing-line--first">Drywall Repair</span>
+              <span className="hero-title-line typing-line typing-line--second">Specialist</span>
             </h1>
             <p className="hero-sub">
               Professional drywall repair, texture matching, ceiling repair, patchwork,  drywall installation, and interior maintenance services for homes, offices, retail spaces, apartments, and commercial properties.
