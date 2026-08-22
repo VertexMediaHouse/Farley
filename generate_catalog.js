@@ -42,7 +42,7 @@ function parseName(url) {
   const match = url.match(/\/p\/([^\/]+)\//);
   if (match) {
     let name = match[1];
-    name = name.replace(/-/g, ' ');
+    name = name.replace(/-/g, ' '); 
     // some cleanup
     name = name.replace(/ in\b/g, '"');
     name = name.replace(/ x /g, ' × ');
