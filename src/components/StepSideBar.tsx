@@ -38,7 +38,7 @@ function fmt(amount: number): string {
 }
 
 export default function StepSidebar({
-  step, onStepClick, phone, phoneHref, drywall, trim, paint, customQuestions = [], productPrices = {},
+  step, onStepClick, phone, phoneHref, drywall, trim, paint, customQuestions = [],
 }: Props) {
   const [expanded, setExpanded] = useState(false);
 
@@ -51,7 +51,7 @@ export default function StepSidebar({
   ];
   const started = summary.some(s => s.n > 0);
 
-  const estimate = calculateEstimate({ drywall, trim, paint }, customQuestions, productPrices);
+  const estimate = calculateEstimate({ drywall, trim, paint }, customQuestions);
   const hasEstimate = estimate.lineItems.length > 0;
 
   return (

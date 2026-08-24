@@ -1,8 +1,79 @@
+import { useEffect, useState } from 'react';
 import StepSidebar from '../components/StepSideBar';
 import ContactStep from '../components/steps/ContactStep';
 import ClientInfoStep from '../components/steps/ClientInfoStep';
 import ServiceStep from '../components/steps/ServiceStep';
 import { useEstimateDraft } from '../hooks/useEstimateDraft';
+
+const PRICE_LOOKUP_SECONDS = 75;
+
+function PriceLookupOverlay() {
+  const [secondsLeft, setSecondsLeft] = useState(PRICE_LOOKUP_SECONDS);
+
+  useEffect(() => {
+    setSecondsLeft(PRICE_LOOKUP_SECONDS);
+    const interval = setInterval(() => {
+      setSecondsLeft((s) => (s > 0 ? s - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 99999,
+        background: 'rgba(15, 23, 42, 0.72)',
+        backdropFilter: 'blur(5px)',
+        WebkitBackdropFilter: 'blur(5px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '460px',
+          background: '#fff',
+          borderRadius: '18px',
+          padding: '36px 28px',
+          textAlign: 'center',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.25)',
+        }}
+      >
+        <div
+          style={{
+            width: '52px',
+            height: '52px',
+            margin: '0 auto 22px',
+            borderRadius: '50%',
+            border: '5px solid #e2e8f0',
+            borderTopColor: '#2F9BF0',
+            animation: 'estimate-spin 0.9s linear infinite',
+          }}
+        />
+        <h2 style={{ margin: '0 0 12px', fontSize: '1.45rem', color: '#0f172a' }}>
+          Preparing your estimate…
+        </h2>
+        <p style={{ margin: '0 auto 14px', maxWidth: '360px', lineHeight: 1.6, color: '#475569' }}>
+          We're checking current Home Depot pricing for your area and calculating your estimate.
+        </p>
+        <p style={{ margin: '0 0 10px', color: '#0f172a', fontSize: '0.95rem' }}>
+          This may take up to <strong>{secondsLeft}s</strong>.
+        </p>
+        <p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>
+          Please don't close this page.
+        </p>
+        <style>{`@keyframes estimate-spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    </div>
+  );
+}
 
 const NEXT_STEPS = [
   'We review your details',
@@ -24,9 +95,10 @@ export default function PriceEstimatorPage() {
     contact, setContact,
     sent, restored,
     customQuestions,
-    productPrices,
     handleSubmit,
     handleReset,
+    isSubmitting,
+    submitError,
   } = useEstimateDraft();
 
   const showModal = step === 5;
@@ -39,6 +111,7 @@ export default function PriceEstimatorPage() {
         <link rel="canonical" href="https://drywallfcdinc.com/priceestimator" />
       </Helmet>
       <div className="min-h-screen bg-slate-50">
+        {isSubmitting && <PriceLookupOverlay />}
         <div className="bg-[#12294A]">
         <div className="mx-auto max-w-6xl px-6 pb-20 pt-10 sm:px-8 flex justify-between items-start">
           <div>
@@ -95,7 +168,6 @@ export default function PriceEstimatorPage() {
                 trim={trim}
                 paint={paint}
                 customQuestions={customQuestions}
-                productPrices={productPrices}
               />
             </div>
 
@@ -162,11 +234,26 @@ export default function PriceEstimatorPage() {
                   </button>
 
                   <div className="p-8">
+                    {submitError && (
+                      <div style={{
+                        marginBottom: '16px',
+                        padding: '12px 16px',
+                        borderRadius: '10px',
+                        background: 'rgba(239,68,68,0.08)',
+                        border: '1px solid rgba(239,68,68,0.25)',
+                        color: '#b91c1c',
+                        fontSize: '0.9rem',
+                        fontWeight: 600,
+                      }}>
+                        {submitError}
+                      </div>
+                    )}
                     <ClientInfoStep
                       data={contact}
                       onChange={setContact}
                       onBack={() => goTo(4)}
                       onSubmit={handleSubmit}
+                      isSubmitting={isSubmitting}
                     />
                   </div>
                 </div>

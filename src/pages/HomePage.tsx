@@ -55,43 +55,43 @@ const steps = [
 const benefits = [
   {
     title: 'Texture Matching ',
-    svg: <img src="/images/carpentry.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/carpentry.png" alt="" className="img-contain" />,
   },
   {
     title: 'Drywall Patch Repair',
-    svg: <img src="/images/trustworthiness (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/trustworthiness (3).png" alt="" className="img-contain" />,
   },
   {
     title: 'Ceiling Drywall Repair',
-    svg: <img src="/images/drywall (1).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/drywall (1).png" alt="" className="img-contain" />,
   },
   {
     title: 'Hole in Wall Repair',
-    svg: <img src="/images/worker.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/worker.png" alt="" className="img-contain" />,
   },
   {
     title: 'Drywall Crack Repair',
-    svg: <img src="/images/drywall (2).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/drywall (2).png" alt="" className="img-contain" />,
   },
   {
     title: 'Hang, Tape & Texture',
-    svg: <img src="/images/trustworthiness (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/trustworthiness (3).png" alt="" className="img-contain" />,
   },
   {
     title: 'Hand Textures & Smooth Finish',
-    svg: <img src="/images/shield (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/shield (3).png" alt="" className="img-contain" />,
   },
   {
     title: 'Residential & Commercial Service',
-    svg: <img src="/images/user-avatar.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/user-avatar.png" alt="" className="img-contain" />,
   },
   {
     title: 'Property Maintenance Support',
-    svg: <img src="/images/property (2).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/property (2).png" alt="" className="img-contain" />,
   },
   {
     title: 'Fast & Reliable Turnaround',
-    svg: <img src="/images/clock (5).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />,
+    svg: <img src="/images/clock (5).png" alt="" className="img-contain" />,
   },
 ]
 
@@ -379,25 +379,25 @@ export default function HomePage() {
             <ul className="contact-list">
               <li>
                 <span className="ci-icon" aria-hidden="true">
-                  <img src="/images/telephone.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  <img src="/images/telephone.png" alt="" className="img-contain" />
                 </span>
                 <div><strong>Phone</strong><span>(949) 792-4283</span></div>
               </li>
               <li>
                 <span className="ci-icon" aria-hidden="true">
-                  <img src="/images/mail (3).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  <img src="/images/mail (3).png" alt="" className="img-contain" />
                 </span>
                 <div><strong>Email</strong><span>andrew@farleycdinc.com</span></div>
               </li>
               <li>
                 <span className="ci-icon" aria-hidden="true">
-                  <img src="/images/location (6).png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  <img src="/images/location (6).png" alt="" className="img-contain" />
                 </span>
                 <div><strong>Location</strong><span>27401 Los Altos<br />Mission Viejo, CA 92691</span></div>
               </li>
               <li>
                 <span className="ci-icon" aria-hidden="true">
-                  <img src="/images/time.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  <img src="/images/time.png" alt="" className="img-contain" />
                 </span>
                 <div><strong>Hours</strong><span>Mon - Fri: 7 AM - 5 PM</span></div>
               </li>

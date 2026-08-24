@@ -1,9 +1,6 @@
-import type { ProductPriceMap } from '../lib/productPricesStore';
-import { pricePerLft } from '../lib/productPricesStore';
 
 export function adaptV2ToV1Estimate(
   drywall: any[], trim: any[], paint: any[], contact: any,
-  productPrices: ProductPriceMap = {},
 ) {
   const formData: any = {
     length: '0',
@@ -28,26 +25,26 @@ export function adaptV2ToV1Estimate(
   let cornerCount = 0;
   let popcornSqft = 0;
   let wallpaperSqft = 0;
-  
+
   drywall.forEach(area => {
     const type = area.repairType;
-    const sqft = parseFloat(area.crackSquareFootage) || parseFloat(area.demolitionSquareFootage) || 0; 
+    const sqft = parseFloat(area.crackSquareFootage) || parseFloat(area.demolitionSquareFootage) || 0;
     if (type === 'Walls' || type === 'Crack Repair Wall') wallSqft += sqft;
     if (type === 'Ceiling' || type === 'Crack Repair Ceiling') ceilSqft += sqft;
     if (type === 'Bathroom Walls') bathWallSqft += sqft;
     if (type === 'Bathroom Ceiling') bathCeilSqft += sqft;
-    
+
     const demo = area.needDemolition;
     const demoSqft = parseFloat(area.demolitionSquareFootage) || 0;
     const demoFt = parseFloat(area.demolitionLinearFeet) || 0;
-    
+
     if (demo === 'Remove Existing Wall Drywall') demoWallSqft += demoSqft;
     if (demo === 'Remove Existing Ceiling Drywall') demoCeilSqft += demoSqft;
     if (demo === 'Remove Existing Wall Insulation' || demo === 'Remove Existing Ceiling Insulation') demoInsSqft += demoSqft;
     if (demo === 'Baseboard') demoBaseFt += demoFt;
     if (demo === 'Popcorn Ceiling Scraping') popcornSqft += demoSqft;
     if (demo === 'Wallpaper Removal') wallpaperSqft += demoSqft;
-    
+
     if (area.texture && !hasTexture) hasTexture = area.texture;
     if (area.needInsulation && area.needInsulation !== 'No') insulation = true;
     if (area.needCornerMetal && area.needCornerMetal !== 'No') {
@@ -65,7 +62,7 @@ export function adaptV2ToV1Estimate(
   formData.drywall_ceiling_sqft = ceilSqft;
   formData.drywall_bathroom_wall_sqft = bathWallSqft;
   formData.drywall_bathroom_ceiling_sqft = bathCeilSqft;
-  
+
   const demoArr: string[] = [];
   if (demoWallSqft > 0) demoArr.push('Remove Existing Wall Drywall');
   if (demoCeilSqft > 0) demoArr.push('Remove Existing Ceiling Drywall');
@@ -91,7 +88,6 @@ export function adaptV2ToV1Estimate(
   // --- TRIM ---
   let baseboardFeet = 0;
   let casingFeet = 0;
-  let trimMaterialPrice = 0;
   let clientProvidedTrim = false;
   trim.forEach(area => {
     const bf = parseFloat(area.baseboardLinearFeet) || 0;
@@ -99,23 +95,12 @@ export function adaptV2ToV1Estimate(
     baseboardFeet += bf;
     casingFeet += cf;
     if (area.clientProvidedTrim === 'Yes') clientProvidedTrim = true;
-    // Only look up catalog material price if client is NOT providing trim
-    if (!clientProvidedTrim) {
-      const url = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
-      const userPrice = parseFloat(area.baseboardCatalog_userPrice) || 0;
-      const rate = userPrice > 0 ? userPrice : (url ? pricePerLft(productPrices, url) : null);
-      if (rate != null) {
-        if (bf > 0) trimMaterialPrice = rate;
-        else if (cf > 0) trimMaterialPrice = rate;
-      }
-    }
   });
   formData.trim_base_linear_feet = baseboardFeet;
   formData.trim_casing_linear_feet = casingFeet;
-  if (trimMaterialPrice > 0) formData.trim_base_price = trimMaterialPrice;
   if (clientProvidedTrim) formData.trim_client_provided = true;
   if (baseboardFeet > 0 || casingFeet > 0) {
-     formData.trim_services = 'install new baseboard'; // default to install
+    formData.trim_services = 'install new baseboard'; // default to install
   }
 
   // --- PAINT ---

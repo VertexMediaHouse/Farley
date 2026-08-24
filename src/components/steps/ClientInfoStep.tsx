@@ -20,6 +20,7 @@ interface Props {
   onChange: (data: ContactData) => void;
   onBack: () => void;
   onSubmit: () => void;
+  isSubmitting?: boolean;
 }
 
 const req = () => <span className="ml-0.5 text-red-500">*</span>;
@@ -33,7 +34,7 @@ const isValidPhone = (s: string) => {
   return d.length === 10 || (d.length === 11 && d.startsWith("1"));
 };
 
-export default function ClientInfoStep({ data, onChange, onBack, onSubmit }: Props) {
+export default function ClientInfoStep({ data, onChange, onBack, onSubmit, isSubmitting }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const set = (key: keyof ContactData, val: string) => {
@@ -120,16 +121,18 @@ export default function ClientInfoStep({ data, onChange, onBack, onSubmit }: Pro
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-800 transition"
+          disabled={isSubmitting}
+          className="rounded-lg border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-800 transition disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="button"
           onClick={handleSubmit}
-          className="rounded-lg bg-[#2F9BF0] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#1E86D8] transition"
+          disabled={isSubmitting}
+          className="rounded-lg bg-[#2F9BF0] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#1E86D8] transition disabled:opacity-50"
         >
-          Submit Request
+          {isSubmitting ? 'Getting Live Price…' : 'Submit Request'}
         </button>
       </div>
     </div>

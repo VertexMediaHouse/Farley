@@ -9,12 +9,10 @@ import {
   ESTIMATE_RESULT_KEY,
   type ContactData,
 } from '../lib/estimateForm';
-import { useCustomQuestions, useProductPrices } from '../context/CopyProvider';
+import { useCustomQuestions } from '../context/CopyProvider';
 
 export function useEstimateDraft() {
   const customQuestions = useCustomQuestions();
-  const productPrices = useProductPrices();
-
   const [step, setStep] = useState(1);
   const [drywall, setDrywall] = useState<AreaValues[]>([{}]);
   const [trim, setTrim] = useState<AreaValues[]>([{}]);
@@ -22,6 +20,8 @@ export function useEstimateDraft() {
   const [contact, setContact] = useState<ContactData>(DEFAULT_CONTACT);
   const [sent, setSent] = useState(false);
   const [restored, setRestored] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     const saved = loadDraft();
@@ -46,11 +46,16 @@ export function useEstimateDraft() {
   };
 
   const handleSubmit = async () => {
+    setSubmitError('');
+    setIsSubmitting(true);
     try {
-      await submitEstimate(drywall, trim, paint, contact, customQuestions, productPrices);
+      await submitEstimate(drywall, trim, paint, contact, customQuestions);
       setSent(true);
     } catch (e) {
       console.error('Failed to store estimate', e);
+      setSubmitError(e instanceof Error ? e.message : 'We could not prepare your estimate. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -77,8 +82,9 @@ export function useEstimateDraft() {
     sent,
     restored,
     customQuestions,
-    productPrices,
     handleSubmit,
     handleReset,
+    isSubmitting,
+    submitError,
   };
 }

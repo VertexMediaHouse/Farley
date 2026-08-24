@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { QuestionConfig, AreaValues, Condition } from '../types/form';
 import UploadBox from './UploadBox';
-import InfoButton from './InfoButton';
-import { useProductPrices } from '../context/CopyProvider';
-import { pricePerLft } from '../lib/productPricesStore';
+import InfoButton from './InfoButton';;
 import { input as inp, label as lbl, errorText } from './theme';
 import PaintExplorer from './paintexplorer/paintexplorer';
 import type { PaintColor } from './paintexplorer/types';
@@ -406,7 +404,7 @@ function MultiUpload({ files, onChange }: { files: File[]; onChange: (f: File[])
 
 // ─── Catalog selector ────────────────────────────────────────────────────────
 
-function CatalogSelector({ q, value, onChange, userPrice, onPriceChange }: {
+function CatalogSelector({ q, value, onChange }: {
   q: QuestionConfig;
   value: string;
   onChange: (v: string) => void;
@@ -414,14 +412,10 @@ function CatalogSelector({ q, value, onChange, userPrice, onPriceChange }: {
   onPriceChange?: (v: string) => void;
 }) {
   const [activeSize, setActiveSize] = useState('');
-  const productPrices = useProductPrices();
   const cats = q.catalog ?? [];
   const [previewImage, setPreviewImage] = useState<{ url: string; name: string } | null>(null);
 
   // Find the selected product name for the note
-  const selectedProduct = value
-    ? cats.flatMap(c => c.products).find(p => p.url === value || p.name === value)
-    : null;
 
   const pill = (on: boolean) =>
     `rounded-full px-4 py-1.5 text-sm font-semibold transition-all ${on ? 'bg-[#2F9BF0] text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -451,7 +445,6 @@ function CatalogSelector({ q, value, onChange, userPrice, onPriceChange }: {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {cats.find(c => c.size === activeSize)?.products.map(p => {
             const isSelected = value === p.url || value === p.name;
-            const lftPrice = pricePerLft(productPrices, p.url);
 
             if (p.name === 'None of the above') {
               return (
@@ -520,12 +513,7 @@ function CatalogSelector({ q, value, onChange, userPrice, onPriceChange }: {
 
                 {/* Content */}
                 <div className="flex flex-col flex-1 p-3">
-                  <div className="mb-3 flex items-start justify-between gap-2">
-                    <span className="text-sm font-semibold text-slate-700 leading-tight line-clamp-2">{p.name}</span>
-                    {lftPrice != null && (
-                      <span className="shrink-0 text-xs font-bold text-[#2F9BF0]">${lftPrice.toFixed(2)}/lft</span>
-                    )}
-                  </div>
+
                   <div className="mt-auto flex items-center justify-between gap-2 pt-2">
                     <a
                       href={p.url}
@@ -551,53 +539,6 @@ function CatalogSelector({ q, value, onChange, userPrice, onPriceChange }: {
               </div>
             );
           })}
-        </div>
-      )}
-
-      {value && (
-        <div className="mt-4 rounded-xl border border-[#2F9BF0]/20 bg-gradient-to-br from-blue-50 to-white p-5 space-y-4">
-          {/* Check icon + selected indicator */}
-          <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#2F9BF0]">
-              <svg className="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <div className="flex flex-col gap-1">
-              {selectedProduct && (
-                <p className="text-sm font-bold text-slate-800">{selectedProduct.name}</p>
-              )}
-              <p className="text-sm text-slate-600">
-                Please visit:{' '}
-                <a
-                  href={value}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold text-[#2F9BF0] underline decoration-[#2F9BF0]/30 underline-offset-2 transition hover:decoration-[#2F9BF0] break-all"
-                >
-                  {value}
-                </a>
-              </p>
-              <p className="text-xs font-medium text-slate-500">and enter price below</p>
-            </div>
-          </div>
-
-          {/* Price input */}
-          <div className="flex items-center gap-3 pl-9">
-            <div className="relative flex-1 max-w-xs">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">$</span>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={userPrice ?? ''}
-                onChange={e => onPriceChange?.(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-7 pr-14 text-sm font-semibold text-slate-800 shadow-sm transition focus:border-[#2F9BF0] focus:outline-none focus:ring-2 focus:ring-[#2F9BF0]/20"
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">per piece</span>
-            </div>
-          </div>
         </div>
       )}
 

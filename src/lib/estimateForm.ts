@@ -2,7 +2,7 @@ import type { AreaValues } from '../types/form';
 import { calculateEstimate } from './estimate';
 import { adaptV2ToV1Estimate } from '../utils/estimateAdapter';
 import type { CustomQuestionRecord } from './customQuestionsStore';
-import type { ProductPriceMap } from './productPricesStore';
+import { getStoreIdForZip, runHomeDepotActorLive } from './homeDepotLiveScrape';
 
 export const ESTIMATE_DRAFT_KEY = 'fcd_estimate_v2';
 export const ESTIMATE_RESULT_KEY = 'fcd_estimate_data';
@@ -148,16 +148,76 @@ const generateAreaThumbnails = async (areas: AreaValues[], prefix: string): Prom
   return result;
 };
 
+/** Runs the live Home Depot scrape for every trim area that has a catalog
+ *  product selected, and writes the returned price back onto each area as
+ *  `baseboardCatalog_userPrice` — the exact field lib/estimate.ts reads. */
+async function enrichTrimWithLivePrices(
+  trim: AreaValues[],
+  zipcode: string,
+): Promise<AreaValues[]> {
+  const zip = zipcode.replace(/\D/g, '').slice(0, 5);
+  if (!/^\d{5}$/.test(zip)) {
+    throw new Error('Please enter a valid 5-digit ZIP code.');
+  }
+
+  const storeId = getStoreIdForZip(zip);
+  if (!storeId) {
+    throw new Error(`No Home Depot store is mapped to ZIP ${zip}.`);
+  }
+
+  // Collect every catalog URL selected across trim areas (baseboard or casing)
+  const urls = new Set<string>();
+  trim.forEach(area => {
+    if (typeof area.baseboardCatalog === 'string' && area.baseboardCatalog && area.baseboardCatalog !== 'None of the above') {
+      urls.add(area.baseboardCatalog);
+    }
+    if (typeof area.casingCatalog === 'string' && area.casingCatalog && area.casingCatalog !== 'None of the above') {
+      urls.add(area.casingCatalog);
+    }
+  });
+
+  if (urls.size === 0) {
+    // Nothing to scrape (client-provided trim, or no catalog selection) — leave as-is.
+    return trim;
+  }
+
+  const liveItems = await runHomeDepotActorLive({
+    zipcode: zip,
+    storeId,
+    productUrls: [...urls],
+  });
+
+  const priceForUrl = (url: string): number | null => {
+    const match = liveItems.find(item => item.url === url);
+    if (!match || match.outOfStock || match.price == null) return null;
+    return match.price;
+  };
+
+  return trim.map(area => {
+    const catalogUrl =
+      (typeof area.baseboardCatalog === 'string' && area.baseboardCatalog) ||
+      (typeof area.casingCatalog === 'string' && area.casingCatalog) ||
+      '';
+    if (!catalogUrl || catalogUrl === 'None of the above') return area;
+
+    const livePrice = priceForUrl(catalogUrl);
+    if (livePrice == null) return area;
+
+    return { ...area, baseboardCatalog_userPrice: String(livePrice) };
+  });
+}
+
 export async function submitEstimate(
   drywall: AreaValues[],
   trim: AreaValues[],
   paint: AreaValues[],
   contact: ContactData,
   customQuestions: CustomQuestionRecord[],
-  productPrices: ProductPriceMap = {},
 ): Promise<void> {
-  const formData = adaptV2ToV1Estimate(drywall, trim, paint, contact, productPrices);
-  const result = calculateEstimate({ drywall, trim, paint }, customQuestions, productPrices);
+  const enrichedTrim = await enrichTrimWithLivePrices(trim, contact.areaCode);
+
+  const formData = adaptV2ToV1Estimate(drywall, enrichedTrim, paint, contact);
+  const result = calculateEstimate({ drywall, trim: enrichedTrim, paint }, customQuestions);
   
   const allFiles = [
     ...collectFilesFromAreas(drywall),

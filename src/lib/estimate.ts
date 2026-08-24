@@ -1,7 +1,5 @@
 import { PRICING } from '../data/pricing';
 import type { CustomQuestionRecord } from './customQuestionsStore';
-import type { ProductPriceMap } from './productPricesStore';
-import { pricePerLft } from './productPricesStore';
 
 export interface LineItem {
   area: string;
@@ -30,7 +28,6 @@ interface AreaValues {
 export function calculateEstimate(
   data: { drywall: AreaValues[], trim: AreaValues[], paint: AreaValues[] },
   customQuestions: CustomQuestionRecord[] = [],
-  productPrices: ProductPriceMap = {},
 ): EstimateResult {
   const lineItems: LineItem[] = [];
   let subtotal = 0;
@@ -209,7 +206,7 @@ export function calculateEstimate(
       });
     }
 
-// Ceiling Height Surcharge (above 8ft)
+    // Ceiling Height Surcharge (above 8ft)
     if (area.ceilingAbove8 === 'Yes' && area.ceilingHeight) {
       const h = parseInt(area.ceilingHeight);  // handles '9ft' → 9
       const rate = PRICING.ceilingHeightSurcharge.rateFor(h);
@@ -252,8 +249,7 @@ export function calculateEstimate(
       if (lft > 0) {
         const catalogUrl = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
         const userEnteredPrice = parseFloat(area.baseboardCatalog_userPrice) || 0;
-        const serverRate = catalogUrl ? pricePerLft(productPrices, catalogUrl) : null;
-        const materialRate = userEnteredPrice > 0 ? userEnteredPrice : serverRate;
+        const materialRate = userEnteredPrice > 0 ? userEnteredPrice : null;
         const height = area.baseboardHeight || '6';
         const heightKey = String(parseInt(height) || 6);
         const laborRate = PRICING.trim.baseboard[heightKey] ?? 5.00;
@@ -265,7 +261,9 @@ export function calculateEstimate(
             addItem(areaName, 'Trim: Baseboard material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate, {
               quantity: lft, rate: materialRate, unit: 'lft',
             });
-          } else {
+          }
+          // removed the else block that pushed the "Price not entered" / isOutOfStock row
+          else {
             lineItems.push({
               area: areaName,
               label: 'Trim: Baseboard material',
@@ -287,18 +285,19 @@ export function calculateEstimate(
       if (lft > 0) {
         const catalogUrl = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
         const userEnteredPrice = parseFloat(area.baseboardCatalog_userPrice) || 0;
-        const serverRate = catalogUrl ? pricePerLft(productPrices, catalogUrl) : null;
-        const materialRate = userEnteredPrice > 0 ? userEnteredPrice : serverRate;
+        const materialRate = userEnteredPrice > 0 ? userEnteredPrice : null;
         const laborRate = PRICING.trim.doorCasing;
         if (catalogUrl) {
           addItem(areaName, 'Trim: Casing labor', `${lft} lft`, lft * laborRate, {
             quantity: lft, rate: laborRate, unit: 'lft',
           });
           if (materialRate != null && materialRate > 0) {
-            addItem(areaName, 'Trim: Casing material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate, {
+            addItem(areaName, 'Trim: Baseboard material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate, {
               quantity: lft, rate: materialRate, unit: 'lft',
             });
-          } else {
+          }
+          // removed the else block that pushed the "Price not entered" / isOutOfStock row
+          else {
             lineItems.push({
               area: areaName,
               label: 'Trim: Casing material',

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { calculateEstimate } from '../services/estimateEngine'
 import { uploadFilesToDrive } from '../services/driveService'
 import type { EstimateResult } from '../types/estimate'
+import { baseboardCasingCatalog } from '../data/baseboardCasingCatalog'
+import homeDepotStoreByZip from '../data/homeDepotStoreByZip.json'
 
 // ─── Form Types ────────────────────────────────────────────────────────────────
 
@@ -32,7 +34,10 @@ interface FormAnswers {
   drywall_demo_insulation_sqft?: string
   drywall_demo_baseboard_ft?: string
   drywall_soffits_sqft?: string
+  zipcode?: string
   trim_baseboard_height?: string
+  baseboard_product_url?: string
+  baseboard_product_name?: string
   trim_baseboard_photo?: string
   trim_base_material?: string[] | string
   trim_base_linear_feet?: string
@@ -42,10 +47,7 @@ interface FormAnswers {
   trim_casing_photo?: string
   trim_casing_linear_feet?: string
   trim_casing_primed?: string
-  trim_knows_price?: string
-  trim_base_price?: string
-  trim_casing_price?: string
-  trim_search_fee_ok?: string
+   trim_base_price?: string
   drywall_type?: string
   corner_metal_type?: string
   corner_metal_length?: string
@@ -101,6 +103,7 @@ interface FormAnswers {
 }
 
 const initialAnswers: FormAnswers = {
+  zipcode: '',
   length: '',
   width: '',
   height: '',
@@ -175,10 +178,7 @@ const initialAnswers: FormAnswers = {
   trim_casing_photo: '',
   trim_casing_linear_feet: '',
   trim_casing_primed: '',
-  trim_knows_price: '',
-  trim_base_price: '',
-  trim_casing_price: '',
-  trim_search_fee_ok: '',
+    trim_base_price: '',
   is_two_story: '',
   is_occupied: '',
   is_emergency: '',
@@ -191,11 +191,101 @@ const initialAnswers: FormAnswers = {
   contact_address: '',
 }
 
+// ─── Home Depot live pricing helpers ───────────────────────────────────────────
+
+const HOME_DEPOT_APIFY_ACTOR = 'automation-lab~home-depot-product-scraper'
+
+function normalizeBaseboardSize(value: string): string {
+  const match = String(value || '').match(/(\d+(?:\.\d+)?)/)
+  return match ? `Baseboard ${match[1]}”` : ''
+}
+
+function getBaseboardProductsForSelection(height: string) {
+  const sizeLabel = normalizeBaseboardSize(height)
+  if (!sizeLabel) return []
+  return baseboardCasingCatalog.filter(
+    (product) => product.category === 'baseboard' && product.sizeLabel === sizeLabel
+  )
+}
+
+function normalizeApifyPriceItem(item: any) {
+  const url = item?.url ?? item?.originalUrl ?? item?.startUrl ?? item?.pageUrl ?? ''
+  const rawResult =
+    item?.result_from_js_script ??
+    item?.result ??
+    item?.jsResult ??
+    item?.pageFunctionResult ??
+    item?.output ??
+    item?.value ??
+    item?.price ??
+    item?.currentPrice
+
+  const rawText = rawResult == null ? '' : String(rawResult)
+  const outOfStock = /out\s*of\s*stock|sold\s*out|unavailable|discontinued/i.test(rawText)
+  const parsed = !outOfStock ? Number.parseFloat(rawText.replace(/[$,]/g, '')) : NaN
+
+  return {
+    url,
+    price: Number.isFinite(parsed) ? parsed : null,
+    outOfStock,
+    raw: item,
+  }
+}
+
+async function runHomeDepotActorLive(params: {
+  zipcode: string
+  storeId: string
+  productUrls: string[]
+}) {
+  const token = import.meta.env.VITE_APIFY_TOKEN as string | undefined
+  if (!token) {
+    throw new Error('VITE_APIFY_TOKEN is missing. Add your Apify token to the frontend environment.')
+  }
+
+  const productUrls = [...new Set(params.productUrls.filter(Boolean))]
+  if (!productUrls.length) {
+    throw new Error('No Home Depot product URLs were found for the selected baseboard.')
+  }
+
+  // NOTE: this actor (automation-lab~home-depot-product-scraper) is separate from
+  // the old js_script cloudflare scraper (ecomscrape~cloudflare-web-scraper-ppe) used
+  // in lib/apifyPrices.ts for the admin catalog. Do NOT reuse SCRAPE_ACTOR_INPUT here —
+  // that config (js_script, proxy, execute_js_async, etc.) belongs to the old actor and
+  // is not part of this actor's input schema. Send only what this actor actually expects:
+  // zipcode, store id, and the product URLs for the baseboard the user picked.
+  //
+  // If the actor's real field names differ from these, update this object to match —
+  // check the actor's Input tab on Apify for the authoritative field names.
+  const actorInput = {
+    zipcode: params.zipcode,
+    storeId: params.storeId,
+    urls: productUrls,
+  }
+
+  const response = await fetch(
+    `https://api.apify.com/v2/actors/${HOME_DEPOT_APIFY_ACTOR}/run-sync-get-dataset-items?token=${encodeURIComponent(token)}&format=json`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(actorInput),
+    },
+  )
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(`Home Depot price lookup failed (${response.status}): ${text || response.statusText}`)
+  }
+
+  const data = await response.json()
+  const items = Array.isArray(data) ? data : []
+  return items.map(normalizeApifyPriceItem)
+}
+
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export default function EstimateWizard() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
-  
+
   // Initialize answers from localStorage if they exist, otherwise use initialAnswers
   const [answers, setAnswers] = useState<FormAnswers>(() => {
     try {
@@ -211,10 +301,12 @@ export default function EstimateWizard() {
     }
     return initialAnswers
   })
-  
+
   const [estimate, setEstimate] = useState<EstimateResult | null>(null)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
+  const [isGeneratingEstimate, setIsGeneratingEstimate] = useState(false)
+  const [estimateError, setEstimateError] = useState('')
 
   // ─── Stable camera/gallery refs (never remounted — fixes iOS reload bug) ──────
   const cameraInputRef = useRef<HTMLInputElement>(null)
@@ -315,7 +407,7 @@ export default function EstimateWizard() {
         if (parsed.answers) {
           const loadedAnswers = parsed.answers
           const initialItems: Record<string, { photo: File | null; sqft: string }[]> = {}
-          
+
           // Map stored dimension totals back to the first row of each combined step
           const mappings = [
             { stepId: 'drywall_wall', dimId: 'drywall_wall_sqft' },
@@ -332,7 +424,7 @@ export default function EstimateWizard() {
             { stepId: 'trim_baseboard', dimId: 'trim_baseboard_height' },
             { stepId: 'trim_casing_combined', dimId: 'trim_casing_linear_feet' },
           ]
-          
+
           for (const m of mappings) {
             if (loadedAnswers[m.dimId]) {
               initialItems[m.stepId] = [{ photo: null, sqft: loadedAnswers[m.dimId] }]
@@ -341,7 +433,7 @@ export default function EstimateWizard() {
           return initialItems
         }
       }
-    } catch (e) {}
+    } catch (e) { }
     return {}
   })
 
@@ -916,6 +1008,13 @@ export default function EstimateWizard() {
       })
 
       stepsList.push({
+        id: 'baseboard_product',
+        title: 'Choose your baseboard',
+        subtitle: 'We will check the live Home Depot price for these products at your ZIP-code store.',
+        type: 'baseboard_product',
+      })
+
+      stepsList.push({
         id: 'trim_base_material',
         title: 'What material is your base?',
         type: 'checkbox_with_input',
@@ -938,35 +1037,7 @@ export default function EstimateWizard() {
       })
 
       stepsList.push({ id: 'trim_casing_primed', title: 'Is it primed all already?', type: 'radio', options: ['Yes', 'No'] })
-      stepsList.push({
-        id: 'trim_knows_price',
-        title: 'Do you know what the price per linear foot is for your base, or casing?',
-        type: 'radio',
-        options: ['Yes', 'No'],
-      })
-
-      if (answers.trim_knows_price === 'Yes') {
-        stepsList.push({
-          id: 'trim_prices',
-          title: 'Enter linear price for Base & Casing',
-          type: 'price_pair',
-          fields: {
-            base: { id: 'trim_base_price', label: 'Base ($/linear ft)', placeholder: 'e.g. 5.00' },
-            casing: { id: 'trim_casing_price', label: 'Casing ($/linear ft)', placeholder: 'e.g. 5.00' },
-          },
-        })
-      }
-
-      if (answers.trim_knows_price === 'No') {
-        stepsList.push({
-          id: 'trim_search_fee_ok',
-          title: 'Are you ok with a $50 an hour fee for searching for your trim?',
-          type: 'radio',
-          options: ['Yes', 'No'],
-          warningCondition: 'No',
-          warningMessage: 'Please Provide Trim details before work starts.',
-        })
-      }
+      // price comes live from Apify now — no manual price step
 
       // Only show photo upload if they said they have new ones (or no prior service)
       if (!answers.services.drywall && !answers.services.paint) {
@@ -1006,7 +1077,9 @@ export default function EstimateWizard() {
 
   const isStepValid = () => {
     if (currentStepIndex === 0) {
-      return answers.services.drywall || answers.services.paint || answers.services.trim
+      const validZip = /^\d{5}$/.test(String(answers.zipcode || ''))
+      const hasService = answers.services.drywall || answers.services.paint || answers.services.trim
+      return validZip && hasService
     }
     const step = dynamicSteps[currentStepIndex - 1]
     if (!step) return false
@@ -1017,6 +1090,7 @@ export default function EstimateWizard() {
     ]
     if (autoValid.includes(step.type)) return true
     if (step.id === 'additional_info') return true
+    if (step.type === 'baseboard_product') return !!answers.baseboard_product_url
 
     if (step.type === 'price_pair') {
       return (
@@ -1084,49 +1158,117 @@ export default function EstimateWizard() {
 
   const handleSubmit = async () => {
     if (!isStepValid()) return
-    
-    // Generate thumbnails before storing in localStorage
-    const thumbnails = uploadedFiles.length > 0 ? await generateThumbnails(uploadedFiles) : []
-
-    const enrichedAnswers = {
-      ...answers,
-        paintColorExplorer: answers.paint_brand_color || '',   // <-- add this
-      has_photos: uploadedFiles.length > 0 ? 'Yes' : 'No',
-      services: {
-        ...answers.services,
-        electrical: !!(answers.electrical_services && answers.electrical_services !== 'none'),
-      },
-    }
-    const result = calculateEstimate(enrichedAnswers)
-    setEstimate(result)
-    try {
-      localStorage.setItem('fcd_estimate_data', JSON.stringify({ answers: enrichedAnswers, estimate: result, thumbnails }))
-    } catch (e) {
-      console.error('Failed to store estimate in localStorage', e)
-    }
-    if (uploadedFiles.length === 0) {
-      window.open('/estimate', '_blank')
-      return
-    }
-    const newTab = window.open('about:blank', '_blank')
-    if (newTab) {
-      newTab.document.write(
-        '<html><head><title>Loading...</title></head><body style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;color:#334155;"><h3>Uploading Photos & Generating Quote...</h3></body></html>'
-      )
-    }
+    setEstimateError('')
+    setIsGeneratingEstimate(true)
     setIsUploading(true)
+
     try {
-      const uploadResult = await uploadFilesToDrive(uploadedFiles)
-      console.log('Photos uploaded to Drive folder:', uploadResult.folderCreated)
-    } catch (err) {
-      console.error('Photo upload failed:', err)
+      const zipcode = String(answers.zipcode || '').replace(/\D/g, '').slice(0, 5)
+      if (!/^\d{5}$/.test(zipcode)) {
+        throw new Error('Please enter a valid 5-digit ZIP code.')
+      }
+
+      const storeId = (homeDepotStoreByZip as Record<string, string>)[zipcode]
+      if (!storeId) {
+        throw new Error(`No Home Depot store is mapped to ZIP ${zipcode}.`)
+      }
+
+      const enrichedAnswers: FormAnswers = {
+        ...answers,
+        zipcode,
+        homeDepotStoreId: storeId,
+        paintColorExplorer: answers.paint_brand_color || '',
+        has_photos: uploadedFiles.length > 0 ? 'Yes' : 'No',
+        services: {
+          ...answers.services,
+          electrical: !!(answers.electrical_services && answers.electrical_services !== 'none'),
+        },
+      }
+
+      // A user can choose a baseboard product during the wizard. If they do,
+      // scrape that one. Otherwise fall back to all catalog products matching
+      // the selected baseboard height.
+      if (answers.services.trim) {
+        const selectedUrls = answers.baseboard_product_url
+          ? [answers.baseboard_product_url]
+          : getBaseboardProductsForSelection(answers.trim_baseboard_height || '').map((p) => p.url)
+
+        if (!selectedUrls.length) {
+          throw new Error('No Home Depot baseboard products were found for the selected size.')
+        }
+
+        const liveItems = await runHomeDepotActorLive({
+          zipcode,
+          storeId,
+          productUrls: selectedUrls,
+        })
+
+        const selectedResult = answers.baseboard_product_url
+          ? liveItems.find((item) => item.url === answers.baseboard_product_url) || liveItems[0]
+          : liveItems.find((item) => item.price != null && !item.outOfStock) || liveItems[0]
+
+        if (!selectedResult || selectedResult.price == null || selectedResult.outOfStock) {
+          throw new Error('Home Depot did not return an available live price for the selected baseboard.')
+        }
+
+        // estimateEngine already uses trim_base_price for the baseboard material.
+        enrichedAnswers.trim_base_price = String(selectedResult.price)
+        enrichedAnswers.liveBaseboardPrice = selectedResult.price
+        enrichedAnswers.liveHomeDepotPrice = selectedResult.price
+        enrichedAnswers.homeDepotStoreId = storeId
+        enrichedAnswers.homeDepotPriceUrl = selectedResult.url || answers.baseboard_product_url || ''
+        enrichedAnswers.homeDepotPriceItems = liveItems
+      }
+
+      // Generate thumbnails before storing in localStorage.
+      const thumbnails = uploadedFiles.length > 0
+        ? await generateThumbnails(uploadedFiles)
+        : []
+
+      const result = calculateEstimate(enrichedAnswers)
+      setEstimate(result)
+
+      try {
+        localStorage.setItem(
+          'fcd_estimate_data',
+          JSON.stringify({
+            answers: enrichedAnswers,
+            estimate: result,
+            thumbnails,
+          }),
+        )
+      } catch (e) {
+        console.error('Failed to store estimate in localStorage', e)
+      }
+
+      if (uploadedFiles.length === 0) {
+        window.open('/estimate', '_blank')
+        return
+      }
+
+      const newTab = window.open('about:blank', '_blank')
+      if (newTab) {
+        newTab.document.write(
+          '<html><head><title>Loading...</title></head><body style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;color:#334155;"><h3>Uploading Photos & Generating Quote...</h3></body></html>',
+        )
+      }
+
+      try {
+        const uploadResult = await uploadFilesToDrive(uploadedFiles)
+        console.log('Photos uploaded to Drive folder:', uploadResult.folderCreated)
+      } catch (err) {
+        console.error('Photo upload failed:', err)
+      } finally {
+        if (newTab) newTab.location.href = '/estimate'
+        else window.location.href = '/estimate'
+      }
+    } catch (error) {
+      console.error(error)
+      setEstimateError(error instanceof Error ? error.message : 'We could not prepare your estimate. Please try again.')
     } finally {
-      setIsUploading(false)
-      if (newTab) newTab.location.href = '/estimate'
-      else window.location.href = '/estimate'
+      setIsGeneratingEstimate(false)
     }
   }
-
   // ─── Success screen ───────────────────────────────────────────────────────────
 
   if (estimate) {
@@ -1208,265 +1350,308 @@ export default function EstimateWizard() {
   }
 
   return (
-    <div className="estimate-wizard-card">
+    <>
+      {isGeneratingEstimate && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 99999,
+            background: 'rgba(15, 23, 42, 0.72)',
+            backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: '460px',
+              background: '#fff',
+              borderRadius: '18px',
+              padding: '36px 28px',
+              textAlign: 'center',
+              boxShadow: '0 24px 80px rgba(0,0,0,0.25)',
+            }}
+          >
+            <div
+              style={{
+                width: '52px',
+                height: '52px',
+                margin: '0 auto 22px',
+                borderRadius: '50%',
+                border: '5px solid #e2e8f0',
+                borderTopColor: 'var(--blue, #2faeff)',
+                animation: 'estimate-spin 0.9s linear infinite',
+              }}
+            />
 
-      {/*
+            <h2 style={{ margin: '0 0 12px', fontSize: '1.45rem', color: '#0f172a' }}>
+              Preparing your estimate…
+            </h2>
+
+            <p style={{ margin: '0 auto 14px', maxWidth: '360px', lineHeight: 1.6, color: '#475569' }}>
+              We're checking current Home Depot pricing for your area and calculating your estimate.
+            </p>
+
+            <p style={{ margin: '0 0 10px', color: '#0f172a', fontSize: '0.95rem' }}>
+              This may take <strong>60–70 seconds</strong>.
+            </p>
+
+            <p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>
+              Please don't close this page.
+            </p>
+
+            <style>{`@keyframes estimate-spin { to { transform: rotate(360deg); } }`}</style>
+          </div>
+        </div>
+      )}
+
+      {estimateError && !isGeneratingEstimate && (
+        <div style={{
+          margin: '0 auto 16px',
+          maxWidth: '720px',
+          padding: '12px 16px',
+          borderRadius: '10px',
+          background: 'rgba(239,68,68,0.08)',
+          border: '1px solid rgba(239,68,68,0.25)',
+          color: '#b91c1c',
+          fontSize: '0.9rem',
+          fontWeight: 600,
+        }}>
+          {estimateError}
+        </div>
+      )}
+
+      <div className="estimate-wizard-card">
+
+        {/*
         ─── STABLE HIDDEN INPUTS ───────────────────────────────────────────────
         Mounted ONCE at root, never inside a conditional or .map().
         This is the key fix for iOS camera refresh bug — the DOM nodes
         stay alive across re-renders so the camera can return safely.
       */}
-      <input
-        ref={cameraInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        style={{ display: 'none' }}
-        onChange={handleCameraChange}
-      />
-      <input
-        ref={galleryInputRef}
-        type="file"
-        accept="image/*"
-        multiple
-        style={{ display: 'none' }}
-        onChange={handleGalleryChange}
-      />
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          style={{ display: 'none' }}
+          onChange={handleCameraChange}
+        />
+        <input
+          ref={galleryInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          style={{ display: 'none' }}
+          onChange={handleGalleryChange}
+        />
 
-      <div className="wizard-header">
-        <h3>Estimate Calculator</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button 
-            type="button" 
-            onClick={handleResetForm}
-            style={{
-              background: 'transparent',
-              border: '1px solid #ef4444',
-              color: '#ef4444',
-              borderRadius: '6px',
-              padding: '4px 10px',
-              fontSize: '0.75rem',
-              fontWeight: 700,
-              cursor: 'pointer'
-            }}
-            title="Clear all answers and start over"
-          >
-            Reset Form
-          </button>
-          <span className="step-indicator">Step {currentStepIndex + 1} of {totalSteps}</span>
-        </div>
-      </div>
-
-      <div className="wizard-progress-bar">
-        <div className="wizard-progress-fill" style={{ width: `${((currentStepIndex + 1) / totalSteps) * 100}%` }} />
-      </div>
-
-      <div className="wizard-content">
-
-        {/* ── Step 0: Service selection ─────────────────────────────────────────── */}
-        {currentStepIndex === 0 && (
-          <div className="wizard-step-pane active">
-            <h4 className="wizard-step-title">What services do you need?</h4>
-            <p className="wizard-step-subtitle">Select all services that apply to your project.</p>
-            <div className="services-selection-grid">
-              {([
-                { key: 'drywall', icon: '🧱', label: 'Drywall Services', sub: 'Hanging, taping, patchwork & repair' },
-                { key: 'paint', icon: '🎨', label: 'Painting Services', sub: 'Surface preparation, touch-ups & painting' },
-                { key: 'trim', icon: '🪵', label: 'Trim & Baseboard', sub: 'Installation and painting services' },
-              ] as const).map(({ key, icon, label, sub }) => (
-                <button
-                  key={key}
-                  type="button"
-                  className={`service-select-card${answers.services[key] ? ' selected' : ''}`}
-                  onClick={() => handleServiceToggle(key)}
-                >
-                  <span className="service-card-icon">{icon}</span>
-                  <div className="service-card-text">
-                    <strong>{label}</strong>
-                    <span>{sub}</span>
-                  </div>
-                  <div className="custom-checkbox">
-                    {answers.services[key] && <span className="checkmark">✓</span>}
-                  </div>
-                </button>
-              ))}
-            </div>
+        <div className="wizard-header">
+          <h3>Estimate Calculator</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              type="button"
+              onClick={handleResetForm}
+              style={{
+                background: 'transparent',
+                border: '1px solid #ef4444',
+                color: '#ef4444',
+                borderRadius: '6px',
+                padding: '4px 10px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+              title="Clear all answers and start over"
+            >
+              Reset Form
+            </button>
+            <span className="step-indicator">Step {currentStepIndex + 1} of {totalSteps}</span>
           </div>
-        )}
+        </div>
 
-        {/* ── Dynamic steps ─────────────────────────────────────────────────────── */}
-        {currentStepIndex >= 1 && currentStep && (
-          <div className="wizard-step-pane active">
+        <div className="wizard-progress-bar">
+          <div className="wizard-progress-fill" style={{ width: `${((currentStepIndex + 1) / totalSteps) * 100}%` }} />
+        </div>
 
-            {/* Section intro */}
-            {currentStep.type === 'section_intro' && (() => {
-              const allServices = (
-                [answers.services.drywall && 'Drywall', answers.services.paint && 'Painting', answers.services.trim && 'Trim'] as (string | false)[]
-              ).filter(Boolean) as string[]
-              const currentIdx = allServices.findIndex((_, i) => {
-                if (currentStep.id === 'section_intro_drywall') return allServices[i] === 'Drywall'
-                if (currentStep.id === 'section_intro_paint') return allServices[i] === 'Painting'
-                return allServices[i] === 'Trim'
-              })
-              const colors: Record<string, string> = { section_intro_drywall: '#f97316', section_intro_paint: '#6366f1', section_intro_trim: '#10b981' }
-              const color = colors[currentStep.id] || currentStep.color
-              return (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '12px 8px 8px', textAlign: 'center' }}>
-                  <div style={{ display: 'flex', gap: '6px', marginBottom: '28px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                    {allServices.map((svc, i) => (
-                      <span key={svc} style={{ padding: '4px 14px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600, background: i === currentIdx ? color : 'rgba(148,163,184,0.15)', color: i === currentIdx ? '#fff' : '#94a3b8', border: `1.5px solid ${i === currentIdx ? color : 'rgba(148,163,184,0.25)'}` }}>
-                        {i < currentIdx ? '✓ ' : ''}{svc}
-                      </span>
-                    ))}
+        <div className="wizard-content">
+
+          {/* ── Step 0: Service selection ─────────────────────────────────────────── */}
+          {currentStepIndex === 0 && (
+            <div className="wizard-step-pane active">
+              <h4 className="wizard-step-title">Where is the project?</h4>
+              <p className="wizard-step-subtitle">Enter your ZIP code so we can use the nearest Home Depot store for live pricing.</p>
+              <div style={{ maxWidth: '360px', margin: '0 auto 28px' }}>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={5}
+                  autoComplete="postal-code"
+                  className="theme-text-input"
+                  placeholder="ZIP Code (e.g. 92691)"
+                  value={answers.zipcode || ''}
+                  onChange={(e) => handleTextChange('zipcode', e.target.value.replace(/\D/g, '').slice(0, 5))}
+                />
+              </div>
+
+              <h4 className="wizard-step-title">What services do you need?</h4>
+              <p className="wizard-step-subtitle">Select all services that apply to your project.</p>
+              <div className="services-selection-grid">
+                {([
+                  { key: 'drywall', icon: '🧱', label: 'Drywall Services', sub: 'Hanging, taping, patchwork & repair' },
+                  { key: 'paint', icon: '🎨', label: 'Painting Services', sub: 'Surface preparation, touch-ups & painting' },
+                  { key: 'trim', icon: '🪵', label: 'Trim & Baseboard', sub: 'Installation and painting services' },
+                ] as const).map(({ key, icon, label, sub }) => (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`service-select-card${answers.services[key] ? ' selected' : ''}`}
+                    onClick={() => handleServiceToggle(key)}
+                  >
+                    <span className="service-card-icon">{icon}</span>
+                    <div className="service-card-text">
+                      <strong>{label}</strong>
+                      <span>{sub}</span>
+                    </div>
+                    <div className="custom-checkbox">
+                      {answers.services[key] && <span className="checkmark">✓</span>}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Dynamic steps ─────────────────────────────────────────────────────── */}
+          {currentStepIndex >= 1 && currentStep && (
+            <div className="wizard-step-pane active">
+
+              {/* Section intro */}
+              {currentStep.type === 'section_intro' && (() => {
+                const allServices = (
+                  [answers.services.drywall && 'Drywall', answers.services.paint && 'Painting', answers.services.trim && 'Trim'] as (string | false)[]
+                ).filter(Boolean) as string[]
+                const currentIdx = allServices.findIndex((_, i) => {
+                  if (currentStep.id === 'section_intro_drywall') return allServices[i] === 'Drywall'
+                  if (currentStep.id === 'section_intro_paint') return allServices[i] === 'Painting'
+                  return allServices[i] === 'Trim'
+                })
+                const colors: Record<string, string> = { section_intro_drywall: '#f97316', section_intro_paint: '#6366f1', section_intro_trim: '#10b981' }
+                const color = colors[currentStep.id] || currentStep.color
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '12px 8px 8px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', gap: '6px', marginBottom: '28px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                      {allServices.map((svc, i) => (
+                        <span key={svc} style={{ padding: '4px 14px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600, background: i === currentIdx ? color : 'rgba(148,163,184,0.15)', color: i === currentIdx ? '#fff' : '#94a3b8', border: `1.5px solid ${i === currentIdx ? color : 'rgba(148,163,184,0.25)'}` }}>
+                          {i < currentIdx ? '✓ ' : ''}{svc}
+                        </span>
+                      ))}
+                    </div>
+                    <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: `linear-gradient(135deg, ${color}22, ${color}44)`, border: `3px solid ${color}66`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.6rem', marginBottom: '20px', boxShadow: `0 0 32px ${color}33` }}>
+                      {currentStep.icon}
+                    </div>
+                    <h3 style={{ margin: '0 0 10px', fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary, #1e293b)' }}>{currentStep.label}</h3>
+                    <p style={{ margin: '0 0 28px', fontSize: '0.95rem', color: 'var(--text-secondary, #64748b)', maxWidth: '340px', lineHeight: 1.6 }}>{currentStep.description}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '280px' }}>
+                      <div style={{ flex: 1, height: '1px', background: `linear-gradient(to right, transparent, ${color}55)` }} />
+                      <span style={{ fontSize: '0.78rem', color, fontWeight: 600, whiteSpace: 'nowrap' }}>Section {currentIdx + 1} of {allServices.length}</span>
+                      <div style={{ flex: 1, height: '1px', background: `linear-gradient(to left, transparent, ${color}55)` }} />
+                    </div>
                   </div>
-                  <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: `linear-gradient(135deg, ${color}22, ${color}44)`, border: `3px solid ${color}66`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.6rem', marginBottom: '20px', boxShadow: `0 0 32px ${color}33` }}>
-                    {currentStep.icon}
-                  </div>
-                  <h3 style={{ margin: '0 0 10px', fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary, #1e293b)' }}>{currentStep.label}</h3>
-                  <p style={{ margin: '0 0 28px', fontSize: '0.95rem', color: 'var(--text-secondary, #64748b)', maxWidth: '340px', lineHeight: 1.6 }}>{currentStep.description}</p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '280px' }}>
-                    <div style={{ flex: 1, height: '1px', background: `linear-gradient(to right, transparent, ${color}55)` }} />
-                    <span style={{ fontSize: '0.78rem', color, fontWeight: 600, whiteSpace: 'nowrap' }}>Section {currentIdx + 1} of {allServices.length}</span>
-                    <div style={{ flex: 1, height: '1px', background: `linear-gradient(to left, transparent, ${color}55)` }} />
-                  </div>
-                </div>
-              )
-            })()}
+                )
+              })()}
 
-            {/* All non-intro step content */}
-            {currentStep.type !== 'section_intro' && (
-              <>
-                <h4 className="wizard-step-title">{currentStep.title}</h4>
-                {currentStep.subtitle && <p className="wizard-step-subtitle">{currentStep.subtitle}</p>}
+              {/* All non-intro step content */}
+              {currentStep.type !== 'section_intro' && (
+                <>
+                  <h4 className="wizard-step-title">{currentStep.title}</h4>
+                  {currentStep.subtitle && <p className="wizard-step-subtitle">{currentStep.subtitle}</p>}
 
-                <div className="dynamic-input-container">
+                  <div className="dynamic-input-container">
 
-                  {/* Radio */}
-                  {currentStep.type === 'radio' && (
-                    <>
-                      <div className="radio-options-list">
-                        {currentStep.options?.map((option: string) => {
-                          const isSelected = answers[currentStep.id] === option || (option === 'Other' && answers[currentStep.id]?.startsWith('Other:'))
-                          return (
-                            <div key={option} className="radio-option-card-wrapper">
-                              <button
-                                type="button"
-                                className={`radio-option-card${isSelected ? ' selected' : ''}`}
-                                onClick={() => handleOptionSelect(currentStep.id, option === 'Other' ? 'Other: ' : option)}
-                              >
-                                <span className="radio-indicator">{isSelected && <span className="radio-dot" />}</span>
-                                <span className="radio-label-text">{option}</span>
-                              </button>
-                              {option === 'Other' && isSelected && (
-                                <div className="other-input-container">
-                                  <input
-                                    type="text"
-                                    className="theme-text-input other-text-input"
-                                    placeholder="Please specify..."
-                                    value={answers[currentStep.id]?.replace('Other: ', '') || ''}
-                                    onChange={(e) => handleOptionSelect(currentStep.id, `Other: ${e.target.value}`)}
-                                    autoFocus
-                                  />
-                                </div>
-                              )}
+                    {/* Live Home Depot baseboard product selection */}
+                    {currentStep.type === 'baseboard_product' && (() => {
+                      const products = getBaseboardProductsForSelection(answers.trim_baseboard_height || '')
+                      return (
+                        <div className="radio-options-list">
+                          {products.length === 0 ? (
+                            <div style={{ padding: '16px', borderRadius: '10px', background: 'rgba(245,158,11,0.1)', color: '#92400e' }}>
+                              No catalog products were found for this baseboard size. Go back and select a supported baseboard height.
                             </div>
-                          )
-                        })}
-                      </div>
-                      {currentStep.warningCondition && answers[currentStep.id] === currentStep.warningCondition && (
-                        <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.3)', borderRadius: '8px', color: '#b45309', fontSize: '0.9rem', fontWeight: 600 }}>
-                          ⚠️ {currentStep.warningMessage}
+                          ) : (
+                            products.map((product) => {
+                              const selected = answers.baseboard_product_url === product.url
+                              return (
+                                <button
+                                  key={product.url}
+                                  type="button"
+                                  className={`radio-option-card${selected ? ' selected' : ''}`}
+                                  onClick={() => setAnswers((prev) => ({
+                                    ...prev,
+                                    baseboard_product_url: product.url,
+                                    baseboard_product_name: product.name,
+                                  }))}
+                                  style={{ textAlign: 'left' }}
+                                >
+                                  <span className="radio-indicator">{selected && <span className="radio-dot" />}</span>
+                                  <span className="radio-label-text">{product.name}</span>
+                                </button>
+                              )
+                            })
+                          )}
                         </div>
-                      )}
-                    </>
-                  )}
+                      )
+                    })()}
 
-                  {/* Checkbox */}
-                  {currentStep.type === 'checkbox' && (
-                    <div className="radio-options-list">
-                      {currentStep.options?.map((option: string) => {
-                        const currentVals = Array.isArray(answers[currentStep.id]) ? answers[currentStep.id] : answers[currentStep.id] ? [answers[currentStep.id]] : []
-                        const isSelected = currentVals.includes(option)
-                        return (
-                          <button
-                            key={option}
-                            type="button"
-                            className={`radio-option-card${isSelected ? ' selected' : ''}`}
-                            onClick={() => {
-                              setAnswers((prev) => {
-                                const prevVals = Array.isArray(prev[currentStep.id]) ? prev[currentStep.id] : prev[currentStep.id] ? [prev[currentStep.id]] : []
-                                const newVals = isSelected ? prevVals.filter((v: string) => v !== option) : [...prevVals, option]
-                                return { ...prev, [currentStep.id]: newVals }
-                              })
-                            }}
-                          >
-                            <div className="custom-checkbox" style={{ marginRight: '12px' }}>
-                              {isSelected && <span className="checkmark">✓</span>}
-                            </div>
-                            <span className="radio-label-text">{option}</span>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  )}
-
-                  {/* Text / Number */}
-                  {(currentStep.type === 'text' || currentStep.type === 'number') && (
-                    <div className="input-group">
-                      <input
-                        type={currentStep.type}
-                        className="theme-text-input"
-                        placeholder={currentStep.placeholder || 'Type your answer here...'}
-                        value={answers[currentStep.id] || ''}
-                        onChange={(e) => handleTextChange(currentStep.id, e.target.value)}
-                      />
-                    </div>
-                  )}
-
-                  {/* Textarea */}
-                  {currentStep.type === 'textarea' && (
-                    <div className="input-group">
-                      <textarea
-                        className="theme-textarea"
-                        rows={4}
-                        placeholder={currentStep.placeholder || 'Provide additional details here...'}
-                        value={answers[currentStep.id] || ''}
-                        onChange={(e) => handleTextChange(currentStep.id, e.target.value)}
-                      />
-                    </div>
-                  )}
-
-                  {/* Dimensions */}
-                  {(currentStep.type === 'dimensions_and_address' || currentStep.type === 'dimensions_optional') && (
-                    <div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '15px' }}>
-                        {[
-                          { id: 'length', label: 'Room Length (ft)', placeholder: 'e.g. 15' },
-                          { id: 'width', label: 'Room Width (ft)', placeholder: 'e.g. 12' },
-                          { id: 'height', label: 'Ceiling Height (ft)', placeholder: 'e.g. 9', max: 12 },
-                        ].map((f) => (
-                          <div key={f.id} className="input-group">
-                            <label htmlFor={f.id} style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>{f.label}</label>
-                            <input id={f.id} type="number" max={f.max} placeholder={f.placeholder} value={(answers as any)[f.id] || ''} onChange={(e) => {
-                              let val = e.target.value;
-                              if (f.max && Number(val) > f.max) val = f.max.toString();
-                              handleTextChange(f.id, val);
-                            }} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }} />
+                    {/* Radio */}
+                    {currentStep.type === 'radio' && (
+                      <>
+                        <div className="radio-options-list">
+                          {currentStep.options?.map((option: string) => {
+                            const isSelected = answers[currentStep.id] === option || (option === 'Other' && answers[currentStep.id]?.startsWith('Other:'))
+                            return (
+                              <div key={option} className="radio-option-card-wrapper">
+                                <button
+                                  type="button"
+                                  className={`radio-option-card${isSelected ? ' selected' : ''}`}
+                                  onClick={() => handleOptionSelect(currentStep.id, option === 'Other' ? 'Other: ' : option)}
+                                >
+                                  <span className="radio-indicator">{isSelected && <span className="radio-dot" />}</span>
+                                  <span className="radio-label-text">{option}</span>
+                                </button>
+                                {option === 'Other' && isSelected && (
+                                  <div className="other-input-container">
+                                    <input
+                                      type="text"
+                                      className="theme-text-input other-text-input"
+                                      placeholder="Please specify..."
+                                      value={answers[currentStep.id]?.replace('Other: ', '') || ''}
+                                      onChange={(e) => handleOptionSelect(currentStep.id, `Other: ${e.target.value}`)}
+                                      autoFocus
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                        {currentStep.warningCondition && answers[currentStep.id] === currentStep.warningCondition && (
+                          <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.3)', borderRadius: '8px', color: '#b45309', fontSize: '0.9rem', fontWeight: 600 }}>
+                            ⚠️ {currentStep.warningMessage}
                           </div>
-                        ))}
-                      </div>
-                      {currentStep.type === 'dimensions_and_address' && (
-                        <div className="input-group" style={{ marginTop: '12px' }}>
-                          <label htmlFor="address" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>Project Address</label>
-                          <input id="address" type="text" placeholder="Street Address, City, State, ZIP" value={answers.address} onChange={(e) => handleTextChange('address', e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }} />
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        )}
+                      </>
+                    )}
 
-                  {/* Checkbox with inline input */}
-                  {currentStep.type === 'checkbox_with_input' && (
-                    <div>
+                    {/* Checkbox */}
+                    {currentStep.type === 'checkbox' && (
                       <div className="radio-options-list">
                         {currentStep.options?.map((option: string) => {
                           const currentVals = Array.isArray(answers[currentStep.id]) ? answers[currentStep.id] : answers[currentStep.id] ? [answers[currentStep.id]] : []
@@ -1492,268 +1677,353 @@ export default function EstimateWizard() {
                           )
                         })}
                       </div>
-                      {(() => {
-                        const currentVals = Array.isArray(answers[currentStep.id]) ? answers[currentStep.id] : answers[currentStep.id] ? [answers[currentStep.id]] : []
-                        const inputField = currentStep.inputField
-                        if (currentVals.length > 0 && inputField) {
-                          return (
-                            <div className="input-group" style={{ marginTop: '16px' }}>
-                              <label htmlFor={inputField.id} style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>{inputField.label}</label>
-                              <input id={inputField.id} type="text" className="theme-text-input" placeholder={inputField.placeholder} value={answers[inputField.id] || ''} onChange={(e) => handleTextChange(inputField.id, e.target.value)} />
-                            </div>
-                          )
-                        }
-                        return null
-                      })()}
-                    </div>
-                  )}
+                    )}
 
-                  {/* Contact info */}
-                  {currentStep.type === 'contact_info_optional' && (
-                    <div>
-                      {[
-                        { id: 'contact_name', label: 'Full Name', type: 'text', placeholder: 'Your Name' },
-                        { id: 'contact_phone', label: 'Phone Number', type: 'text', placeholder: 'Your Phone Number' },
-                        { id: 'contact_email', label: 'Email Address', type: 'email', placeholder: 'Your Email' },
-                        { id: 'contact_address', label: 'Project Address', type: 'text', placeholder: 'Street Address, City, State, ZIP' },
-                      ].map((f) => (
-                        <div key={f.id} className="input-group" style={{ marginBottom: '12px' }}>
-                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>{f.label}</label>
-                          <input type={f.type} placeholder={f.placeholder} value={answers[f.id] || ''} onChange={(e) => handleTextChange(f.id, e.target.value)} className="theme-text-input" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* ── Photo upload (camera + upload via stable refs) ── */}
-                  {currentStep.type === 'photo_upload' && (
-                    <div style={{ background: 'rgba(47,174,255,0.04)', border: '1px dashed var(--blue)', borderRadius: '12px', padding: '24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                      <span style={{ fontSize: '2.5rem' }}>📸</span>
-                      <h5 style={{ fontWeight: 800, margin: 0, fontSize: '1.1rem' }}>Add Photos</h5>
-                      <p style={{ fontSize: '0.85rem', color: '#667085', margin: 0, lineHeight: '1.4' }}>
-                        Take a photo directly or upload from your device (optional).
-                      </p>
-
-                      {/* Two-button row — calls stable refs, no label/input pairing */}
-                      <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '320px' }}>
-                        <button type="button" style={{ ...camBtnStyle, background: 'var(--blue)', color: '#fff', border: '1.5px solid var(--blue)' }} onClick={openGlobalCamera}>
-                          📷 Take Photo
-                        </button>
-                        <button type="button" style={{ ...uploadBtnStyle }} onClick={openGlobalGallery}>
-                          📂 Upload File
-                        </button>
+                    {/* Text / Number */}
+                    {(currentStep.type === 'text' || currentStep.type === 'number') && (
+                      <div className="input-group">
+                        <input
+                          type={currentStep.type}
+                          className="theme-text-input"
+                          placeholder={currentStep.placeholder || 'Type your answer here...'}
+                          value={answers[currentStep.id] || ''}
+                          onChange={(e) => handleTextChange(currentStep.id, e.target.value)}
+                        />
                       </div>
+                    )}
 
-                      {uploadedFiles.length > 0 && (
-                        <div style={{ width: '100%', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
-                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>
-                            {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} selected:
-                          </span>
-                          {uploadedFiles.map((file, idx) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.03)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.82rem' }}>
-                              <span style={{ color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>{file.name}</span>
-                              <button type="button" onClick={() => removeFile(idx)} style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: 'none', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700 }}>✕</button>
+                    {/* Textarea */}
+                    {currentStep.type === 'textarea' && (
+                      <div className="input-group">
+                        <textarea
+                          className="theme-textarea"
+                          rows={4}
+                          placeholder={currentStep.placeholder || 'Provide additional details here...'}
+                          value={answers[currentStep.id] || ''}
+                          onChange={(e) => handleTextChange(currentStep.id, e.target.value)}
+                        />
+                      </div>
+                    )}
+
+                    {/* Dimensions */}
+                    {(currentStep.type === 'dimensions_and_address' || currentStep.type === 'dimensions_optional') && (
+                      <div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '15px' }}>
+                          {[
+                            { id: 'length', label: 'Room Length (ft)', placeholder: 'e.g. 15' },
+                            { id: 'width', label: 'Room Width (ft)', placeholder: 'e.g. 12' },
+                            { id: 'height', label: 'Ceiling Height (ft)', placeholder: 'e.g. 9', max: 12 },
+                          ].map((f) => (
+                            <div key={f.id} className="input-group">
+                              <label htmlFor={f.id} style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>{f.label}</label>
+                              <input id={f.id} type="number" max={f.max} placeholder={f.placeholder} value={(answers as any)[f.id] || ''} onChange={(e) => {
+                                let val = e.target.value;
+                                if (f.max && Number(val) > f.max) val = f.max.toString();
+                                handleTextChange(f.id, val);
+                              }} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }} />
                             </div>
                           ))}
                         </div>
-                      )}
-                      <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Photos will be uploaded when you submit the estimate.</span>
-                    </div>
-                  )}
-
-                  {/* ── Combined dimension + photo (stable ref camera, thumbnail preview) ── */}
-                  {currentStep.type === 'combined' && currentStep.fields?.dimension && currentStep.fields?.photo && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 130px 40px', gap: '10px', fontWeight: 700, fontSize: '0.82rem', color: '#334155' }}>
-                        <div>Photo</div>
-                        <div>{currentStep.fields.dimension.placeholder?.includes('inch') ? 'Height' : 'Sq Ft / Linear Ft'}</div>
-                        <div />
+                        {currentStep.type === 'dimensions_and_address' && (
+                          <div className="input-group" style={{ marginTop: '12px' }}>
+                            <label htmlFor="address" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>Project Address</label>
+                            <input id="address" type="text" placeholder="Street Address, City, State, ZIP" value={answers.address} onChange={(e) => handleTextChange('address', e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '6px' }} />
+                          </div>
+                        )}
                       </div>
+                    )}
 
-                      {getStepItems(currentStep.id).map((item, index) => {
-                        const thumbKey = `${currentStep.id}-${index}`
-                        const thumbUrl = thumbUrls[thumbKey]
-                        return (
-                          <div key={index} style={{ display: 'grid', gridTemplateColumns: '1fr 130px 40px', gap: '10px', alignItems: 'center' }}>
-
-                            {/* Photo cell: thumbnail OR camera+upload buttons */}
-                            <div>
-                              {thumbUrl ? (
-                                <div style={{ position: 'relative', display: 'inline-flex' }}>
-                                  <img src={thumbUrl} alt="preview" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: '8px', border: '2px solid var(--blue)' }} />
-                                  <button
-                                    type="button"
-                                    onClick={() => clearRowPhoto(currentStep.id, index, currentStep.fields.dimension.id)}
-                                    style={{ position: 'absolute', top: -6, right: -6, width: 18, height: 18, borderRadius: '50%', background: '#ef4444', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                  >✕</button>
+                    {/* Checkbox with inline input */}
+                    {currentStep.type === 'checkbox_with_input' && (
+                      <div>
+                        <div className="radio-options-list">
+                          {currentStep.options?.map((option: string) => {
+                            const currentVals = Array.isArray(answers[currentStep.id]) ? answers[currentStep.id] : answers[currentStep.id] ? [answers[currentStep.id]] : []
+                            const isSelected = currentVals.includes(option)
+                            return (
+                              <button
+                                key={option}
+                                type="button"
+                                className={`radio-option-card${isSelected ? ' selected' : ''}`}
+                                onClick={() => {
+                                  setAnswers((prev) => {
+                                    const prevVals = Array.isArray(prev[currentStep.id]) ? prev[currentStep.id] : prev[currentStep.id] ? [prev[currentStep.id]] : []
+                                    const newVals = isSelected ? prevVals.filter((v: string) => v !== option) : [...prevVals, option]
+                                    return { ...prev, [currentStep.id]: newVals }
+                                  })
+                                }}
+                              >
+                                <div className="custom-checkbox" style={{ marginRight: '12px' }}>
+                                  {isSelected && <span className="checkmark">✓</span>}
                                 </div>
-                              ) : (
-                                <div style={{ display: 'flex', gap: '6px' }}>
-                                  {/* These buttons trigger the STABLE refs at the root */}
-                                  <button type="button" style={camBtnStyle} onClick={() => openCamera(currentStep.id, index)}>
-                                    📷
-                                  </button>
-                                  <button type="button" style={uploadBtnStyle} onClick={() => openGallery(currentStep.id, index)}>
-                                    📂
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Sqft / measurement input */}
-                            <input
-                              type="number"
-                              placeholder={currentStep.fields.dimension.placeholder || 'Amount'}
-                              value={item.sqft}
-                              onChange={(e) => updateSqft(currentStep.id, index, e.target.value, currentStep.fields.dimension.id)}
-                              className="theme-text-input"
-                            />
-
-                            {/* Remove row */}
-                            <button
-                              type="button"
-                              onClick={() => removeRow(currentStep.id, index, currentStep.fields.dimension.id)}
-                              disabled={getStepItems(currentStep.id).length === 1}
-                              style={{ border: 'none', background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderRadius: '6px', cursor: 'pointer', padding: '8px', opacity: getStepItems(currentStep.id).length === 1 ? 0.3 : 1 }}
-                            >✕</button>
-                          </div>
-                        )
-                      })}
-
-                      <button
-                        type="button"
-                        onClick={() => addRow(currentStep.id)}
-                        style={{ alignSelf: 'flex-start', marginTop: '4px', padding: '10px 16px', borderRadius: '8px', border: '1px solid var(--blue)', background: 'transparent', color: 'var(--blue)', fontWeight: 700, cursor: 'pointer' }}
-                      >➕ Add More</button>
-                    </div>
-                  )}
-
-                  {/* Price pair */}
-                  {currentStep.type === 'price_pair' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      {(['base', 'casing'] as const).map((key) => (
-                        <div key={key} className="input-group">
-                          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>{currentStep.fields[key].label}</label>
-                          <input type="text" className="theme-text-input" placeholder={currentStep.fields[key].placeholder} value={answers[currentStep.fields[key].id] || ''} onChange={(e) => handleTextChange(currentStep.fields[key].id, e.target.value)} />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Demolition combined */}
-                  {currentStep.type === 'demolition_combined' && (
-                    <div>
-                      {(currentStep.options || []).map((item: string) => {
-                        const map: Record<string, { id: string; title: string; placeholder: string }> = {
-                          'Remove Existing Wall Drywall': { id: 'drywall_demo_wall_sqft', title: 'Remove Existing Wall Drywall (sqft)', placeholder: 'e.g. 200' },
-                          'Remove Existing Ceiling Drywall': { id: 'drywall_demo_ceiling_sqft', title: 'Remove Existing Ceiling Drywall (sqft)', placeholder: 'e.g. 150' },
-                          'Remove Insulation (sqft)': { id: 'drywall_demo_insulation_sqft', title: 'Remove Insulation (sqft)', placeholder: 'e.g. 100' },
-                          'Remove Base Board (linear ft)': { id: 'drywall_demo_baseboard_ft', title: 'Remove Base Board (linear ft)', placeholder: 'e.g. 40' },
-                          'Remove Popcorn Ceiling': { id: 'drywall_popcorn_sqft', title: 'Remove Popcorn Ceiling (sqft) - Base rate $300', placeholder: 'e.g. 150' },
-                          'Wallpaper Removal': { id: 'drywall_wallpaper_sqft', title: 'Wallpaper Removal (sqft) — $5.20/sqft', placeholder: 'e.g. 200' },
-                        }
-                        const field = map[item]
-                        if (!field) return null
-                        return (
-                          <div key={item} className="input-group" style={{ marginBottom: '16px', padding: '16px', border: '1px solid #cbd5e1', borderRadius: '8px', background: 'rgba(0,0,0,0.02)' }}>
-                            <label htmlFor={field.id} style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '8px' }}>{field.title}</label>
-                            <input id={field.id} type="number" placeholder={field.placeholder} value={answers[field.id] || ''} onChange={(e) => handleTextChange(field.id, e.target.value)} className="theme-text-input" style={{ width: '100%' }} />
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-
-                  {/* Yes/No + conditional dimension */}
-                  {currentStep.type === 'yesno_combined' && currentStep.fields?.yes && (
-                    <div style={{ marginBottom: '20px' }}>
-                      <div className="radio-options-list" style={{ marginBottom: '16px' }}>
-                        {currentStep.options.map((option: string) => {
-                          const isSelected = answers[currentStep.id] === option
-                          return (
-                            <div key={option} className="radio-option-card-wrapper">
-                              <button type="button" className={`radio-option-card${isSelected ? ' selected' : ''}`} onClick={() => handleRadioChange(currentStep.id, option)}>
-                                <span className="radio-indicator">{isSelected && <span className="radio-dot" />}</span>
                                 <span className="radio-label-text">{option}</span>
                               </button>
+                            )
+                          })}
+                        </div>
+                        {(() => {
+                          const currentVals = Array.isArray(answers[currentStep.id]) ? answers[currentStep.id] : answers[currentStep.id] ? [answers[currentStep.id]] : []
+                          const inputField = currentStep.inputField
+                          if (currentVals.length > 0 && inputField) {
+                            return (
+                              <div className="input-group" style={{ marginTop: '16px' }}>
+                                <label htmlFor={inputField.id} style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>{inputField.label}</label>
+                                <input id={inputField.id} type="text" className="theme-text-input" placeholder={inputField.placeholder} value={answers[inputField.id] || ''} onChange={(e) => handleTextChange(inputField.id, e.target.value)} />
+                              </div>
+                            )
+                          }
+                          return null
+                        })()}
+                      </div>
+                    )}
+
+                    {/* Contact info */}
+                    {currentStep.type === 'contact_info_optional' && (
+                      <div>
+                        {[
+                          { id: 'contact_name', label: 'Full Name', type: 'text', placeholder: 'Your Name' },
+                          { id: 'contact_phone', label: 'Phone Number', type: 'text', placeholder: 'Your Phone Number' },
+                          { id: 'contact_email', label: 'Email Address', type: 'email', placeholder: 'Your Email' },
+                          { id: 'contact_address', label: 'Project Address', type: 'text', placeholder: 'Street Address, City, State, ZIP' },
+                        ].map((f) => (
+                          <div key={f.id} className="input-group" style={{ marginBottom: '12px' }}>
+                            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>{f.label}</label>
+                            <input type={f.type} placeholder={f.placeholder} value={answers[f.id] || ''} onChange={(e) => handleTextChange(f.id, e.target.value)} className="theme-text-input" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* ── Photo upload (camera + upload via stable refs) ── */}
+                    {currentStep.type === 'photo_upload' && (
+                      <div style={{ background: 'rgba(47,174,255,0.04)', border: '1px dashed var(--blue)', borderRadius: '12px', padding: '24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '2.5rem' }}>📸</span>
+                        <h5 style={{ fontWeight: 800, margin: 0, fontSize: '1.1rem' }}>Add Photos</h5>
+                        <p style={{ fontSize: '0.85rem', color: '#667085', margin: 0, lineHeight: '1.4' }}>
+                          Take a photo directly or upload from your device (optional).
+                        </p>
+
+                        {/* Two-button row — calls stable refs, no label/input pairing */}
+                        <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '320px' }}>
+                          <button type="button" style={{ ...camBtnStyle, background: 'var(--blue)', color: '#fff', border: '1.5px solid var(--blue)' }} onClick={openGlobalCamera}>
+                            📷 Take Photo
+                          </button>
+                          <button type="button" style={{ ...uploadBtnStyle }} onClick={openGlobalGallery}>
+                            📂 Upload File
+                          </button>
+                        </div>
+
+                        {uploadedFiles.length > 0 && (
+                          <div style={{ width: '100%', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>
+                              {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} selected:
+                            </span>
+                            {uploadedFiles.map((file, idx) => (
+                              <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.03)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.82rem' }}>
+                                <span style={{ color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>{file.name}</span>
+                                <button type="button" onClick={() => removeFile(idx)} style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: 'none', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700 }}>✕</button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Photos will be uploaded when you submit the estimate.</span>
+                      </div>
+                    )}
+
+                    {/* ── Combined dimension + photo (stable ref camera, thumbnail preview) ── */}
+                    {currentStep.type === 'combined' && currentStep.fields?.dimension && currentStep.fields?.photo && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 130px 40px', gap: '10px', fontWeight: 700, fontSize: '0.82rem', color: '#334155' }}>
+                          <div>Photo</div>
+                          <div>{currentStep.fields.dimension.placeholder?.includes('inch') ? 'Height' : 'Sq Ft / Linear Ft'}</div>
+                          <div />
+                        </div>
+
+                        {getStepItems(currentStep.id).map((item, index) => {
+                          const thumbKey = `${currentStep.id}-${index}`
+                          const thumbUrl = thumbUrls[thumbKey]
+                          return (
+                            <div key={index} style={{ display: 'grid', gridTemplateColumns: '1fr 130px 40px', gap: '10px', alignItems: 'center' }}>
+
+                              {/* Photo cell: thumbnail OR camera+upload buttons */}
+                              <div>
+                                {thumbUrl ? (
+                                  <div style={{ position: 'relative', display: 'inline-flex' }}>
+                                    <img src={thumbUrl} alt="preview" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: '8px', border: '2px solid var(--blue)' }} />
+                                    <button
+                                      type="button"
+                                      onClick={() => clearRowPhoto(currentStep.id, index, currentStep.fields.dimension.id)}
+                                      style={{ position: 'absolute', top: -6, right: -6, width: 18, height: 18, borderRadius: '50%', background: '#ef4444', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    >✕</button>
+                                  </div>
+                                ) : (
+                                  <div style={{ display: 'flex', gap: '6px' }}>
+                                    {/* These buttons trigger the STABLE refs at the root */}
+                                    <button type="button" style={camBtnStyle} onClick={() => openCamera(currentStep.id, index)}>
+                                      📷
+                                    </button>
+                                    <button type="button" style={uploadBtnStyle} onClick={() => openGallery(currentStep.id, index)}>
+                                      📂
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Sqft / measurement input */}
+                              <input
+                                type="number"
+                                placeholder={currentStep.fields.dimension.placeholder || 'Amount'}
+                                value={item.sqft}
+                                onChange={(e) => updateSqft(currentStep.id, index, e.target.value, currentStep.fields.dimension.id)}
+                                className="theme-text-input"
+                              />
+
+                              {/* Remove row */}
+                              <button
+                                type="button"
+                                onClick={() => removeRow(currentStep.id, index, currentStep.fields.dimension.id)}
+                                disabled={getStepItems(currentStep.id).length === 1}
+                                style={{ border: 'none', background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderRadius: '6px', cursor: 'pointer', padding: '8px', opacity: getStepItems(currentStep.id).length === 1 ? 0.3 : 1 }}
+                              >✕</button>
+                            </div>
+                          )
+                        })}
+
+                        <button
+                          type="button"
+                          onClick={() => addRow(currentStep.id)}
+                          style={{ alignSelf: 'flex-start', marginTop: '4px', padding: '10px 16px', borderRadius: '8px', border: '1px solid var(--blue)', background: 'transparent', color: 'var(--blue)', fontWeight: 700, cursor: 'pointer' }}
+                        >➕ Add More</button>
+                      </div>
+                    )}
+
+                    {/* Price pair */}
+                    {currentStep.type === 'price_pair' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {(['base', 'casing'] as const).map((key) => (
+                          <div key={key} className="input-group">
+                            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>{currentStep.fields[key].label}</label>
+                            <input type="text" className="theme-text-input" placeholder={currentStep.fields[key].placeholder} value={answers[currentStep.fields[key].id] || ''} onChange={(e) => handleTextChange(currentStep.fields[key].id, e.target.value)} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Demolition combined */}
+                    {currentStep.type === 'demolition_combined' && (
+                      <div>
+                        {(currentStep.options || []).map((item: string) => {
+                          const map: Record<string, { id: string; title: string; placeholder: string }> = {
+                            'Remove Existing Wall Drywall': { id: 'drywall_demo_wall_sqft', title: 'Remove Existing Wall Drywall (sqft)', placeholder: 'e.g. 200' },
+                            'Remove Existing Ceiling Drywall': { id: 'drywall_demo_ceiling_sqft', title: 'Remove Existing Ceiling Drywall (sqft)', placeholder: 'e.g. 150' },
+                            'Remove Insulation (sqft)': { id: 'drywall_demo_insulation_sqft', title: 'Remove Insulation (sqft)', placeholder: 'e.g. 100' },
+                            'Remove Base Board (linear ft)': { id: 'drywall_demo_baseboard_ft', title: 'Remove Base Board (linear ft)', placeholder: 'e.g. 40' },
+                            'Remove Popcorn Ceiling': { id: 'drywall_popcorn_sqft', title: 'Remove Popcorn Ceiling (sqft) - Base rate $300', placeholder: 'e.g. 150' },
+                            'Wallpaper Removal': { id: 'drywall_wallpaper_sqft', title: 'Wallpaper Removal (sqft) — $5.20/sqft', placeholder: 'e.g. 200' },
+                          }
+                          const field = map[item]
+                          if (!field) return null
+                          return (
+                            <div key={item} className="input-group" style={{ marginBottom: '16px', padding: '16px', border: '1px solid #cbd5e1', borderRadius: '8px', background: 'rgba(0,0,0,0.02)' }}>
+                              <label htmlFor={field.id} style={{ display: 'block', fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '8px' }}>{field.title}</label>
+                              <input id={field.id} type="number" placeholder={field.placeholder} value={answers[field.id] || ''} onChange={(e) => handleTextChange(field.id, e.target.value)} className="theme-text-input" style={{ width: '100%' }} />
                             </div>
                           )
                         })}
                       </div>
-                      {answers[currentStep.id] === 'Yes' && (
-                        <div className="input-group" style={{ marginBottom: '12px' }}>
-                          {currentStep.id === 'drywall_vaulted_ceiling' ? (
-                            <>
-                              <label htmlFor="drywall_vaulted_ceiling" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>Length (ft)</label>
-                              <input
-                                id="drywall_vaulted_ceiling"
-                                type="number"
-                                placeholder="e.g. 10"
-                                className="theme-text-input"
-                                value={answers.drywall_vaulted_ceiling || ''}
-                                onChange={(e) => handleTextChange('drywall_vaulted_ceiling', e.target.value)}
-                              />
-                              <label htmlFor="drywall_vaulted_width" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px', marginTop: '8px' }}>Width (ft)</label>
-                              <input
-                                id="drywall_vaulted_width"
-                                type="number"
-                                placeholder="e.g. 12"
-                                className="theme-text-input"
-                                value={answers.drywall_vaulted_width || ''}
-                                onChange={(e) => handleTextChange('drywall_vaulted_width', e.target.value)}
-                              />
-                              <label htmlFor="drywall_vaulted_height" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px', marginTop: '8px' }}>Height (ft)</label>
-                              <input
-                                id="drywall_vaulted_height"
-                                type="number"
-                                placeholder="e.g. 8"
-                                className="theme-text-input"
-                                value={answers.drywall_vaulted_height || ''}
-                                onChange={(e) => handleTextChange('drywall_vaulted_height', e.target.value)}
-                              />
-                            </>
-                          ) : (
-                            <input
-                              id={currentStep.fields.yes.id}
-                              type="number"
-                              max={currentStep.fields.yes.id.includes('height') ? 12 : undefined}
-                              placeholder={currentStep.fields.yes.placeholder || 'e.g. 10'}
-                              className="theme-text-input"
-                              value={answers[currentStep.fields.yes.id] || ''}
-                              onChange={(e) => {
-                                let val = e.target.value;
-                                if (currentStep.fields.yes.id.includes('height') && Number(val) > 12) val = '12';
-                                handleTextChange(currentStep.fields.yes.id, val);
-                              }}
-                            />
-                          )}
+                    )}
+
+                    {/* Yes/No + conditional dimension */}
+                    {currentStep.type === 'yesno_combined' && currentStep.fields?.yes && (
+                      <div style={{ marginBottom: '20px' }}>
+                        <div className="radio-options-list" style={{ marginBottom: '16px' }}>
+                          {currentStep.options.map((option: string) => {
+                            const isSelected = answers[currentStep.id] === option
+                            return (
+                              <div key={option} className="radio-option-card-wrapper">
+                                <button type="button" className={`radio-option-card${isSelected ? ' selected' : ''}`} onClick={() => handleRadioChange(currentStep.id, option)}>
+                                  <span className="radio-indicator">{isSelected && <span className="radio-dot" />}</span>
+                                  <span className="radio-label-text">{option}</span>
+                                </button>
+                              </div>
+                            )
+                          })}
                         </div>
-                      )}
-                    </div>
-                  )}
+                        {answers[currentStep.id] === 'Yes' && (
+                          <div className="input-group" style={{ marginBottom: '12px' }}>
+                            {currentStep.id === 'drywall_vaulted_ceiling' ? (
+                              <>
+                                <label htmlFor="drywall_vaulted_ceiling" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>Length (ft)</label>
+                                <input
+                                  id="drywall_vaulted_ceiling"
+                                  type="number"
+                                  placeholder="e.g. 10"
+                                  className="theme-text-input"
+                                  value={answers.drywall_vaulted_ceiling || ''}
+                                  onChange={(e) => handleTextChange('drywall_vaulted_ceiling', e.target.value)}
+                                />
+                                <label htmlFor="drywall_vaulted_width" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px', marginTop: '8px' }}>Width (ft)</label>
+                                <input
+                                  id="drywall_vaulted_width"
+                                  type="number"
+                                  placeholder="e.g. 12"
+                                  className="theme-text-input"
+                                  value={answers.drywall_vaulted_width || ''}
+                                  onChange={(e) => handleTextChange('drywall_vaulted_width', e.target.value)}
+                                />
+                                <label htmlFor="drywall_vaulted_height" style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px', marginTop: '8px' }}>Height (ft)</label>
+                                <input
+                                  id="drywall_vaulted_height"
+                                  type="number"
+                                  placeholder="e.g. 8"
+                                  className="theme-text-input"
+                                  value={answers.drywall_vaulted_height || ''}
+                                  onChange={(e) => handleTextChange('drywall_vaulted_height', e.target.value)}
+                                />
+                              </>
+                            ) : (
+                              <input
+                                id={currentStep.fields.yes.id}
+                                type="number"
+                                max={currentStep.fields.yes.id.includes('height') ? 12 : undefined}
+                                placeholder={currentStep.fields.yes.placeholder || 'e.g. 10'}
+                                className="theme-text-input"
+                                value={answers[currentStep.fields.yes.id] || ''}
+                                onChange={(e) => {
+                                  let val = e.target.value;
+                                  if (currentStep.fields.yes.id.includes('height') && Number(val) > 12) val = '12';
+                                  handleTextChange(currentStep.fields.yes.id, val);
+                                }}
+                              />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
 
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
 
-      {/* ── Navigation ── */}
-      <div className="wizard-actions">
-        <button type="button" className="btn btn-glass" disabled={currentStepIndex === 0} onClick={handlePrev} style={{ color: 'black' }}>
-          ← Back
-        </button>
-        {isLastStep ? (
-          <button type="button" className="btn btn-orange wizard-submit-btn" disabled={!isStepValid() || isUploading} onClick={handleSubmit}>
-            {isUploading ? 'Uploading Photos...' : 'Submit Estimate →'}
+        {/* ── Navigation ── */}
+        <div className="wizard-actions">
+          <button type="button" className="btn btn-glass" disabled={currentStepIndex === 0} onClick={handlePrev} style={{ color: 'black' }}>
+            ← Back
           </button>
-        ) : (
-          <button type="button" className="btn btn-blue" disabled={!isStepValid()} onClick={handleNext}>
-            Next Step →
-          </button>
-        )}
+          {isLastStep ? (
+            <button type="button" className="btn btn-orange wizard-submit-btn" disabled={!isStepValid() || isUploading} onClick={handleSubmit}>
+              {isUploading ? 'Getting Live Home Depot Price...' : 'Submit Estimate →'}
+            </button>
+          ) : (
+            <button type="button" className="btn btn-blue" disabled={!isStepValid()} onClick={handleNext}>
+              Next Step →
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
