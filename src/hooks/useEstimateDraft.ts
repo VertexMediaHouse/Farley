@@ -32,7 +32,7 @@ export function useEstimateDraft() {
     if (saved.drywall?.length) setDrywall(saved.drywall);
     if (saved.trim?.length) setTrim(saved.trim);
     if (saved.paint?.length) setPaint(saved.paint);
-    if (saved.contact) setContact(prev => ({ ...prev, ...saved.contact }));
+    if (saved.contact) setContact(prev => ({ ...prev, ...saved.contact, areaCode: '' }));
     setRestored(true);
   }, []);
 
