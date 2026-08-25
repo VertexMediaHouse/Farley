@@ -5,7 +5,7 @@ import ClientInfoStep from '../components/steps/ClientInfoStep';
 import ServiceStep from '../components/steps/ServiceStep';
 import { useEstimateDraft } from '../hooks/useEstimateDraft';
 
-const PRICE_LOOKUP_SECONDS = 75;
+const PRICE_LOOKUP_SECONDS = 120;
 
 function PriceLookupOverlay() {
   const [secondsLeft, setSecondsLeft] = useState(PRICE_LOOKUP_SECONDS);
@@ -57,18 +57,34 @@ function PriceLookupOverlay() {
             animation: 'estimate-spin 0.9s linear infinite',
           }}
         />
-        <h2 style={{ margin: '0 0 12px', fontSize: '1.45rem', color: '#0f172a' }}>
-          Preparing your estimate…
-        </h2>
-        <p style={{ margin: '0 auto 14px', maxWidth: '360px', lineHeight: 1.6, color: '#475569' }}>
-          We're checking current Home Depot pricing for your area and calculating your estimate.
-        </p>
-        <p style={{ margin: '0 0 10px', color: '#0f172a', fontSize: '0.95rem' }}>
-          This may take up to <strong>{secondsLeft}s</strong>.
-        </p>
-        <p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>
-          Please don't close this page.
-        </p>
+        {secondsLeft > 0 ? (
+          <>
+            <h2 style={{ margin: '0 0 12px', fontSize: '1.45rem', color: '#0f172a' }}>
+              Preparing your estimate…
+            </h2>
+            <p style={{ margin: '0 auto 14px', maxWidth: '360px', lineHeight: 1.6, color: '#475569' }}>
+              We're checking current Home Depot pricing for your area and calculating your estimate.
+            </p>
+            <p style={{ margin: '0 0 10px', color: '#0f172a', fontSize: '0.95rem' }}>
+              This may take up to <strong>{secondsLeft}s</strong>.
+            </p>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>
+              Please don't close this page.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 style={{ margin: '0 0 12px', fontSize: '1.45rem', color: '#d97706' }}>
+              Home Depot servers are busy
+            </h2>
+            <p style={{ margin: '0 auto 14px', maxWidth: '360px', lineHeight: 1.6, color: '#475569' }}>
+              Please wait while we fetch your pricing data. This is taking longer than expected.
+            </p>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>
+              Please don't close this page.
+            </p>
+          </>
+        )}
         <style>{`@keyframes estimate-spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     </div>

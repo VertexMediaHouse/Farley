@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { AreaValues } from '../types/form';
 import {
   DEFAULT_CONTACT,
@@ -13,6 +14,7 @@ import { useCustomQuestions } from '../context/CopyProvider';
 
 export function useEstimateDraft() {
   const customQuestions = useCustomQuestions();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [drywall, setDrywall] = useState<AreaValues[]>([{}]);
   const [trim, setTrim] = useState<AreaValues[]>([{}]);
@@ -50,7 +52,7 @@ export function useEstimateDraft() {
     setIsSubmitting(true);
     try {
       await submitEstimate(drywall, trim, paint, contact, customQuestions);
-      setSent(true);
+      navigate('/estimate');
     } catch (e) {
       console.error('Failed to store estimate', e);
       setSubmitError(e instanceof Error ? e.message : 'We could not prepare your estimate. Please try again.');

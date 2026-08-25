@@ -239,6 +239,5 @@ export async function submitEstimate(
     rawAreas: { drywall, trim, paint },
     contact 
   }));
-  window.open('/estimate', '_blank');
   localStorage.removeItem(ESTIMATE_DRAFT_KEY);
 }
