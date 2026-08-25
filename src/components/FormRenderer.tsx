@@ -513,6 +513,9 @@ function CatalogSelector({ q, value, onChange }: {
 
                 {/* Content */}
                 <div className="flex flex-col flex-1 p-3">
+                  <p className="text-xs font-semibold text-slate-700 leading-snug line-clamp-3" title={p.name}>
+                    {p.name}
+                  </p>
 
                   <div className="mt-auto flex items-center justify-between gap-2 pt-2">
                     <a

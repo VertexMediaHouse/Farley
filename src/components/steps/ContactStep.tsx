@@ -55,8 +55,16 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
   const validate = () => {
     const e: Record<string, string> = {};
 
-    if (!data.areaCode.trim()) {
+    const zip = data.areaCode.trim();
+    if (!zip) {
       e.areaCode = "Required";
+    } else if (!/^\d{5}$/.test(zip)) {
+      e.areaCode = "Enter a valid 5-digit ZIP code";
+    } else {
+      const zipNum = parseInt(zip, 10);
+      if (zipNum < 10001 || zipNum > 99950) {
+        e.areaCode = "ZIP code must be between 10001 and 99950";
+      }
     }
 
     if (isSub) {
@@ -97,9 +105,14 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
           <input
             required
             className={inp}
-            placeholder="Area / Zip / Pin code"
+            placeholder="e.g. 92691"
+            inputMode="numeric"
+            maxLength={5}
             value={data.areaCode}
-            onChange={(e) => set("areaCode", e.target.value)}
+            onChange={(e) => {
+              const digits = e.target.value.replace(/\D/g, '').slice(0, 5);
+              set("areaCode", digits);
+            }}
           />
           {errors.areaCode && (
             <p className={errorText}>{errors.areaCode}</p>
