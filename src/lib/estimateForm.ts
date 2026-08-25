@@ -155,56 +155,68 @@ async function enrichTrimWithLivePrices(
   trim: AreaValues[],
   zipcode: string,
 ): Promise<AreaValues[]> {
-  const zip = zipcode.replace(/\D/g, '').slice(0, 5);
-  if (!/^\d{5}$/.test(zip)) {
-    throw new Error('Please enter a valid 5-digit ZIP code.');
-  }
-
-  const storeId = getStoreIdForZip(zip);
-  if (!storeId) {
-    throw new Error(`No Home Depot store is mapped to ZIP ${zip}.`);
-  }
-
-  // Collect every catalog URL selected across trim areas (baseboard or casing)
-  const urls = new Set<string>();
-  trim.forEach(area => {
-    if (typeof area.baseboardCatalog === 'string' && area.baseboardCatalog && area.baseboardCatalog !== 'None of the above') {
-      urls.add(area.baseboardCatalog);
+  try {
+    const zip = zipcode.replace(/\D/g, '').slice(0, 5);
+    if (!/^\d{5}$/.test(zip)) {
+      console.warn('Invalid ZIP code for live price enrichment, falling back to defaults:', zip);
+      return trim;
     }
-    if (typeof area.casingCatalog === 'string' && area.casingCatalog && area.casingCatalog !== 'None of the above') {
-      urls.add(area.casingCatalog);
-    }
-  });
 
-  if (urls.size === 0) {
-    // Nothing to scrape (client-provided trim, or no catalog selection) — leave as-is.
+    const storeId = getStoreIdForZip(zip);
+    if (!storeId) {
+      console.warn(`No Home Depot store is mapped to ZIP ${zip}, falling back to defaults.`);
+      return trim;
+    }
+
+    // Collect every catalog URL selected across trim areas (baseboard or casing)
+    const urls = new Set<string>();
+    trim.forEach(area => {
+      if (typeof area.baseboardCatalog === 'string' && area.baseboardCatalog && area.baseboardCatalog !== 'None of the above') {
+        urls.add(area.baseboardCatalog);
+      }
+      if (typeof area.casingCatalog === 'string' && area.casingCatalog && area.casingCatalog !== 'None of the above') {
+        urls.add(area.casingCatalog);
+      }
+    });
+
+    if (urls.size === 0) {
+      // Nothing to scrape (client-provided trim, or no catalog selection) — leave as-is.
+      return trim;
+    }
+
+    try {
+      const liveItems = await runHomeDepotActorLive({
+        zipcode: zip,
+        storeId,
+        productUrls: [...urls],
+      });
+
+      const priceForUrl = (url: string): number | null => {
+        const match = liveItems.find(item => item.url === url);
+        if (!match || match.outOfStock || match.price == null) return null;
+        return match.price;
+      };
+
+      return trim.map(area => {
+        const catalogUrl =
+          (typeof area.baseboardCatalog === 'string' && area.baseboardCatalog) ||
+          (typeof area.casingCatalog === 'string' && area.casingCatalog) ||
+          '';
+        if (!catalogUrl || catalogUrl === 'None of the above') return area;
+
+        const livePrice = priceForUrl(catalogUrl);
+        if (livePrice == null) return area;
+
+        return { ...area, baseboardCatalog_userPrice: String(livePrice) };
+      });
+    } catch (scrapeError) {
+      console.error('Failed to run live Home Depot scrape, falling back to defaults:', scrapeError);
+      return trim;
+    }
+  } catch (err) {
+    console.error('Failed to enrich trim with live prices, falling back to defaults:', err);
     return trim;
   }
-
-  const liveItems = await runHomeDepotActorLive({
-    zipcode: zip,
-    storeId,
-    productUrls: [...urls],
-  });
-
-  const priceForUrl = (url: string): number | null => {
-    const match = liveItems.find(item => item.url === url);
-    if (!match || match.outOfStock || match.price == null) return null;
-    return match.price;
-  };
-
-  return trim.map(area => {
-    const catalogUrl =
-      (typeof area.baseboardCatalog === 'string' && area.baseboardCatalog) ||
-      (typeof area.casingCatalog === 'string' && area.casingCatalog) ||
-      '';
-    if (!catalogUrl || catalogUrl === 'None of the above') return area;
-
-    const livePrice = priceForUrl(catalogUrl);
-    if (livePrice == null) return area;
-
-    return { ...area, baseboardCatalog_userPrice: String(livePrice) };
-  });
 }
 
 export async function submitEstimate(

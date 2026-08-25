@@ -47,10 +47,31 @@ export async function runHomeDepotActorLive(params: {
   productUrls: string[];
 }): Promise<LiveScrapeResult[]> {
   const token = import.meta.env.VITE_APIFY_TOKEN as string | undefined;
-  if (!token) throw new Error('VITE_APIFY_TOKEN is missing.');
 
   const productUrls = [...new Set(params.productUrls.filter(Boolean))];
   if (!productUrls.length) throw new Error('No product URLs to scrape.');
+
+  // Try Cloudflare Pages function first to avoid CORS in production
+  try {
+    const response = await fetch('/api/apify-scrape', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const items = Array.isArray(data) ? data : [];
+      return items.map(normalizeApifyPriceItem);
+    }
+    
+    console.warn(`Netlify function returned status ${response.status}. Falling back to direct Apify API call.`);
+  } catch (err) {
+    console.warn('Failed to call Netlify apify-scrape function:', err);
+  }
+
+  // Fallback to direct Apify call (requires VITE_APIFY_TOKEN on client side)
+  if (!token) throw new Error('VITE_APIFY_TOKEN is missing on client side.');
 
   // Confirmed field names from a successful manual Apify run:
   // { maxItems, productUrls: [{ url }], storeId, zipCode }

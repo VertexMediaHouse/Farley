@@ -381,23 +381,42 @@ CONVERSATION RULES (CRITICAL):
     try {
       const prompt = chatMode === 'estimator' ? ESTIMATOR_PROMPT : GENERAL_PROMPT;
 
-      // DEV: calls OpenAI directly using Vite env variable
-      // PROD: swap the fetch URL to '/.netlify/functions/chat' and remove the Authorization header
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [
-            { role: 'system', content: prompt },
-            ...messages,
-            userMessage
-          ]
-        })
-      });
+      let response;
+      const requestPayload = {
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: prompt },
+          ...messages,
+          userMessage
+        ]
+      };
+
+      try {
+        // Try Cloudflare Pages function first to avoid exposing API key + CORS
+        response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestPayload)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Cloudflare proxy failed with status ${response.status}`);
+        }
+      } catch (proxyError) {
+        console.warn('Failed to call Cloudflare chat function, falling back to direct OpenAI call:', proxyError);
+        
+        // Fallback: calls OpenAI directly using Vite env variable
+        response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
+          },
+          body: JSON.stringify(requestPayload)
+        });
+      }
 
       const data = await response.json();
       if (data.choices && data.choices[0]) {

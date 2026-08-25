@@ -61,7 +61,7 @@ import { fetchPriceOverrides } from './lib/priceOverrides'
 import { applyPricingRules } from './data/pricingMapper'
 import { HelmetProvider } from 'react-helmet-async'
 
-export default function App() {
+export default function App({ helmetContext }: { helmetContext?: any }) {
   const { pathname } = useLocation()
   const isEstimatePage = pathname === '/estimate' || pathname === '/priceestimator'
   const isAdmin = pathname.startsWith('/admin')
@@ -78,7 +78,7 @@ export default function App() {
   }, [])
 
   return (
-    <HelmetProvider>
+    <HelmetProvider context={helmetContext}>
       <CopyProvider>
         <div className="site">
           <ScrollToTop />

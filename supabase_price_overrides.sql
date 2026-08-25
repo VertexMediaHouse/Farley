@@ -11,10 +11,10 @@ create table if not exists price_overrides (
 -- Enable Row Level Security
 alter table price_overrides enable row level security;
 
--- Allow any authenticated user to read
-create policy "auth users can read prices"
+-- Allow public (anyone) to read pricing rules so calculations use current prices
+create policy "anyone can read prices"
   on price_overrides for select
-  using (auth.role() = 'authenticated');
+  using (true);
 
 -- Allow any authenticated user to insert/update
 create policy "auth users can write prices"
