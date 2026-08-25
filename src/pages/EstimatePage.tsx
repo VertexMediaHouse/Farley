@@ -29,6 +29,7 @@ interface EstimateData {
     };
     paintColorExplorer?: string;
     paintColorExplorer_hex?: string;
+    paintSheen?: string;
   };
   estimate: EstimateResult;
   thumbnails?: string[];
@@ -177,6 +178,14 @@ export default function EstimatePage() {
   // Once work exceeds $1250, the minimum cancels out and the actual price is shown.
   const baseServiceFee = liveSubtotal < BASE_SERVICE_FEE_MIN ? BASE_SERVICE_FEE_MIN - liveSubtotal : 0;
   const grandTotal = Math.max(liveSubtotal, BASE_SERVICE_FEE_MIN);
+
+  const totalGallons = items.reduce((sum, item) => {
+    const match = item.label.match(/Paint Materials \((\d+)\s*gal\)/i);
+    if (match) {
+      return sum + parseInt(match[1], 10);
+    }
+    return sum;
+  }, 0);
 
   const groupedItems = groupByArea(items);
   const isEdited = editedItems !== null &&
@@ -741,7 +750,9 @@ export default function EstimatePage() {
                             }} />
                             <div>
                               <div style={{ fontSize: '0.68rem', fontWeight: 700, color: labelColor, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Selected Paint Color</div>
-                              <div style={{ fontSize: '1rem', fontWeight: 800, color: textColor, marginTop: '2px', letterSpacing: '0.01em' }}>{paintColorLabel}</div>
+                              <div style={{ fontSize: '1.02rem', fontWeight: 800, color: textColor, marginTop: '2px', letterSpacing: '0.01em' }}>
+                                {paintColorLabel} {answers.paintSheen && `(${answers.paintSheen})`}
+                              </div>
                               {hex && <div style={{ fontSize: '0.72rem', fontWeight: 600, color: labelColor, marginTop: '2px', fontFamily: 'monospace' }}>{hex.toUpperCase()}</div>}
                             </div>
                           </div>
@@ -751,6 +762,13 @@ export default function EstimatePage() {
                   );
                 })}
 
+              {totalGallons > 0 && (
+                <div className="final-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#64748b', borderTop: '1px dashed #e2e8f0', paddingTop: '10px' }}>
+                  <span>Total Paint Material:</span>
+                  <span style={{ fontWeight: 700, color: '#0f172a' }}>{totalGallons} Gallon{totalGallons > 1 ? 's' : ''}</span>
+                </div>
+              )}
+
               <div className="final-row grand-total-row" style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -758,7 +776,9 @@ export default function EstimatePage() {
                 fontSize: '1.25rem',
                 fontWeight: 900,
                 color: '#071023',
-                marginTop: '8px'
+                marginTop: '8px',
+                borderTop: '1px solid #e2e8f0',
+                paddingTop: '12px'
               }}>
                 <span>Estimated Grand Total:</span>
                 <span style={{ fontSize: '1.6rem', color: '#2faeff', fontWeight: 900 }}>${grandTotal.toFixed(2)}</span>

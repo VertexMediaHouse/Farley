@@ -135,5 +135,10 @@ export function adaptV2ToV1Estimate(
     if (hex) formData.paintColorExplorer_hex = hex.trim();
   }
 
+  const paintSheen = paint.find(area => area.paintSheen)?.paintSheen as string | undefined;
+  if (paintSheen) {
+    formData.paintSheen = paintSheen;
+  }
+
   return formData;
 }
