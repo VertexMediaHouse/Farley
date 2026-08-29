@@ -55,7 +55,7 @@ export default function Footer() {
             </div>
             <div className="footer-contact-row">
               <span className="footer-contact-label">Email</span>
-              <a className="footer-contact-value" href="mailto:andrew@farleycdinc.com">andrew@farleycdinc.com</a>
+              <a className="footer-contact-value" href="mailto:fcd-drywall@farleycdinc.com">fcd-drywall@farleycdinc.com</a>
             </div>
             <div className="footer-contact-row">
               <span className="footer-contact-label">Location</span>

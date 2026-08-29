@@ -122,10 +122,10 @@ export default function ServicesPage() {
             </p>
             <div className="btn-row">
               <Link to="/contact" className="btn btn-orange">
-              Get a Free Estimate<span aria-hidden="true">→</span>
+                Get a Free Estimate<span aria-hidden="true">→</span>
               </Link>
               <a href="tel:+19497924283" className="btn btn-glass">
-              Call Now<span aria-hidden="true">→</span>
+                Call Now<span aria-hidden="true">→</span>
               </a>
             </div>
           </div>
@@ -340,7 +340,7 @@ export default function ServicesPage() {
                 Discuss Your Project <span aria-hidden="true">→</span>
               </Link>
               <a href="tel:+19497924283" className="services-cta-link">(949) 792-4283</a>
-              <a href="mailto:andrew@farleycdinc.com" className="services-cta-link">andrew@farleycdinc.com</a>
+              <a href="mailto:fcd-drywall@farleycdinc.com" className="services-cta-link">fcd-drywall@farleycdinc.com</a>
             </div>
           </div>
         </div>

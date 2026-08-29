@@ -16,11 +16,48 @@ export const paintConfig: QuestionConfig[] = [
     options: ['', 'Corner to corner', 'Touch ups'],
   },
   {
-    id: 'touchUpNotice',
-    label: '',
+    id: 'paintMatchRequested',
+    label: 'Would you like us to match your existing paint color?',
+    type: 'dropdown',
+    required: true,
+    options: ['', 'Yes — Match my existing paint color', 'No — I will select/use a different paint color'],
+  },
+  {
+    id: 'paintMatchPhotos',
+    label: 'Upload clear photos of the existing wall/ceiling color, the repair area, and surrounding reference',
+    type: 'photoUpload',
+    multiple: true,
+    required: true,
+    condition: { field: 'paintMatchRequested', is: 'Yes — Match my existing paint color' }
+  },
+  {
+    id: 'paintMatchSheen',
+    label: 'Existing Paint Sheen',
+    type: 'dropdown',
+    required: true,
+    options: ['', 'Flat', 'Matte', 'Eggshell', 'Satin', 'Semi-Gloss', 'Gloss', 'I Don\'t Know'],
+    condition: { field: 'paintMatchRequested', is: 'Yes — Match my existing paint color' }
+  },
+  {
+    id: 'paintMatchBrand',
+    label: 'Do you know the existing paint brand? (Optional)',
+    type: 'text',
+    placeholder: 'e.g. Behr, Sherwin-Williams',
+    condition: { field: 'paintMatchRequested', is: 'Yes — Match my existing paint color' }
+  },
+  {
+    id: 'paintMatchNotice',
+    label: 'PAINT COLOR MATCHING NOTICE',
     type: 'notice',
-    noticeText: 'Note: touch-ups can only be possible if you already have the paint for this area. We can not match existing paint.',
-    condition: { field: 'paintType', is: 'Touch ups' },
+    noticeText: 'We will make every reasonable effort to match your existing paint color as closely as possible. However, an exact 100% paint match cannot be guaranteed.\n\nExisting paint can change over time due to aging, fading, sunlight exposure, wear, previous paint batches, application methods, sheen, and other conditions.\n\nFor the most uniform finished appearance, we recommend painting the affected surface corner-to-corner rather than performing only a localized touch-up. If you choose touch-up or partial-area painting instead of corner-to-corner painting, you understand that some color or sheen variation may remain visible.',
+    condition: { field: 'paintMatchRequested', is: 'Yes — Match my existing paint color' }
+  },
+  {
+    id: 'paintMatchAck',
+    label: 'I understand that paint color matching is an approximation and that an exact match is not guaranteed. I understand that touch-up or partial-area painting may result in visible color or sheen differences.',
+    type: 'checkbox',
+    required: true,
+    condition: { field: 'paintMatchRequested', is: 'Yes — Match my existing paint color' }
   },
   {
     id: 'paintHasPaint',
@@ -28,14 +65,22 @@ export const paintConfig: QuestionConfig[] = [
     type: 'dropdown',
     required: true,
     options: ['', 'Yes', 'No'],
-    condition: { field: 'paintType', is: 'Corner to corner' },
+    condition: {
+      field: 'paintType',
+      is: 'Corner to corner',
+      and: { field: 'paintMatchRequested', is: 'No — I will select/use a different paint color' }
+    },
   },
   {
     id: 'paintColorExplorer',
     label: 'Pick your paint color',
     type: 'paintColorExplorer',
     required: true,
-    condition: { field: 'paintHasPaint', is: 'No' },
+    condition: {
+      field: 'paintHasPaint',
+      is: 'No',
+      and: { field: 'paintMatchRequested', is: 'No — I will select/use a different paint color' }
+    },
   },
   {
     id: 'paintSheen',
@@ -43,7 +88,11 @@ export const paintConfig: QuestionConfig[] = [
     type: 'dropdown',
     required: true,
     options: ['', 'Flat', 'Egg shell', 'Satin', 'Semi gloss'],
-    condition: { field: 'paintHasPaint', is: 'No' },
+    condition: {
+      field: 'paintHasPaint',
+      is: 'No',
+      and: { field: 'paintMatchRequested', is: 'No — I will select/use a different paint color' }
+    },
   },
   {
     id: 'paintHasPaintNotice',

@@ -36,7 +36,8 @@ export type FieldType =
   | 'notice'
   | 'section'
   | 'repeatableGroup'
-  | 'paintColorExplorer';
+  | 'paintColorExplorer'
+  | 'checkbox';
 
 export interface QuestionConfig {
   id: string;

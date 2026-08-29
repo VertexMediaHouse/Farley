@@ -51,7 +51,11 @@ export function validateConfig(config: QuestionConfig[], values: AreaValues): Re
       }
     } else if (q.required) {
       const cur = values[q.id];
-      if (!cur || (Array.isArray(cur) && cur.length === 0)) {
+      if (q.type === 'checkbox') {
+        if (cur !== 'Yes' && cur !== 'true') {
+          errs[q.id] = 'Required';
+        }
+      } else if (!cur || (Array.isArray(cur) && cur.length === 0)) {
         errs[q.id] = 'Required';
       }
     }
@@ -204,6 +208,25 @@ function Field({
           value={val}
           onChange={e => onChange(q.id, e.target.value)}
         />
+        {err && <p className={errorText}>{err}</p>}
+      </div>
+    );
+  }
+
+  if (q.type === 'checkbox') {
+    const isChecked = val === 'Yes' || val === 'true';
+    return (
+      <div className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+        <input
+          type="checkbox"
+          id={q.id}
+          className="mt-1 h-5 w-5 rounded border-slate-300 text-[#2F9BF0] focus:ring-[#2F9BF0]"
+          checked={isChecked}
+          onChange={e => onChange(q.id, e.target.checked ? 'Yes' : 'No')}
+        />
+        <label htmlFor={q.id} className="text-sm font-medium text-slate-700 select-none cursor-pointer">
+          {q.label}
+        </label>
         {err && <p className={errorText}>{err}</p>}
       </div>
     );

@@ -19,6 +19,7 @@ export const DEFAULT_CONTACT = {
   clientAddress: '',
   clientEmail: '',
   clientPhone: '',
+  sameWorkArea: 'Yes',
 };
 
 export type ContactData = typeof DEFAULT_CONTACT;
@@ -156,10 +157,10 @@ async function enrichTrimWithLivePrices(
   zipcode: string,
 ): Promise<AreaValues[]> {
   try {
-    const zip = zipcode.replace(/\D/g, '').slice(0, 5);
+    let zip = zipcode.replace(/\D/g, '').slice(0, 5);
     if (!/^\d{5}$/.test(zip)) {
-      console.warn('Invalid ZIP code for live price enrichment, falling back to defaults:', zip);
-      return trim;
+      console.warn('Invalid or missing ZIP code for live price enrichment. Using fallback ZIP (92691) so pricing can still be calculated.', zipcode);
+      zip = '92691';
     }
 
     const storeId = getStoreIdForZip(zip);
@@ -229,7 +230,7 @@ export async function submitEstimate(
   const enrichedTrim = await enrichTrimWithLivePrices(trim, contact.areaCode);
 
   const formData = adaptV2ToV1Estimate(drywall, enrichedTrim, paint, contact);
-  const result = calculateEstimate({ drywall, trim: enrichedTrim, paint }, customQuestions);
+  const result = calculateEstimate({ drywall, trim: enrichedTrim, paint, sameWorkArea: contact.sameWorkArea }, customQuestions);
   
   const allFiles = [
     ...collectFilesFromAreas(drywall),
@@ -251,5 +252,7 @@ export async function submitEstimate(
     rawAreas: { drywall, trim, paint },
     contact 
   }));
-  localStorage.removeItem(ESTIMATE_DRAFT_KEY);
+  // NOTE: Do NOT remove ESTIMATE_DRAFT_KEY here.
+  // The draft must survive so "Modify My Project" on the estimate page
+  // can restore the user's form state. It is cleared only on explicit reset.
 }

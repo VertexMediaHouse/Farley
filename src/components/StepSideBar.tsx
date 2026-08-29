@@ -23,6 +23,7 @@ interface Props {
   paint: AreaValues[];
   customQuestions?: any[];
   productPrices?: import('../lib/productPricesStore').ProductPriceMap;
+  contact?: any;
 }
 
 /** An area counts once the user has actually answered something in it. */
@@ -38,7 +39,7 @@ function fmt(amount: number): string {
 }
 
 export default function StepSidebar({
-  step, onStepClick, phone, phoneHref, drywall, trim, paint, customQuestions = [],
+  step, onStepClick, phone, phoneHref, drywall, trim, paint, customQuestions = [], contact,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
 
@@ -51,7 +52,7 @@ export default function StepSidebar({
   ];
   const started = summary.some(s => s.n > 0);
 
-  const estimate = calculateEstimate({ drywall, trim, paint }, customQuestions);
+  const estimate = calculateEstimate({ drywall, trim, paint, sameWorkArea: contact?.sameWorkArea }, customQuestions);
   const hasEstimate = estimate.lineItems.length > 0;
 
   return (
@@ -136,7 +137,9 @@ export default function StepSidebar({
 
             {expanded && (
               <div className="mt-3 space-y-1.5 border-t border-slate-100 pt-3">
-                {estimate.lineItems.map((item: LineItem, idx: number) => (
+                {estimate.lineItems
+                  .filter((item: LineItem) => !item.isOutOfStock)
+                  .map((item: LineItem, idx: number) => (
                   <div key={idx} className="flex items-start justify-between text-xs">
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-slate-700 truncate">{item.label}</p>

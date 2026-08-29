@@ -2839,7 +2839,7 @@ textarea {
 
 .footer-inner {
   display: grid;
-  grid-template-columns: minmax(300px, 1.4fr) 0.8fr minmax(260px, 1.28fr) 0.82fr 1.08fr;
+  grid-template-columns: minmax(300px, 1.4fr) 0.8fr minmax(260px, 1.28fr) 0.5fr 1.4fr;
   align-items: start;
   gap: clamp(24px, 3vw, 44px);
   padding-top: 3.5rem;

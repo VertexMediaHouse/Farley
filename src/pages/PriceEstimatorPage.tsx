@@ -101,8 +101,117 @@ const PHONE = '(949) 792-4283';
 const PHONE_HREF = 'tel:+19497924283';
 
 import { Helmet } from 'react-helmet-async'
+function ComingSoonPage() {
+  return (
+    <>
+      <Helmet>
+        <title>Drywall Calculator — Coming Soon | Farley CD Inc</title>
+        <meta name="description" content="Our online Drywall Calculator is coming soon. Contact Farley CD Inc for a free drywall and interior repair estimate." />
+      </Helmet>
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0f172a 0%, #12294A 50%, #1C3A64 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 20px',
+        fontFamily: 'Inter, system-ui, sans-serif'
+      }}>
+        <div style={{
+          maxWidth: '560px',
+          width: '100%',
+          background: 'rgba(255,255,255,0.97)',
+          borderRadius: '20px',
+          padding: '48px 36px',
+          textAlign: 'center',
+          boxShadow: '0 25px 60px rgba(0,0,0,0.3)'
+        }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            margin: '0 auto 24px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #2F9BF0, #1E86D8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '28px'
+          }}>
+            🔧
+          </div>
+          <h1 style={{
+            fontSize: '1.75rem',
+            fontWeight: 900,
+            color: '#0f172a',
+            margin: '0 0 12px',
+            letterSpacing: '-0.01em'
+          }}>
+            Drywall Calculator — Coming Soon
+          </h1>
+          <p style={{
+            fontSize: '1rem',
+            lineHeight: 1.7,
+            color: '#475569',
+            margin: '0 0 28px'
+          }}>
+            We're currently putting the finishing touches on our online Drywall Calculator
+            to make sure our estimates and pricing are as accurate as possible.
+          </p>
+          <p style={{
+            fontSize: '0.95rem',
+            lineHeight: 1.7,
+            color: '#64748b',
+            margin: '0 0 32px'
+          }}>
+            The calculator will be available soon. Please check back shortly or
+            contact FCD Drywall for assistance with your project.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
+            <a
+              href={PHONE_HREF}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '14px 32px',
+                background: 'linear-gradient(135deg, #2F9BF0, #1E86D8)',
+                color: '#fff',
+                borderRadius: '12px',
+                fontWeight: 800,
+                fontSize: '1rem',
+                textDecoration: 'none',
+                boxShadow: '0 4px 14px rgba(47,155,240,0.35)',
+                transition: 'transform 0.2s'
+              }}
+            >
+              📞 Call Us: {PHONE}
+            </a>
+            <a
+              href="/"
+              style={{
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                color: '#64748b',
+                textDecoration: 'none',
+                transition: 'color 0.2s'
+              }}
+            >
+              ← Return to Website
+            </a>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
 
 export default function PriceEstimatorPage() {
+  // Public route: always show Coming Soon while calculator is being finalized.
+  // Internal dev/testing access is at /priceestimatordevelopment
+  return <ComingSoonPage />;
+}
+
+export function PriceEstimatorInner() {
   const {
     step, goTo,
     drywall, setDrywall,
@@ -184,6 +293,7 @@ export default function PriceEstimatorPage() {
                 trim={trim}
                 paint={paint}
                 customQuestions={customQuestions}
+                contact={contact}
               />
             </div>
 

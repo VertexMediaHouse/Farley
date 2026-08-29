@@ -13,6 +13,7 @@ interface ContactData {
   clientAddress: string;
   clientEmail: string;
   clientPhone: string;
+  sameWorkArea: string;
 }
 
 interface Props {

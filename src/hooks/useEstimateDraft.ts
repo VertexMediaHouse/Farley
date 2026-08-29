@@ -27,18 +27,21 @@ export function useEstimateDraft() {
 
   useEffect(() => {
     const saved = loadDraft();
-    if (!saved) return;
-    if (saved.step) setStep(saved.step);
-    if (saved.drywall?.length) setDrywall(saved.drywall);
-    if (saved.trim?.length) setTrim(saved.trim);
-    if (saved.paint?.length) setPaint(saved.paint);
-    if (saved.contact) setContact(prev => ({ ...prev, ...saved.contact, areaCode: '' }));
+    if (saved) {
+      if (saved.step) setStep(saved.step);
+      if (saved.drywall?.length) setDrywall(saved.drywall);
+      if (saved.trim?.length) setTrim(saved.trim);
+      if (saved.paint?.length) setPaint(saved.paint);
+      if (saved.contact) setContact(prev => ({ ...prev, ...saved.contact }));
+    }
     setRestored(true);
   }, []);
 
   useEffect(() => {
+    // Don't save until the component has re-rendered with the loaded state.
+    if (!restored) return;
     saveDraft({ step, drywall, trim, paint, contact });
-  }, [step, drywall, trim, paint, contact]);
+  }, [step, drywall, trim, paint, contact, restored]);
 
   const goTo = (n: number) => {
     setStep(n);

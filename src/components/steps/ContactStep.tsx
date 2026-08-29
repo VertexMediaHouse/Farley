@@ -15,6 +15,7 @@ interface ContactData {
   clientAddress: string;
   clientEmail: string;
   clientPhone: string;
+  sameWorkArea: string;
 }
 
 interface Props {
@@ -175,6 +176,37 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
               name="isSubcontractor"
               checked={!isSub}
               onChange={() => set("isSubcontractor", "no")}
+              className="h-4 w-4"
+            />
+            <span className="text-sm text-slate-700">No</span>
+          </label>
+        </div>
+      </div>
+
+      {/* Same Work Area */}
+      <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
+        <p className="text-sm font-semibold text-slate-700">
+          Is the drywall, painting, and trim work being completed in the same area?
+        </p>
+
+        <div className="mt-3 flex items-center gap-8">
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="radio"
+              name="sameWorkArea"
+              checked={data.sameWorkArea === "Yes" || !data.sameWorkArea}
+              onChange={() => set("sameWorkArea", "Yes")}
+              className="h-4 w-4"
+            />
+            <span className="text-sm text-slate-700">Yes</span>
+          </label>
+
+          <label className="flex cursor-pointer items-center gap-2">
+            <input
+              type="radio"
+              name="sameWorkArea"
+              checked={data.sameWorkArea === "No"}
+              onChange={() => set("sameWorkArea", "No")}
               className="h-4 w-4"
             />
             <span className="text-sm text-slate-700">No</span>

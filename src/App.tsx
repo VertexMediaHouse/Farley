@@ -8,6 +8,7 @@ import ContactPage from './pages/ContactPage'
 import ServicesPage from './pages/ServicesPage'
 import EstimatePage from './pages/EstimatePage'
 import PriceEstimatorPage from './pages/PriceEstimatorPage'
+import PriceEstimatorDevPage from './pages/PriceEstimatorDevPage'
 import AdminDashboard from './pages/AdminDashboard'
 import RequireAuth from './components/RequireAuth'
 import { CopyProvider } from './context/CopyProvider'
@@ -63,7 +64,7 @@ import { HelmetProvider } from 'react-helmet-async'
 
 export default function App({ helmetContext }: { helmetContext?: any }) {
   const { pathname } = useLocation()
-  const isEstimatePage = pathname === '/estimate' || pathname === '/priceestimator'
+  const isEstimatePage = pathname === '/estimate' || pathname === '/priceestimator' || pathname === '/priceestimatordevelopment'
   const isAdmin = pathname.startsWith('/admin')
 
   // Load pricing overrides once on app start so all calculations use latest prices
@@ -90,6 +91,7 @@ export default function App({ helmetContext }: { helmetContext?: any }) {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/estimate" element={<EstimatePage />} />
           <Route path="/priceestimator" element={<PriceEstimatorPage />} />
+          <Route path="/priceestimatordevelopment" element={<PriceEstimatorDevPage />} />
           <Route path="/admin/*" element={<RequireAuth><AdminDashboard /></RequireAuth>} />
         </Routes>
         <BackToTopButton />

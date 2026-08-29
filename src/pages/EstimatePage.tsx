@@ -191,6 +191,9 @@ export default function EstimatePage() {
   const isEdited = editedItems !== null &&
     JSON.stringify(editedItems) !== JSON.stringify(estimate.lineItems);
 
+  const hasPaintMatch = data.rawAreas?.paint?.some((p: any) => p.paintMatchRequested === 'Yes — Match my existing paint color');
+  const isSubcontractor = data.contact?.isSubcontractor === 'yes' || data.contact?.isSubcontractor === 'Yes';
+
   // Decode paint color: stored as "Name (Number)|#hex" or separately in paintColorExplorer_hex
   // (supports both new pipe-encoded format and legacy split format)
   const rawPaintColor = answers.paintColorExplorer ?? '';
@@ -237,6 +240,22 @@ export default function EstimatePage() {
             &larr; Return to Website
           </Link>
           <div style={{ display: 'flex', gap: '12px' }}>
+            <Link to="/priceestimatordevelopment" className="btn btn-glass" style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 20px',
+              textDecoration: 'none',
+              cursor: 'pointer',
+              fontWeight: 700,
+              color: '#2F9BF0',
+              border: '2px solid #2F9BF0',
+              borderRadius: '10px',
+              fontSize: '0.9rem',
+              transition: 'background 0.2s, color 0.2s'
+            }}>
+              ← Modify My Project
+            </Link>
             <button type="button" className="btn btn-glass print-btn" onClick={() => window.print()} style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -417,8 +436,72 @@ export default function EstimatePage() {
                 📸 Photo Upload Recommended for Final Approval
               </h3>
               <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5', color: '#166534' }}>
-                To obtain binding contract approval and bypass in-person inspection delays, please submit close-up photos of your walls, ceilings, and repair locations directly to <a href="mailto:info@farleyconstruction.com" style={{ color: '#15803d', fontWeight: 700, textDecoration: 'underline' }}>info@farleyconstruction.com</a> referencing this address: <strong>{answers.address || 'Project Address'}</strong>.
+                To obtain binding contract approval and bypass in-person inspection delays, please submit close-up photos of your walls, ceilings, and repair locations directly to <a href="mailto:fcd-drywall@farleycdinc.com" style={{ color: '#15803d', fontWeight: 700, textDecoration: 'underline' }}>fcd-drywall@farleycdinc.com</a> referencing this address: <strong>{answers.address || 'Project Address'}</strong>.
               </p>
+            </div>
+          )}
+
+          {/* Paint Matching Estimate / Proposal Language */}
+          {hasPaintMatch && (
+            <div className="estimate-paint-match-banner" style={{
+              background: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              borderRadius: '12px',
+              padding: '24px',
+              marginBottom: '30px',
+              color: '#1e40af'
+            }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '1.05rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', color: '#1d4ed8' }}>
+                🎨 Existing Paint Color Match Requested
+              </h3>
+              <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5' }}>
+                Customer has requested that the existing paint color be matched as closely as reasonably possible. Exact color and sheen matching cannot be guaranteed. Corner-to-corner painting is recommended for the most uniform finished appearance. Customer has elected the painting scope and square footage shown in this estimate.
+              </p>
+            </div>
+          )}
+
+          {/* Subcontractor Work Order Card */}
+          {isSubcontractor && (
+            <div className="subcontractor-work-order-card" style={{
+              background: '#f8fafc',
+              border: '2px solid #cbd5e1',
+              borderRadius: '12px',
+              padding: '24px',
+              marginBottom: '35px'
+            }}>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                📋 Subcontractor Work Order
+              </h3>
+              {hasPaintMatch && (
+                <div style={{
+                  background: '#fef2f2',
+                  border: '1px solid #fee2e2',
+                  color: '#991b1b',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  marginBottom: '16px'
+                }}>
+                  🚨 PAINT MATCH REQUIRED
+                </div>
+              )}
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: 700, color: '#334155' }}>
+                Instructions to subcontractor:
+              </h4>
+              <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.88rem', color: '#475569', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: '1.5' }}>
+                <li>Review the customer's uploaded paint photos before or upon arrival.</li>
+                <li>Confirm the area that requires paint matching.</li>
+                <li>Determine whether an existing paint sample is available.</li>
+                <li>If necessary, carefully obtain a small physical sample from the existing painted surface in an appropriate location.</li>
+                <li>Take the sample when purchasing project materials.</li>
+                <li>Have the paint supplier color-match the sample as closely as reasonably possible.</li>
+                <li>Purchase the appropriate paint and sheen based on the project specifications and available match.</li>
+                <li>Complete only the painting scope authorized in the work order unless an approved change order is issued.</li>
+                <li style={{ fontWeight: 600 }}>The subcontractor should not promise the customer a 100% exact match.</li>
+              </ul>
             </div>
           )}
 
@@ -546,11 +629,11 @@ export default function EstimatePage() {
                   // Look up description and thumbnail
                   let description = '';
                   let thumbs: string[] = [];
-                  
+
                   if (data?.areaThumbnails && data.areaThumbnails[areaName]) {
                     thumbs = data.areaThumbnails[areaName];
                   }
-                  
+
                   if (data?.rawAreas) {
                     const match = areaName.match(/(\w+) Area (\d+)/);
                     if (match) {
@@ -587,13 +670,13 @@ export default function EstimatePage() {
                           </button>
                         )}
                       </div>
-                      
+
                       {description && (
                         <p style={{ margin: '8px 0 16px', fontSize: '0.9rem', color: '#64748b', fontStyle: 'italic' }}>
                           Description of work: {description}
                         </p>
                       )}
-                      
+
                       {thumbs.length > 0 && (
                         <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
                           {thumbs.map((src, idx) => (
@@ -642,21 +725,64 @@ export default function EstimatePage() {
                             <tr
                               key={idx}
                               style={{
-                                borderBottom: '1px solid #e2e8f0'
+                                borderBottom: '1px solid #e2e8f0',
+                                backgroundColor: item.homeDepotProduct ? '#f8fafc' : 'transparent'
                               }}
                             >
                               <td
                                 style={{
-                                  padding: '8px',
+                                  padding: '12px 8px',
                                   verticalAlign: 'middle'
                                 }}
                               >
-                                {item.label}
+                                {item.homeDepotProduct ? (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    {item.homeDepotProduct.image && (
+                                      <img
+                                        src={item.homeDepotProduct.image}
+                                        alt={item.homeDepotProduct.productName}
+                                        style={{
+                                          width: '48px',
+                                          height: '48px',
+                                          objectFit: 'contain',
+                                          borderRadius: '6px',
+                                          border: '1px solid #e2e8f0',
+                                          background: '#fff',
+                                          padding: '2px'
+                                        }}
+                                      />
+                                    )}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                      <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#ff861c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                        Home Depot Sourced
+                                      </span>
+                                      <a
+                                        href={item.homeDepotProduct.productUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                          fontSize: '0.85rem',
+                                          fontWeight: 600,
+                                          color: '#1e40af',
+                                          textDecoration: 'underline',
+                                          lineHeight: '1.25'
+                                        }}
+                                      >
+                                        {item.homeDepotProduct.productName}
+                                      </a>
+                                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                                        Unit/Pack Price: <strong>${item.homeDepotProduct.unitPrice.toFixed(2)}</strong>{item.homeDepotProduct.packSize && ` (${item.homeDepotProduct.packSize} size)`}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <span>{item.label}</span>
+                                )}
                               </td>
 
                               <td
                                 style={{
-                                  padding: '8px',
+                                  padding: '12px 8px',
                                   verticalAlign: 'middle',
                                   textAlign: 'right'
                                 }}
@@ -669,40 +795,54 @@ export default function EstimatePage() {
                                   <div
                                     style={{
                                       display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'flex-end',
-                                      gap: '6px'
+                                      flexDirection: 'column',
+                                      alignItems: 'flex-end',
+                                      justifyContent: 'center',
+                                      gap: '4px'
                                     }}
                                   >
-                                    {isEditing ? (
-                                      <input
-                                        type="number"
-                                        step="1"
-                                        min="1"
-                                        value={item.quantity}
-                                        onChange={e => updateQuantity(idx, e.target.value)}
-                                        style={{
-                                          width: '70px',
-                                          textAlign: 'right',
-                                          border: '1px solid #e2e8f0',
-                                          borderRadius: '4px',
-                                          padding: '4px 6px',
-                                          fontSize: '0.9rem',
-                                          fontFamily: 'inherit'
-                                        }}
-                                      />
-                                    ) : (
-                                      <span style={{ fontWeight: 600 }}>{item.quantity}</span>
-                                    )}
-
-                                    <span
+                                    <div
                                       style={{
-                                        fontSize: '0.9rem',
-                                        color: '#64748b'
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px'
                                       }}
                                     >
-                                      {item.unit}
-                                    </span>
+                                      {isEditing ? (
+                                        <input
+                                          type="number"
+                                          step="1"
+                                          min="1"
+                                          value={item.quantity}
+                                          onChange={e => updateQuantity(idx, e.target.value)}
+                                          style={{
+                                            width: '70px',
+                                            textAlign: 'right',
+                                            border: '1px solid #e2e8f0',
+                                            borderRadius: '4px',
+                                            padding: '4px 6px',
+                                            fontSize: '0.9rem',
+                                            fontFamily: 'inherit'
+                                          }}
+                                        />
+                                      ) : (
+                                        <span style={{ fontWeight: 600 }}>{item.quantity}</span>
+                                      )}
+
+                                      <span
+                                        style={{
+                                          fontSize: '0.9rem',
+                                          color: '#64748b'
+                                        }}
+                                      >
+                                        {item.unit}
+                                      </span>
+                                    </div>
+                                    {item.homeDepotProduct && (
+                                      <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>
+                                        Total Cost: ${item.amount.toFixed(2)}
+                                      </div>
+                                    )}
                                   </div>
                                 ) : (
                                   <span>{item.detail}</span>
@@ -814,6 +954,34 @@ export default function EstimatePage() {
                 </div>
               </div>
             )}
+
+            {/* Modify Project CTA */}
+            <div className="no-print" style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '16px',
+              padding: '24px 0',
+              borderTop: '1px dashed #cbd5e1',
+              marginTop: '10px'
+            }}>
+              <Link to="/priceestimatordevelopment" style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '14px 28px',
+                textDecoration: 'none',
+                fontWeight: 800,
+                color: '#fff',
+                background: 'linear-gradient(135deg, #2F9BF0, #1E86D8)',
+                borderRadius: '12px',
+                fontSize: '0.95rem',
+                boxShadow: '0 4px 14px rgba(47,155,240,0.35)',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                letterSpacing: '0.01em'
+              }}>
+                ← Go Back &amp; Change Scope
+              </Link>
+            </div>
 
             {/* Note Bottom */}
             <div style={{

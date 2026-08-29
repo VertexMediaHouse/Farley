@@ -4,8 +4,8 @@ import SuccessModal from '../components/SuccessModal'
 
 const contactCards = [
   {
-    label: 'andrew@farleycdinc.com',
-    href: 'mailto:andrew@farleycdinc.com',
+    label: 'fcd-drywall@farleycdinc.com',
+    href: 'mailto:fcd-drywall@farleycdinc.com',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M4 5h16v14H4z" />

@@ -1,5 +1,14 @@
 import { PRICING } from '../data/pricing';
 import type { CustomQuestionRecord } from './customQuestionsStore';
+import { trimConfig } from '../data/trimConfig';
+
+export interface HomeDepotProduct {
+  image: string;
+  productName: string;
+  productUrl: string;
+  unitPrice: number;
+  packSize?: string;
+}
 
 export interface LineItem {
   area: string;
@@ -14,6 +23,8 @@ export interface LineItem {
   quantity?: number;
   rate?: number;
   unit?: 'lft' | 'sqft' | 'unit';
+  /** Home Depot product metadata — present on material line items sourced from the HD catalog. */
+  homeDepotProduct?: HomeDepotProduct;
 }
 
 export interface EstimateResult {
@@ -25,12 +36,75 @@ interface AreaValues {
   [key: string]: any;
 }
 
+/** Look up a catalog product by its Home Depot URL from trimConfig. */
+function findCatalogProduct(url: string): { name: string; image: string; url: string } | null {
+  for (const q of trimConfig) {
+    if (q.catalog) {
+      for (const cat of q.catalog) {
+        for (const p of cat.products) {
+          if (p.url === url && p.name !== 'None of the above') {
+            return { name: p.name, image: p.image || '', url: p.url };
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+const PRODUCT_LENGTHS: Record<string, number> = {
+  // Baseboard 3"
+  'https://www.homedepot.com/p/Kelleher-LWM623-9-16-in-x-3-1-4-in-MDF-Baseboard-Molding-MDF221A/202071604': 16,
+  'https://www.homedepot.com/p/Builders-Choice-Pro-Pack-OP306-1-2-in-x-3-1-2-in-x-144-in-Primed-MDF-Baseboard-Moulding-8-Pack-96-Total-Linear-Feet-HDFB306-PP/306717387': 96,
+  'https://www.homedepot.com/p/FINISHED-ELEGANCE-1-in-x-3-in-x-8-ft-MDF-Molding-Board-10003223/204468315': 8,
+  'https://www.homedepot.com/p/Woodgrain-Millwork-713-9-16-in-x-3-1-4-in-x-96-in-Primed-Finger-Jointed-Baseboard-Moulding-1-Piece-8-Total-Linear-Feet-10000568/203209374': 8,
+
+  // Baseboard 4"
+  'https://www.homedepot.com/p/FINISHED-ELEGANCE-1-in-x-4-in-x-8-ft-MDF-Molding-Boards-10003222/204468314': 8,
+  'https://www.homedepot.com/p/Alexandria-Moulding-Pro-Pack-1-2-in-x-4-in-x-84-in-Primed-E1E-MDF-Baseboard-Moulding-4-Pack-28-Total-Linear-Feet-01240-96084PK/331387080': 28,
+  'https://www.homedepot.com/p/Alexandria-Moulding-Pro-Pack-9-16-in-x-4-1-4-in-x-96-in-Primed-White-Pine-Baseboard-Moulding-4-Pack-32-Total-Linear-Feet-00LK4-93096PK/331519591': 32,
+  'https://www.homedepot.com/p/Alexandria-Moulding-Pro-Pack-5-8-in-x-4-1-4-in-x-96-in-Primed-MDF-Baseboard-Moulding-4-Pack-32-Total-Linear-Feet-90412-96096PK/331387087': 32,
+
+  // Baseboard 5"
+  'https://www.homedepot.com/p/Woodgrain-Millwork-1866-9-16-in-x-5-1-4-in-x-96-in-Primed-MDF-Baseboard-Moulding-1-Piece-8-Total-Linear-Feet-10001790/203209462': 8,
+  'https://www.homedepot.com/p/Woodgrain-Millwork-11-16-in-x-5-1-2-in-x-96-in-Primed-MDF-Craftsman-Baseboard-Moulding-1-Piece-8-Total-Linear-Feet-10026967/302793194': 8,
+  'https://www.homedepot.com/p/HOUSE-OF-FARA-5-8-in-D-x-5-1-4-in-W-x-96-in-L-Primed-Pine-Wood-Finger-Joint-Baseboard-Moulding-5709PFJ/340059370': 8,
+  'https://www.homedepot.com/p/Woodgrain-Millwork-618-9-16-in-x-5-1-4-in-x-96-in-Primed-Finger-Jointed-Baseboard-Moulding-1-Piece-8-Total-Linear-Feet-10001781/203209486': 8,
+
+  // Baseboard 6"
+  'https://www.homedepot.com/p/Unbranded-1-in-x-6-in-x-8-ft-Radiata-Pine-Finger-Joint-Primed-Board-280552/304468198': 8,
+  'https://www.homedepot.com/p/Builder-s-Choice-257-5-8-in-x-6-in-Primed-MDF-Baseboard-Moulding-Sold-by-Linear-Foot-HDFB257/206005284': 1,
+  'https://www.homedepot.com/p/HOUSE-OF-FARA-8665-3-4-in-x-6-1-2-in-x-96-in-MDF-Baseboard-Moulding-1-Piece-8-Total-Linear-Feet-8665/202087580': 8,
+  'https://www.homedepot.com/p/HOUSE-OF-FARA-11-16-in-D-x-6-in-W-x-96-in-L-Primed-Pine-Wood-Finger-Joint-Baseboard-Moulding-H20PFJ/339857100': 8,
+
+  // Casing 2"
+  'https://www.homedepot.com/p/WM-356-11-16-in-x-2-1-4-in-x-84-in-Primed-Finger-Jointed-Casing-10000527/206001677': 7,
+  'https://www.homedepot.com/p/Woodgrain-Millwork-25E2-11-16-in-x-2-1-2-in-x-96-in-Craftsman-Primed-MDF-Casing-1-Piece-8-Total-Linear-Feet-10026964/302792237': 8,
+  'https://www.homedepot.com/p/711-5-8-in-x-2-1-2-in-x-7-ft-MDF-Casing-MDF424A-1/204685095': 7,
+  'https://www.homedepot.com/p/HOUSE-OF-FARA-11-16-in-D-x-2-1-2-in-W-x-84-in-L-Primed-Pine-Wood-PFJ-Casing-Moulding-361PFJ/334803846': 7,
+
+  // Casing 3"
+  'https://www.homedepot.com/p/RB03-1-in-x-3-1-2-in-x-96-in-Primed-MDF-Casing-1-Piece-8-Total-Linear-Feet-10002037/204167646': 8,
+  'https://www.homedepot.com/p/Woodgrain-Millwork-LWM-445-5-8-in-x-3-1-4-in-x-96-in-Primed-Finger-Jointed-Casing-10000550/203209381': 8,
+  'https://www.homedepot.com/p/HOUSE-OF-FARA-11-16-in-D-x-3-1-4-in-W-x-96-in-L-Primed-Pine-Finger-Joint-Wood-Casing-Moulding-W360-PFJ/340684060': 8,
+  'https://www.homedepot.com/p/Builders-Choice-Pro-Pack-434-11-16-in-x-3-1-2-in-x-84-in-Craftsman-Finished-MDF-Primed-White-Casing-5-Pack-35-Total-Linear-Feet-FECS434DP/304065772': 35
+};
+
+function getProductLength(url: string): number {
+  const normalizedUrl = url.split('?')[0].replace(/\/$/, '');
+  return PRODUCT_LENGTHS[normalizedUrl] ?? 16;
+}
+
 export function calculateEstimate(
-  data: { drywall: AreaValues[], trim: AreaValues[], paint: AreaValues[] },
+  data: { drywall: AreaValues[], trim: AreaValues[], paint: AreaValues[], sameWorkArea?: string },
   customQuestions: CustomQuestionRecord[] = [],
 ): EstimateResult {
   const lineItems: LineItem[] = [];
   let subtotal = 0;
+  const sameWorkArea = data.sameWorkArea ?? 'Yes';
+
+  const chargedFloors = new Set<string>();
+  let chargedStaircase = false;
 
   const addItem = (
     area: string,
@@ -38,6 +112,7 @@ export function calculateEstimate(
     detail: string,
     amount: number,
     measured?: { quantity: number; rate: number; unit: 'lft' | 'sqft' | 'unit' },
+    hdProduct?: HomeDepotProduct,
   ) => {
     if (amount > 0) {
       lineItems.push({
@@ -46,6 +121,7 @@ export function calculateEstimate(
         detail,
         amount,
         ...(measured ? { quantity: measured.quantity, rate: measured.rate, unit: measured.unit } : {}),
+        ...(hdProduct ? { homeDepotProduct: hdProduct } : {}),
       });
       subtotal += amount;
     }
@@ -110,12 +186,27 @@ export function calculateEstimate(
 
     // Floor Level (flat fee — no quantity)
     if (area.projectLocation && PRICING.floors[area.projectLocation]) {
-      addItem(areaName, `Floor Surcharge: ${area.projectLocation}`, 'Flat Fee', PRICING.floors[area.projectLocation]);
+      const location = area.projectLocation;
+      if (sameWorkArea !== 'No') {
+        if (!chargedFloors.has(location)) {
+          addItem(areaName, `Floor Surcharge: ${location}`, 'Flat Fee', PRICING.floors[location]);
+          chargedFloors.add(location);
+        }
+      } else {
+        addItem(areaName, `Floor Surcharge: ${location}`, 'Flat Fee', PRICING.floors[location]);
+      }
     }
 
     // Staircase (flat fee — no quantity)
     if (area.staircase === 'Yes') {
-      addItem(areaName, 'Staircase Surcharge', 'Flat Fee', PRICING.staircase);
+      if (sameWorkArea !== 'No') {
+        if (!chargedStaircase) {
+          addItem(areaName, 'Staircase Surcharge', 'Flat Fee', PRICING.staircase);
+          chargedStaircase = true;
+        }
+      } else {
+        addItem(areaName, 'Staircase Surcharge', 'Flat Fee', PRICING.staircase);
+      }
     }
 
     // Demolition
@@ -258,18 +349,24 @@ export function calculateEstimate(
             quantity: lft, rate: laborRate, unit: 'lft',
           });
           if (materialRate != null && materialRate > 0) {
-            addItem(areaName, 'Trim: Baseboard material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate, {
-              quantity: lft, rate: materialRate, unit: 'lft',
-            });
+            const baseProduct = findCatalogProduct(catalogUrl);
+            const prodLength = getProductLength(catalogUrl);
+            const reqQty = Math.ceil(lft / prodLength);
+            const totalMaterialCost = reqQty * materialRate;
+            addItem(areaName, 'Trim: Baseboard material', `${reqQty} unit(s) @ $${materialRate}/unit (${prodLength} ft each)`, totalMaterialCost, {
+              quantity: reqQty, rate: materialRate, unit: 'unit',
+            }, baseProduct ? { image: baseProduct.image, productName: baseProduct.name, productUrl: baseProduct.url, unitPrice: materialRate, packSize: `${prodLength} ft` } : undefined);
           }
           // removed the else block that pushed the "Price not entered" / isOutOfStock row
           else {
+            const baseProduct = findCatalogProduct(catalogUrl);
             lineItems.push({
               area: areaName,
               label: 'Trim: Baseboard material',
               detail: 'Price not entered',
               amount: 0,
-              isOutOfStock: true
+              isOutOfStock: true,
+              ...(baseProduct ? { homeDepotProduct: { image: baseProduct.image, productName: baseProduct.name, productUrl: baseProduct.url, unitPrice: 0 } } : {}),
             });
           }
         } else {
@@ -283,7 +380,9 @@ export function calculateEstimate(
     if (area.service.includes('Casing')) {
       const lft = parseFloat(area.casingLinearFeet) || 0;
       if (lft > 0) {
-        const catalogUrl = typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '';
+        const catalogUrl = (typeof area.casingCatalog === 'string' && area.casingCatalog && area.casingCatalog !== 'None of the above')
+          ? area.casingCatalog
+          : (typeof area.baseboardCatalog === 'string' ? area.baseboardCatalog : '');
         const userEnteredPrice = parseFloat(area.baseboardCatalog_userPrice) || 0;
         const materialRate = userEnteredPrice > 0 ? userEnteredPrice : null;
         const laborRate = PRICING.trim.doorCasing;
@@ -292,18 +391,24 @@ export function calculateEstimate(
             quantity: lft, rate: laborRate, unit: 'lft',
           });
           if (materialRate != null && materialRate > 0) {
-            addItem(areaName, 'Trim: Baseboard material', `${lft} lft @ $${materialRate}/lft`, lft * materialRate, {
-              quantity: lft, rate: materialRate, unit: 'lft',
-            });
+            const casingProduct = findCatalogProduct(catalogUrl);
+            const prodLength = getProductLength(catalogUrl);
+            const reqQty = Math.ceil(lft / prodLength);
+            const totalMaterialCost = reqQty * materialRate;
+            addItem(areaName, 'Trim: Casing material', `${reqQty} unit(s) @ $${materialRate}/unit (${prodLength} ft each)`, totalMaterialCost, {
+              quantity: reqQty, rate: materialRate, unit: 'unit',
+            }, casingProduct ? { image: casingProduct.image, productName: casingProduct.name, productUrl: casingProduct.url, unitPrice: materialRate, packSize: `${prodLength} ft` } : undefined);
           }
           // removed the else block that pushed the "Price not entered" / isOutOfStock row
           else {
+            const casingProduct = findCatalogProduct(catalogUrl);
             lineItems.push({
               area: areaName,
               label: 'Trim: Casing material',
               detail: 'Price not entered',
               amount: 0,
-              isOutOfStock: true
+              isOutOfStock: true,
+              ...(casingProduct ? { homeDepotProduct: { image: casingProduct.image, productName: casingProduct.name, productUrl: casingProduct.url, unitPrice: 0 } } : {}),
             });
           }
         } else {
@@ -315,10 +420,25 @@ export function calculateEstimate(
     }
 
     if (area.projectLevel && PRICING.floors[area.projectLevel]) {
-      addItem(areaName, `Floor Surcharge: ${area.projectLevel}`, 'Flat Fee', PRICING.floors[area.projectLevel]);
+      const level = area.projectLevel;
+      if (sameWorkArea !== 'No') {
+        if (!chargedFloors.has(level)) {
+          addItem(areaName, `Floor Surcharge: ${level}`, 'Flat Fee', PRICING.floors[level]);
+          chargedFloors.add(level);
+        }
+      } else {
+        addItem(areaName, `Floor Surcharge: ${level}`, 'Flat Fee', PRICING.floors[level]);
+      }
     }
     if (area.staircase === 'Yes') {
-      addItem(areaName, 'Staircase Surcharge', 'Flat Fee', PRICING.staircase);
+      if (sameWorkArea !== 'No') {
+        if (!chargedStaircase) {
+          addItem(areaName, 'Staircase Surcharge', 'Flat Fee', PRICING.staircase);
+          chargedStaircase = true;
+        }
+      } else {
+        addItem(areaName, 'Staircase Surcharge', 'Flat Fee', PRICING.staircase);
+      }
     }
 
     // Process Custom Questions
@@ -368,10 +488,25 @@ export function calculateEstimate(
     }
 
     if (area.projectLevel && PRICING.floors[area.projectLevel]) {
-      addItem(areaName, `Floor Surcharge: ${area.projectLevel}`, 'Flat Fee', PRICING.floors[area.projectLevel]);
+      const level = area.projectLevel;
+      if (sameWorkArea !== 'No') {
+        if (!chargedFloors.has(level)) {
+          addItem(areaName, `Floor Surcharge: ${level}`, 'Flat Fee', PRICING.floors[level]);
+          chargedFloors.add(level);
+        }
+      } else {
+        addItem(areaName, `Floor Surcharge: ${level}`, 'Flat Fee', PRICING.floors[level]);
+      }
     }
     if (area.staircase === 'Yes') {
-      addItem(areaName, 'Staircase Surcharge', 'Flat Fee', PRICING.staircase);
+      if (sameWorkArea !== 'No') {
+        if (!chargedStaircase) {
+          addItem(areaName, 'Staircase Surcharge', 'Flat Fee', PRICING.staircase);
+          chargedStaircase = true;
+        }
+      } else {
+        addItem(areaName, 'Staircase Surcharge', 'Flat Fee', PRICING.staircase);
+      }
     }
 
     // Ceiling Height Surcharge (above 8ft)
