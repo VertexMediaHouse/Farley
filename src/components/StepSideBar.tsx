@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaTools, FaRuler, FaPaintRoller, FaAddressCard, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaTools, FaPaintRoller, FaAddressCard, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import type { AreaValues } from '../types/form';
 import { calculateEstimate } from '../lib/estimate';
 import type { LineItem } from '../lib/estimate';
@@ -7,7 +7,7 @@ import type { LineItem } from '../lib/estimate';
 const STEPS = [
   { label: 'Referral', hint: 'Commercial & Subcontractor info', Icon: FaAddressCard },
   { label: 'Drywall',  hint: 'Repairs, texture, location', Icon: FaTools },
-  { label: 'Trim',     hint: 'Baseboard and casing',       Icon: FaRuler },
+  // { label: 'Trim',     hint: 'Baseboard and casing',       Icon: FaRuler },
   { label: 'Painting', hint: 'Areas and finish level',     Icon: FaPaintRoller },
 ];
 
@@ -19,7 +19,7 @@ interface Props {
   phone: string;
   phoneHref: string;
   drywall: AreaValues[];
-  trim: AreaValues[];
+  // trim: AreaValues[];
   paint: AreaValues[];
   customQuestions?: any[];
   productPrices?: import('../lib/productPricesStore').ProductPriceMap;
@@ -39,7 +39,7 @@ function fmt(amount: number): string {
 }
 
 export default function StepSidebar({
-  step, onStepClick, phone, phoneHref, drywall, trim, paint, customQuestions = [], contact,
+  step, onStepClick, phone, phoneHref, drywall, paint, customQuestions = [], contact,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
 
@@ -47,12 +47,16 @@ export default function StepSidebar({
 
   const summary = [
     { label: 'Drywall',  n: filledCount(drywall) },
-    { label: 'Trim',     n: filledCount(trim) },
+    // { label: 'Trim',     n: filledCount(trim) },
     { label: 'Painting', n: filledCount(paint) },
   ];
   const started = summary.some(s => s.n > 0);
 
-  const estimate = calculateEstimate({ drywall, trim, paint, sameWorkArea: contact?.sameWorkArea }, customQuestions);
+  const estimate = calculateEstimate({
+    drywall,
+    paint,
+    sameWorkArea: contact?.sameWorkArea,
+  }, customQuestions);
   const hasEstimate = estimate.lineItems.length > 0;
 
   return (

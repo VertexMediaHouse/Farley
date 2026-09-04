@@ -18,6 +18,7 @@ export function applyOverrides(
   questions: QuestionConfig[],
   overrides: OverrideMap,
 ): QuestionConfig[] {
+  if (!Array.isArray(questions)) return [];
   return questions.map(q => {
     const o = overrides[q.id];
     if (!o) return q;

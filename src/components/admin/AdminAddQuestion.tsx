@@ -16,7 +16,7 @@ export default function AdminAddQuestion() {
 
   // Form State
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [path, setPath] = useState<'drywall' | 'trim' | 'paint'>('drywall');
+  const [path, setPath] = useState<'drywall' | 'paint'>('drywall');
   const [insertAfter, setInsertAfter] = useState<string>('');
   
   const [id, setId] = useState(`custom_${Date.now()}`);
@@ -216,7 +216,7 @@ export default function AdminAddQuestion() {
             <label className={lbl}>Service Page</label>
             <select className={inp} value={path} onChange={(e: any) => setPath(e.target.value)}>
               <option value="drywall">Drywall</option>
-              <option value="trim">Trim & Baseboard</option>
+              {/* <option value="trim">Trim & Baseboard</option> */}
               <option value="paint">Painting</option>
             </select>
           </div>

@@ -215,7 +215,7 @@ export function PriceEstimatorInner() {
   const {
     step, goTo,
     drywall, setDrywall,
-    trim, setTrim,
+
     paint, setPaint,
     contact, setContact,
     sent, restored,
@@ -226,7 +226,7 @@ export function PriceEstimatorInner() {
     submitError,
   } = useEstimateDraft();
 
-  const showModal = step === 5;
+  const showModal = step === 4;
 
   return (
     <>
@@ -290,7 +290,6 @@ export function PriceEstimatorInner() {
                 phone={PHONE}
                 phoneHref={PHONE_HREF}
                 drywall={drywall}
-                trim={trim}
                 paint={paint}
                 customQuestions={customQuestions}
                 contact={contact}
@@ -315,22 +314,14 @@ export function PriceEstimatorInner() {
                       onNext={() => goTo(3)}
                     />
                   )}
-                  {step === 3 && (
-                    <ServiceStep
-                      path="trim"
-                      areas={trim}
-                      onChange={setTrim}
-                      onBack={() => goTo(2)}
-                      onNext={() => goTo(4)}
-                    />
-                  )}
-                  {(step === 4 || step === 5) && (
+                  {/* Trim step removed */}
+                  {(step === 3 || step === 4) && (
                     <ServiceStep
                       path="paint"
                       areas={paint}
                       onChange={setPaint}
-                      onBack={() => goTo(3)}
-                      onNext={() => goTo(5)}
+                      onBack={() => goTo(2)}
+                      onNext={() => goTo(4)}
                       isLast
                     />
                   )}
@@ -343,7 +334,7 @@ export function PriceEstimatorInner() {
               <div
                 className="fixed inset-0 z-50 flex items-center justify-center p-4"
                 style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
-                onClick={(e) => { if (e.target === e.currentTarget) goTo(4); }}
+                onClick={(e) => { if (e.target === e.currentTarget) goTo(3); }}
               >
                 <div
                   className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl animate-[fadeSlide_0.25s_ease-out]"
@@ -352,7 +343,7 @@ export function PriceEstimatorInner() {
                   {/* Close button */}
                   <button
                     type="button"
-                    onClick={() => goTo(4)}
+                    onClick={() => goTo(3)}
                     className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
                     aria-label="Close"
                   >
@@ -377,7 +368,7 @@ export function PriceEstimatorInner() {
                     <ClientInfoStep
                       data={contact}
                       onChange={setContact}
-                      onBack={() => goTo(4)}
+                      onBack={() => goTo(3)}
                       onSubmit={handleSubmit}
                       isSubmitting={isSubmitting}
                     />

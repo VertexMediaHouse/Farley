@@ -12,14 +12,14 @@ export interface CustomQuestionConfig extends QuestionConfig {
 
 export interface CustomQuestionRecord {
   id: string;
-  path: 'drywall' | 'trim' | 'paint';
+  path: 'drywall' | 'paint';
   insert_after_id: string | null;
   config: CustomQuestionConfig;
   created_at?: string;
   updated_at?: string;
 }
 
-export async function fetchCustomQuestions(path?: 'drywall' | 'trim' | 'paint'): Promise<CustomQuestionRecord[]> {
+export async function fetchCustomQuestions(path?: 'drywall' | 'paint'): Promise<CustomQuestionRecord[]> {
   let query = supabase.from('custom_questions').select('*').order('created_at', { ascending: true });
   if (path) {
     query = query.eq('path', path);

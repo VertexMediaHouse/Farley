@@ -17,7 +17,7 @@ export function useEstimateDraft() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [drywall, setDrywall] = useState<AreaValues[]>([{}]);
-  const [trim, setTrim] = useState<AreaValues[]>([{}]);
+
   const [paint, setPaint] = useState<AreaValues[]>([{}]);
   const [contact, setContact] = useState<ContactData>(DEFAULT_CONTACT);
   const [sent, setSent] = useState(false);
@@ -30,7 +30,7 @@ export function useEstimateDraft() {
     if (saved) {
       if (saved.step) setStep(saved.step);
       if (saved.drywall?.length) setDrywall(saved.drywall);
-      if (saved.trim?.length) setTrim(saved.trim);
+
       if (saved.paint?.length) setPaint(saved.paint);
       if (saved.contact) setContact(prev => ({ ...prev, ...saved.contact }));
     }
@@ -40,8 +40,8 @@ export function useEstimateDraft() {
   useEffect(() => {
     // Don't save until the component has re-rendered with the loaded state.
     if (!restored) return;
-    saveDraft({ step, drywall, trim, paint, contact });
-  }, [step, drywall, trim, paint, contact, restored]);
+    saveDraft({ step, drywall, paint, contact });
+  }, [step, drywall, paint, contact, restored]);
 
   const goTo = (n: number) => {
     setStep(n);
@@ -54,7 +54,7 @@ export function useEstimateDraft() {
     setSubmitError('');
     setIsSubmitting(true);
     try {
-      await submitEstimate(drywall, trim, paint, contact, customQuestions);
+      await submitEstimate(drywall, paint, contact, customQuestions);
       navigate('/estimate');
     } catch (e) {
       console.error('Failed to store estimate', e);
@@ -68,7 +68,7 @@ export function useEstimateDraft() {
     if (window.confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
       setStep(1);
       setDrywall([{}]);
-      setTrim([{}]);
+
       setPaint([{}]);
       setContact(DEFAULT_CONTACT);
       setSent(false);
@@ -81,7 +81,7 @@ export function useEstimateDraft() {
     step,
     goTo,
     drywall, setDrywall,
-    trim, setTrim,
+
     paint, setPaint,
     contact, setContact,
     sent,

@@ -2,7 +2,7 @@ import type { AreaValues } from '../types/form';
 import { calculateEstimate } from './estimate';
 import { adaptV2ToV1Estimate } from '../utils/estimateAdapter';
 import type { CustomQuestionRecord } from './customQuestionsStore';
-import { getStoreIdForZip, runHomeDepotActorLive } from './homeDepotLiveScrape';
+// import { getStoreIdForZip, runHomeDepotActorLive } from './homeDepotLiveScrape';
 
 export const ESTIMATE_DRAFT_KEY = 'fcd_estimate_v2';
 export const ESTIMATE_RESULT_KEY = 'fcd_estimate_data';
@@ -27,7 +27,7 @@ export type ContactData = typeof DEFAULT_CONTACT;
 export interface EstimateDraft {
   step: number;
   drywall: AreaValues[];
-  trim: AreaValues[];
+  // trim: AreaValues[];
   paint: AreaValues[];
   contact: ContactData;
 }
@@ -49,7 +49,7 @@ export function saveDraft(draft: EstimateDraft): void {
     localStorage.setItem(ESTIMATE_DRAFT_KEY, JSON.stringify({
       ...draft,
       drywall: stripFiles(draft.drywall),
-      trim: stripFiles(draft.trim),
+      // trim: stripFiles(draft.trim),
       paint: stripFiles(draft.paint),
     }));
   } catch { /* ignore quota errors */ }
@@ -152,95 +152,95 @@ const generateAreaThumbnails = async (areas: AreaValues[], prefix: string): Prom
 /** Runs the live Home Depot scrape for every trim area that has a catalog
  *  product selected, and writes the returned price back onto each area as
  *  `baseboardCatalog_userPrice` — the exact field lib/estimate.ts reads. */
-async function enrichTrimWithLivePrices(
-  trim: AreaValues[],
-  zipcode: string,
-): Promise<AreaValues[]> {
-  try {
-    let zip = zipcode.replace(/\D/g, '').slice(0, 5);
-    if (!/^\d{5}$/.test(zip)) {
-      console.warn('Invalid or missing ZIP code for live price enrichment. Using fallback ZIP (92691) so pricing can still be calculated.', zipcode);
-      zip = '92691';
-    }
+// async function enrichTrimWithLivePrices(
+//   trim: AreaValues[],
+//   zipcode: string,
+// ): Promise<AreaValues[]> {
+//   try {
+//     let zip = zipcode.replace(/\D/g, '').slice(0, 5);
+//     if (!/^\d{5}$/.test(zip)) {
+//       console.warn('Invalid or missing ZIP code for live price enrichment. Using fallback ZIP (92691) so pricing can still be calculated.', zipcode);
+//       zip = '92691';
+//     }
 
-    const storeId = getStoreIdForZip(zip);
-    if (!storeId) {
-      console.warn(`No Home Depot store is mapped to ZIP ${zip}, falling back to defaults.`);
-      return trim;
-    }
+//     const storeId = getStoreIdForZip(zip);
+//     if (!storeId) {
+//       console.warn(`No Home Depot store is mapped to ZIP ${zip}, falling back to defaults.`);
+//       return trim;
+//     }
 
-    // Collect every catalog URL selected across trim areas (baseboard or casing)
-    const urls = new Set<string>();
-    trim.forEach(area => {
-      if (typeof area.baseboardCatalog === 'string' && area.baseboardCatalog && area.baseboardCatalog !== 'None of the above') {
-        urls.add(area.baseboardCatalog);
-      }
-      if (typeof area.casingCatalog === 'string' && area.casingCatalog && area.casingCatalog !== 'None of the above') {
-        urls.add(area.casingCatalog);
-      }
-    });
+//     // Collect every catalog URL selected across trim areas (baseboard or casing)
+//     const urls = new Set<string>();
+//     trim.forEach(area => {
+//       if (typeof area.baseboardCatalog === 'string' && area.baseboardCatalog && area.baseboardCatalog !== 'None of the above') {
+//         urls.add(area.baseboardCatalog);
+//       }
+//       if (typeof area.casingCatalog === 'string' && area.casingCatalog && area.casingCatalog !== 'None of the above') {
+//         urls.add(area.casingCatalog);
+//       }
+//     });
 
-    if (urls.size === 0) {
-      // Nothing to scrape (client-provided trim, or no catalog selection) — leave as-is.
-      return trim;
-    }
+//     if (urls.size === 0) {
+//       // Nothing to scrape (client-provided trim, or no catalog selection) — leave as-is.
+//       return trim;
+//     }
 
-    try {
-      const liveItems = await runHomeDepotActorLive({
-        zipcode: zip,
-        storeId,
-        productUrls: [...urls],
-      });
+//     try {
+//       const liveItems = await runHomeDepotActorLive({
+//         zipcode: zip,
+//         storeId,
+//         productUrls: [...urls],
+//       });
 
-      const priceForUrl = (url: string): number | null => {
-        const match = liveItems.find(item => item.url === url);
-        if (!match || match.outOfStock || match.price == null) return null;
-        return match.price;
-      };
+//       const priceForUrl = (url: string): number | null => {
+//         const match = liveItems.find(item => item.url === url);
+//         if (!match || match.outOfStock || match.price == null) return null;
+//         return match.price;
+//       };
 
-      return trim.map(area => {
-        const catalogUrl =
-          (typeof area.baseboardCatalog === 'string' && area.baseboardCatalog) ||
-          (typeof area.casingCatalog === 'string' && area.casingCatalog) ||
-          '';
-        if (!catalogUrl || catalogUrl === 'None of the above') return area;
+//       return trim.map(area => {
+//         const catalogUrl =
+//           (typeof area.baseboardCatalog === 'string' && area.baseboardCatalog) ||
+//           (typeof area.casingCatalog === 'string' && area.casingCatalog) ||
+//           '';
+//         if (!catalogUrl || catalogUrl === 'None of the above') return area;
 
-        const livePrice = priceForUrl(catalogUrl);
-        if (livePrice == null) return area;
+//         const livePrice = priceForUrl(catalogUrl);
+//         if (livePrice == null) return area;
 
-        return { ...area, baseboardCatalog_userPrice: String(livePrice) };
-      });
-    } catch (scrapeError) {
-      console.error('Failed to run live Home Depot scrape, falling back to defaults:', scrapeError);
-      return trim;
-    }
-  } catch (err) {
-    console.error('Failed to enrich trim with live prices, falling back to defaults:', err);
-    return trim;
-  }
-}
+//         return { ...area, baseboardCatalog_userPrice: String(livePrice) };
+//       });
+//     } catch (scrapeError) {
+//       console.error('Failed to run live Home Depot scrape, falling back to defaults:', scrapeError);
+//       return trim;
+//     }
+//   } catch (err) {
+//     console.error('Failed to enrich trim with live prices, falling back to defaults:', err);
+//     return trim;
+//   }
+// }
 
 export async function submitEstimate(
   drywall: AreaValues[],
-  trim: AreaValues[],
+  // trim: AreaValues[],
   paint: AreaValues[],
   contact: ContactData,
   customQuestions: CustomQuestionRecord[],
 ): Promise<void> {
-  const enrichedTrim = await enrichTrimWithLivePrices(trim, contact.areaCode);
+  // const enrichedTrim = await enrichTrimWithLivePrices(trim, contact.areaCode);
 
-  const formData = adaptV2ToV1Estimate(drywall, enrichedTrim, paint, contact);
-  const result = calculateEstimate({ drywall, trim: enrichedTrim, paint, sameWorkArea: contact.sameWorkArea }, customQuestions);
+  const formData = adaptV2ToV1Estimate(drywall, paint, contact);
+  const result = calculateEstimate({ drywall, paint, sameWorkArea: contact.sameWorkArea }, customQuestions);
   
   const allFiles = [
     ...collectFilesFromAreas(drywall),
-    ...collectFilesFromAreas(trim),
+    // ...collectFilesFromAreas(trim),
     ...collectFilesFromAreas(paint)
   ];
   const drywallThumbs = await generateAreaThumbnails(drywall, 'Drywall');
-  const trimThumbs = await generateAreaThumbnails(trim, 'Trim');
+  // const trimThumbs = await generateAreaThumbnails(trim, 'Trim');
   const paintThumbs = await generateAreaThumbnails(paint, 'Paint');
-  const areaThumbnails = { ...drywallThumbs, ...trimThumbs, ...paintThumbs };
+  const areaThumbnails = { ...drywallThumbs, ...paintThumbs };
   
   const thumbnails = allFiles.length > 0 ? await generateThumbnails(allFiles) : [];
   
@@ -249,7 +249,7 @@ export async function submitEstimate(
     estimate: result, 
     thumbnails, 
     areaThumbnails,
-    rawAreas: { drywall, trim, paint },
+    rawAreas: { drywall, paint },
     contact 
   }));
   // NOTE: Do NOT remove ESTIMATE_DRAFT_KEY here.

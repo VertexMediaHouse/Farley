@@ -27,7 +27,7 @@ import {
   MINIMUM_JOB_CHARGE_CONFIG,
 } from '../constants/pricing';
 import {
-  calculatePerimeter,
+  // calculatePerimeter,
   addWaste,
   roundUpToNearestInteger,
   calculateR19Bundles,
@@ -105,13 +105,17 @@ function finishLabel(finishLevel: string): string {
 
 export function calculateEstimate(
   formData: any,
-  rawArrays: { drywall?: any[], trim?: any[], paint?: any[] } = {},
+  rawArrays: {
+    trim: any; drywall?: any[], /* trim?: any[], */ paint?: any[] 
+} = {
+  trim: undefined
+},
   customQuestions: any[] = []
 ): EstimateResult {
   // ── 1. Parse dimensions ──────────────────────────────────────────────────
-  const length = safeParseFloat(formData.length);
-  const width = safeParseFloat(formData.width);
-  const perimeter = calculatePerimeter(length, width);
+  // const length = safeParseFloat(formData.length);
+  // const width = safeParseFloat(formData.width);
+  // const perimeter = calculatePerimeter(length, width);
 
   // ── 2. Output buckets ────────────────────────────────────────────────────
   const laborItems: EstimateLineItem[] = [];
@@ -257,6 +261,7 @@ export function calculateEstimate(
       }
     }
 
+/*
     if (demolitionSelections.includes('Remove Base Board (linear ft)')) {
       const baseboardRemovalFt = safeParseFloat(formData.drywall_demo_baseboard_ft);
       if (baseboardRemovalFt > 0) {
@@ -273,6 +278,7 @@ export function calculateEstimate(
         followUpQuestions.push('Baseboard removal selected — please provide linear footage to confirm pricing.');
       }
     }
+*/
 
     if (demolitionSelections.includes('Popcorn Ceiling Removal')) {
       const popcornSqft = safeParseFloat(formData.drywall_popcorn_sqft);
@@ -469,6 +475,7 @@ export function calculateEstimate(
       followUpQuestions.push('Painting areas selected but no square footage provided — pricing will be confirmed after on-site inspection.');
     }
 
+/*
     // ── 4b. Parse Trim Areas ──────────────────────────────────────────────
     const trimAreas: string[] = Array.isArray(formData.paint_trim_area)
       ? formData.paint_trim_area
@@ -495,6 +502,7 @@ export function calculateEstimate(
       isPendingReview = true;
       followUpQuestions.push('Trim painting selected but no linear footage provided — pricing will be confirmed after on-site inspection.');
     }
+*/
 
     // ── 4c. Ceiling Height Flag ───────────────────────────────────────────
     if (formData.paint_ceiling_height_over_8ft === 'Yes') {
@@ -523,6 +531,7 @@ export function calculateEstimate(
     }
   }
 
+/*
   // ── 5. TRIM ──────────────────────────────────────────────────────────────
   if (formData.services?.trim) {
     const baseboardFeetRaw = safeParseFloat(formData.trim_base_linear_feet);
@@ -637,6 +646,7 @@ export function calculateEstimate(
       });
     }
   }
+*/
 
   // ── 6. ELECTRICAL ────────────────────────────────────────────────────────
   if (formData.services?.electrical) {
@@ -755,8 +765,9 @@ export function calculateEstimate(
     });
   }
 
+/*
   if (rawArrays.trim) {
-    rawArrays.trim.forEach(area => {
+    rawArrays.trim.forEach((area: any) => {
       customQuestions.filter(q => q.path === 'trim').forEach(cq => {
         const val = area[cq.config.id];
         if (!val) return;
@@ -772,6 +783,7 @@ export function calculateEstimate(
       });
     });
   }
+*/
 
   if (rawArrays.paint) {
     rawArrays.paint.forEach(area => {
@@ -800,7 +812,7 @@ export function calculateEstimate(
   // Once the work exceeds $1250, the minimum cancels out and the actual price is shown.
   const calculatedTotal = subtotalLabor + subtotalMaterials + finalSubtotalAdditional;
   const minimumCharge = MINIMUM_JOB_CHARGE_CONFIG.VALUE; // $1250
-  let grandTotal = Math.max(calculatedTotal, minimumCharge);
+  const grandTotal = Math.max(calculatedTotal, minimumCharge);
 
   const round2 = (n: number) => Math.round(n * 100) / 100;
 

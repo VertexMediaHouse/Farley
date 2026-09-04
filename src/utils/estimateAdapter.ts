@@ -1,6 +1,6 @@
 
 export function adaptV2ToV1Estimate(
-  drywall: any[], trim: any[], paint: any[], contact: any,
+drywall: any[], paint: any[], contact: { isCommercial: string; isSubcontractor: string; areaCode: string; fullName: string; companyName: string; phoneNumber: string; emailAddress: string; clientName: string; clientAddress: string; clientEmail: string; clientPhone: string; sameWorkArea: string; },
 ) {
   const formData: any = {
     length: '0',
@@ -10,7 +10,7 @@ export function adaptV2ToV1Estimate(
     services: {
       drywall: drywall.length > 0 && Object.keys(drywall[0]).length > 0,
       paint: paint.length > 0 && Object.keys(paint[0]).length > 0,
-      trim: trim.length > 0 && Object.keys(trim[0]).length > 0,
+      // trim: trim.length > 0 && Object.keys(trim[0]).length > 0,
       electrical: false,
     },
     has_photos: 'No',
@@ -21,7 +21,7 @@ export function adaptV2ToV1Estimate(
   let demoWallSqft = 0, demoCeilSqft = 0, demoInsSqft = 0, demoBaseFt = 0;
   let hasTexture = '';
   let insulation = false;
-  let cornerMetal: string[] = [];
+  const cornerMetal: string[] = [];
   let cornerCount = 0;
   let popcornSqft = 0;
   let wallpaperSqft = 0;
@@ -86,32 +86,32 @@ export function adaptV2ToV1Estimate(
   }
 
   // --- TRIM ---
-  let baseboardFeet = 0;
-  let casingFeet = 0;
-  let clientProvidedTrim = false;
-  trim.forEach(area => {
-    const bf = parseFloat(area.baseboardLinearFeet) || 0;
-    const cf = parseFloat(area.casingLinearFeet) || 0;
-    baseboardFeet += bf;
-    casingFeet += cf;
-    if (area.clientProvidedTrim === 'Yes') clientProvidedTrim = true;
-  });
-  formData.trim_base_linear_feet = baseboardFeet;
-  formData.trim_casing_linear_feet = casingFeet;
-  if (clientProvidedTrim) formData.trim_client_provided = true;
-  if (baseboardFeet > 0 || casingFeet > 0) {
-    formData.trim_services = 'install new baseboard'; // default to install
-  }
+  // let baseboardFeet = 0;
+  // let casingFeet = 0;
+  // let clientProvidedTrim = false;
+  // trim.forEach(area => {
+  //   const bf = parseFloat(area.baseboardLinearFeet) || 0;
+  //   const cf = parseFloat(area.casingLinearFeet) || 0;
+  //   baseboardFeet += bf;
+  //   casingFeet += cf;
+  //   if (area.clientProvidedTrim === 'Yes') clientProvidedTrim = true;
+  // });
+  // formData.trim_base_linear_feet = baseboardFeet;
+  // formData.trim_casing_linear_feet = casingFeet;
+  // if (clientProvidedTrim) formData.trim_client_provided = true;
+  // if (baseboardFeet > 0 || casingFeet > 0) {
+  //   formData.trim_services = 'install new baseboard'; // default to install
+  // }
 
   // --- PAINT ---
-  let paintWallSqft = 0, paintCeilSqft = 0, paintTrimFt = 0;
+  let paintWallSqft = 0, paintCeilSqft = 0; // , paintTrimFt = 0;
   paint.forEach(area => {
     // Assuming some fields like squareFootage, linearFeet
     const sqft = parseFloat(area.squareFootage) || 0;
-    const ft = parseFloat(area.linearFeet) || 0;
+    // const ft = parseFloat(area.linearFeet) || 0;
     if (area.surfaceType === 'Walls') paintWallSqft += sqft;
     if (area.surfaceType === 'Ceiling') paintCeilSqft += sqft;
-    if (area.surfaceType === 'Trim' || area.surfaceType === 'Baseboard') paintTrimFt += ft;
+    // if (area.surfaceType === 'Trim' || area.surfaceType === 'Baseboard') paintTrimFt += ft;
   });
 
   const paintAreaArr = [];
@@ -121,10 +121,10 @@ export function adaptV2ToV1Estimate(
   formData.paint_wall_sqft = paintWallSqft;
   formData.paint_ceiling_sqft = paintCeilSqft;
 
-  const paintTrimArr = [];
-  if (paintTrimFt > 0) paintTrimArr.push('Trim');
-  formData.paint_trim_area = paintTrimArr;
-  formData.paint_trim_linear_ft = paintTrimFt;
+  // const paintTrimArr = [];
+  // if (paintTrimFt > 0) paintTrimArr.push('Trim');
+  // formData.paint_trim_area = paintTrimArr;
+  // formData.paint_trim_linear_ft = paintTrimFt;
 
   // Extract the selected paint color, if any.
   // Value is stored as "Name (Number)|#hex" — split on pipe to get label and hex separately.
