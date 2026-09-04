@@ -240,7 +240,7 @@ export default function EstimatePage() {
             &larr; Return to Website
           </Link>
           <div style={{ display: 'flex', gap: '12px' }}>
-            <Link to="/priceestimatordevelopment" className="btn btn-glass" style={{
+            {/* <Link to="/priceestimatordevelopment" className="btn btn-glass" style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
@@ -255,7 +255,7 @@ export default function EstimatePage() {
               transition: 'background 0.2s, color 0.2s'
             }}>
               ← Modify My Project
-            </Link>
+            </Link> */}
             <button type="button" className="btn btn-glass print-btn" onClick={() => window.print()} style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -425,18 +425,18 @@ export default function EstimatePage() {
           {/* Photo Request Banner (if they selected No photos) */}
           {answers.has_photos !== 'Yes' && (
             <div className="estimate-photo-request-banner" style={{
-              background: '#f0fdf4',
-              border: '1px solid #dcfce7',
+              background: '#eff6ff',
+              border: '1px solid #bfdbfe',
               borderRadius: '12px',
               padding: '24px',
               marginBottom: '30px',
-              color: '#166534'
+              color: '#1e40af'
             }}>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '1.05rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', color: '#15803d' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '1.05rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', color: '#2F9BF0' }}>
                 📸 Photo Upload Recommended for Final Approval
               </h3>
-              <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5', color: '#166534' }}>
-                To obtain binding contract approval and bypass in-person inspection delays, please submit close-up photos of your walls, ceilings, and repair locations directly to <a href="mailto:fcd-drywall@farleycdinc.com" style={{ color: '#15803d', fontWeight: 700, textDecoration: 'underline' }}>fcd-drywall@farleycdinc.com</a> referencing this address: <strong>{answers.address || 'Project Address'}</strong>.
+              <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5', color: '#1e40af' }}>
+                To obtain binding contract approval and bypass in-person inspection delays, please submit close-up photos of your walls, ceilings, and repair locations directly to <a href="mailto:fcd-drywall@farleycdinc.com" style={{ color: '#2F9BF0', fontWeight: 700, textDecoration: 'underline' }}>fcd-drywall@farleycdinc.com</a> referencing this address: <strong>{answers.address || 'Project Address'}</strong>.
               </p>
             </div>
           )}
