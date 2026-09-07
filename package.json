@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "wrangler pages dev -- vite",
+    "dev": "wrangler pages dev --proxy 5173 -- vite",
     "dev:functions": "npm run build && wrangler pages dev dist",
     "build": "tsc -b && vite build && node scripts/prerender.js",
     "lint": "eslint .",

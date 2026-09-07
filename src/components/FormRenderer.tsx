@@ -122,7 +122,7 @@ function Field({
 
   if (q.type === 'notice') {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+      <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
         {q.noticeText}
       </div>
     );

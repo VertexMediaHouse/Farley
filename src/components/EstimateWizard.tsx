@@ -1289,7 +1289,7 @@ export default function EstimateWizard() {
             </div>
           </div>
           {estimate.isPendingReview && (
-            <div style={{ background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.3)', color: '#b45309', padding: '10px 14px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
+            <div style={{ background: 'rgba(47,155,240,0.08)', border: '1px solid rgba(47,155,240,0.25)', color: '#1e40af', padding: '10px 14px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
               ⚠️ This estimate includes items requiring on-site confirmation. Final price may vary.
             </div>
           )}
@@ -1643,7 +1643,7 @@ export default function EstimateWizard() {
                           })}
                         </div>
                         {currentStep.warningCondition && answers[currentStep.id] === currentStep.warningCondition && (
-                          <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.3)', borderRadius: '8px', color: '#b45309', fontSize: '0.9rem', fontWeight: 600 }}>
+                          <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(47,155,240,0.08)', border: '1px solid rgba(47,155,240,0.25)', borderRadius: '8px', color: '#1e40af', fontSize: '0.9rem', fontWeight: 600 }}>
                             ⚠️ {currentStep.warningMessage}
                           </div>
                         )}

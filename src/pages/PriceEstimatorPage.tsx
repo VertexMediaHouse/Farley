@@ -247,7 +247,7 @@ export function PriceEstimatorInner() {
                 Tell us about your project
               </h1>
               <p className="mt-2 max-w-lg text-sm leading-relaxed text-slate-300">
-                Four short steps &mdash; about three minutes. We&rsquo;ll send your quote within 24 hours.
+                Three short steps &mdash; about three minutes. We&rsquo;ll send your quote within 24 hours.
               </p>
             </div>
             {!sent && (
@@ -284,7 +284,7 @@ export function PriceEstimatorInner() {
             <div className="relative grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] items-start">
               <div className="hidden lg:block">
                 <StepSidebar
-                  step={Math.min(step, 4)}
+                  step={Math.min(step, 3)}
                   onStepClick={goTo}
                   restored={restored}
                   phone={PHONE}
@@ -301,7 +301,7 @@ export function PriceEstimatorInner() {
                   id="estimate-scroll"
                   className="panel-scroll flex-1 overflow-y-auto px-6 sm:px-8"
                 >
-                  <div key={Math.min(step, 4)} className="animate-[fadeSlide_0.3s_ease-out]">
+                  <div key={Math.min(step, 3)} className="animate-[fadeSlide_0.3s_ease-out]">
                     {step === 1 && (
                       <ContactStep data={contact} onChange={setContact} onNext={() => goTo(2)} />
                     )}

@@ -424,23 +424,23 @@ export default function EstimatePage() {
           {/* Pending Review / Photo Warnings / Follow-Up Questions Banner */}
           {isPendingReview && (
             <div className="estimate-pending-review-banner" style={{
-              background: '#fffbeb',
-              border: '1px solid #fef3c7',
+              background: '#eff6ff',
+              border: '1px solid #bfdbfe',
               borderRadius: '12px',
               padding: '24px',
               marginBottom: '30px',
-              color: '#92400e'
+              color: '#1e40af'
             }}>
-              <h3 style={{ margin: '0 0 10px 0', fontSize: '1.05rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', color: '#b45309' }}>
+              <h3 style={{ margin: '0 0 10px 0', fontSize: '1.05rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', color: '#2F9BF0' }}>
                 ⚠️ Action Required: Estimate Pending Final Review
               </h3>
-              <p style={{ margin: '0 0 16px 0', fontSize: '0.9rem', lineHeight: '1.5', color: '#78350f' }}>
+              <p style={{ margin: '0 0 16px 0', fontSize: '0.9rem', lineHeight: '1.5', color: '#1e40af' }}>
                 This estimate has been flagged for manual verification by our operations team. Uploaded photos are being processed, or critical room dimensions are missing. Standard prices are calculated below, but final approval is subject to resolving the following items:
               </p>
 
               {followUpQuestions.length > 0 && (
                 <div style={{ marginBottom: '16px' }}>
-                  <strong style={{ fontSize: '0.85rem', textTransform: 'uppercase', display: 'block', marginBottom: '8px', color: '#b45309' }}>
+                  <strong style={{ fontSize: '0.85rem', textTransform: 'uppercase', display: 'block', marginBottom: '8px', color: '#2F9BF0' }}>
                     Follow-Up Clarifications Needed:
                   </strong>
                   <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.88rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -452,7 +452,7 @@ export default function EstimatePage() {
               )}
 
               {answers.has_photos === 'Yes' && (
-                <div style={{ background: '#fef3c7', padding: '12px 16px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
+                <div style={{ background: '#dbeafe', padding: '12px 16px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
                   📸 Photos Received! Our estimator will review the uploaded workspace images within 1 business day.
                 </div>
               )}
@@ -825,7 +825,7 @@ export default function EstimatePage() {
                                 }}
                               >
                                 {item.isOutOfStock ? (
-                                  <span style={{ color: '#b45309', fontWeight: 700 }}>
+                                  <span style={{ color: '#2F9BF0', fontWeight: 700 }}>
                                     {item.detail}
                                   </span>
                                 ) : item.unit ? (
