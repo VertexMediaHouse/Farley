@@ -360,13 +360,13 @@ export function calculateEstimate(
               quantity: reqQty, rate: materialRate, unit: 'unit',
             }, baseProduct ? { image: baseProduct.image, productName: baseProduct.name, productUrl: baseProduct.url, unitPrice: materialRate, packSize: `${prodLength} ft` } : undefined);
           }
-          // removed the else block that pushed the "Price not entered" / isOutOfStock row
+          // removed the else block that pushed the "Out of the stock" / isOutOfStock row
           else {
             const baseProduct = findCatalogProduct(catalogUrl);
             lineItems.push({
               area: areaName,
               label: 'Trim: Baseboard material',
-              detail: 'Price not entered',
+              detail: 'Out of the stock',
               amount: 0,
               isOutOfStock: true,
               ...(baseProduct ? { homeDepotProduct: { image: baseProduct.image, productName: baseProduct.name, productUrl: baseProduct.url, unitPrice: 0 } } : {}),
@@ -402,13 +402,13 @@ export function calculateEstimate(
               quantity: reqQty, rate: materialRate, unit: 'unit',
             }, casingProduct ? { image: casingProduct.image, productName: casingProduct.name, productUrl: casingProduct.url, unitPrice: materialRate, packSize: `${prodLength} ft` } : undefined);
           }
-          // removed the else block that pushed the "Price not entered" / isOutOfStock row
+          // removed the else block that pushed the "Out of the stock" / isOutOfStock row
           else {
             const casingProduct = findCatalogProduct(catalogUrl);
             lineItems.push({
               area: areaName,
               label: 'Trim: Casing material',
-              detail: 'Price not entered',
+              detail: 'Out of the stock',
               amount: 0,
               isOutOfStock: true,
               ...(casingProduct ? { homeDepotProduct: { image: casingProduct.image, productName: casingProduct.name, productUrl: casingProduct.url, unitPrice: 0 } } : {}),

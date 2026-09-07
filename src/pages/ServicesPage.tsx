@@ -339,7 +339,7 @@ export default function ServicesPage() {
               <Link to="/contact" className="btn btn-orange btn-lg">
                 Discuss Your Project <span aria-hidden="true">→</span>
               </Link>
-              <a href="tel:+19497924283" className="services-cta-link">(949) 792-4283</a>
+              <a href="tel:+19497924283" className="services-cta-link">(949) 989 5597</a>
               <a href="mailto:fcd-drywall@farleycdinc.com" className="services-cta-link">fcd-drywall@farleycdinc.com</a>
             </div>
           </div>

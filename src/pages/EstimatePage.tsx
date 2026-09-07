@@ -30,6 +30,9 @@ interface EstimateData {
     paintColorExplorer?: string;
     paintColorExplorer_hex?: string;
     paintSheen?: string;
+    additional_info?: string;
+    paint_additional_info?: string;
+    [key: string]: any;
   };
   estimate: EstimateResult;
   thumbnails?: string[];
@@ -57,6 +60,8 @@ export default function EstimatePage() {
   const [data, setData] = useState<EstimateData | null>(null)
   const [editedItems, setEditedItems] = useState<LineItem[] | null>(null)
   const [isEditing, setIsEditing] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
 
 
   useEffect(() => {
@@ -202,6 +207,46 @@ export default function EstimatePage() {
     : [rawPaintColor, undefined];
   const paintColorHex = paintColorHexFromLabel ?? answers.paintColorExplorer_hex;
 
+  const handleSubmitRequest = async () => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/api/submit-estimate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contact: data.contact,
+          answers: data.answers,
+          estimateTotal: grandTotal.toFixed(2),
+          thumbnails: data.thumbnails || [],
+          areaThumbnails: data.areaThumbnails || {},
+          rawAreas: data.rawAreas || {},
+          lineItems: items.map(i => ({
+            label: i.label,
+            area: i.area,
+            detail: i.detail,
+            quantity: i.quantity,
+            unit: i.unit,
+            amount: i.amount,
+          })),
+          notes: data.answers?.additional_info || data.answers?.paint_additional_info || "No additional notes"
+        })
+      });
+      
+      if (response.ok) {
+        setSubmitSuccess(true);
+      } else {
+        alert('Failed to submit estimate. Please try again or contact us directly.');
+      }
+    } catch (e) {
+      console.error('Error submitting request:', e);
+      alert('An error occurred. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="estimate-page-wrapper" style={{
       background: '#f8fafc',
@@ -256,15 +301,7 @@ export default function EstimatePage() {
             }}>
               ← Modify My Project
             </Link> */}
-            <button type="button" className="btn btn-glass print-btn" onClick={() => window.print()} style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 20px',
-              cursor: 'pointer'
-            }}>
-              Print / Save to PDF 🖨️
-            </button>
+
             <button type="button" className="btn btn-blue" onClick={() => window.close()} style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -299,7 +336,7 @@ export default function EstimatePage() {
                 textTransform: 'uppercase',
                 letterSpacing: '0.03em'
               }}>
-                Farley Construction &amp; Development
+                FCD Drywall
               </h1>
               <p style={{ color: '#64748b', margin: '4px 0 0 0', fontSize: '0.9rem' }}>
                 Premium Interior Finishing &amp; Drywall Restoration
@@ -981,6 +1018,30 @@ export default function EstimatePage() {
               }}>
                 ← Go Back &amp; Change Scope
               </Link>
+              
+              <button 
+                type="button" 
+                onClick={handleSubmitRequest}
+                disabled={isSubmitting || submitSuccess}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '14px 28px',
+                  border: 'none',
+                  cursor: (isSubmitting || submitSuccess) ? 'not-allowed' : 'pointer',
+                  fontWeight: 800,
+                  color: '#fff',
+                  background: (isSubmitting || submitSuccess) ? '#94a3b8' : 'linear-gradient(135deg, #10b981, #059669)',
+                  borderRadius: '12px',
+                  fontSize: '0.95rem',
+                  boxShadow: (isSubmitting || submitSuccess) ? 'none' : '0 4px 14px rgba(16,185,129,0.35)',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  letterSpacing: '0.01em'
+                }}
+              >
+                {isSubmitting ? 'Submitting...' : submitSuccess ? 'Request Sent ✓' : 'Submit My Estimate Request →'}
+              </button>
             </div>
 
             {/* Note Bottom */}
@@ -1037,6 +1098,77 @@ export default function EstimatePage() {
           }
         }
       `}} />
+
+      {/* Success Modal */}
+      {submitSuccess && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            padding: '40px',
+            maxWidth: '500px',
+            width: '100%',
+            textAlign: 'center',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            border: '1px solid #e2e8f0'
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              background: '#ecfdf5',
+              color: '#10b981',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '2.5rem',
+              margin: '0 auto 24px auto'
+            }}>
+              ✓
+            </div>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px' }}>
+              Request Received!
+            </h2>
+            <p style={{ fontSize: '1rem', color: '#64748b', marginBottom: '32px', lineHeight: 1.6 }}>
+              FCD Drywall has received your estimate request and project details. 
+              Our team will review your information and contact you shortly.
+            </p>
+            <button 
+              onClick={() => setSubmitSuccess(false)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                padding: '14px 28px',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: 800,
+                color: '#fff',
+                background: 'linear-gradient(135deg, #2F9BF0, #1E86D8)',
+                borderRadius: '12px',
+                fontSize: '1rem',
+                boxShadow: '0 4px 14px rgba(47,155,240,0.35)',
+                transition: 'transform 0.2s, box-shadow 0.2s'
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -14,7 +14,7 @@ const contactCards = [
     ),
   },
   {
-    label: '(949) 792-4283',
+    label: '(949) 989 5597',
     href: 'tel:+19497924283',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">

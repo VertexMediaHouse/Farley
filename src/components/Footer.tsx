@@ -51,7 +51,7 @@ export default function Footer() {
           <div className="footer-contact-rows">
             <div className="footer-contact-row">
               <span className="footer-contact-label">Phone</span>
-              <a className="footer-contact-value" href="tel:+19497924283">(949) 792-4283</a>
+              <a className="footer-contact-value" href="tel:+19497924283">(949) 989 5597</a>
             </div>
             <div className="footer-contact-row">
               <span className="footer-contact-label">Email</span>

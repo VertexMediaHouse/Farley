@@ -381,7 +381,7 @@ export default function HomePage() {
                 <span className="ci-icon" aria-hidden="true">
                   <img src="/images/telephone.png" alt="" className="img-contain" />
                 </span>
-                <div><strong>Phone</strong><span>(949) 792-4283</span></div>
+                <div><strong>Phone</strong><span>(949) 989 5597</span></div>
               </li>
               <li>
                 <span className="ci-icon" aria-hidden="true">

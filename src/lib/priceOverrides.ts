@@ -26,7 +26,7 @@ export async function fetchPriceOverrides(): Promise<PriceOverrideMap> {
     .from('price_overrides')
     .select('rules')
     .eq('id', 'main')
-    .single();
+    .maybeSingle();
 
   if (error || !data?.rules) return {};
   return data.rules as PriceOverrideMap;
