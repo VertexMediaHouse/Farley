@@ -472,7 +472,7 @@ export default function EstimatePage() {
               <h3 style={{ margin: '0 0 8px 0', fontSize: '1.05rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', color: '#2F9BF0' }}>
                 📸 Photo Upload Recommended for Final Approval
               </h3>
-              <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5', color: '#1e40af' }}>
+              <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5', color: '#2F9BF0' }}>
                 To obtain binding contract approval and bypass in-person inspection delays, please submit close-up photos of your walls, ceilings, and repair locations directly to <a href="mailto:fcd-drywall@farleycdinc.com" style={{ color: '#2F9BF0', fontWeight: 700, textDecoration: 'underline' }}>fcd-drywall@farleycdinc.com</a> referencing this address: <strong>{answers.address || 'Project Address'}</strong>.
               </p>
             </div>
@@ -488,7 +488,7 @@ export default function EstimatePage() {
               marginBottom: '30px',
               color: '#1e40af'
             }}>
-              <h3 style={{ margin: '0 0 8px 0', fontSize: '1.05rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', color: '#1d4ed8' }}>
+              <h3 style={{ margin: '0 0 8px 0', fontSize: '1.05rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', color: '#2F9BF0' }}>
                 🎨 Existing Paint Color Match Requested
               </h3>
               <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5' }}>
