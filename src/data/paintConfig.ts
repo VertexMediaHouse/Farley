@@ -23,6 +23,13 @@ export const paintConfig: QuestionConfig[] = [
     options: ['', 'Yes — Match my existing paint color', 'No — I will select/use a different paint color'],
   },
   {
+    id: 'paintSheenAck',
+    label: 'All new matching paint will be Behr paint from Home Depot. Please upload the image of paint skew even if it is from another brand. We will match it from Home Depot paint.',
+    type: 'checkbox',
+    required: true,
+    condition: { field: 'paintMatchRequested', is: 'Yes — Match my existing paint color' }
+  },
+  {
     id: 'paintMatchPhotos',
     label: 'Upload clear photos of the existing wall/ceiling color, the repair area, and surrounding reference',
     type: 'photoUpload',
@@ -36,13 +43,6 @@ export const paintConfig: QuestionConfig[] = [
     type: 'dropdown',
     required: true,
     options: ['', 'Flat', 'Matte', 'Eggshell', 'Satin', 'Semi-Gloss', 'Gloss', 'I Don\'t Know'],
-    condition: { field: 'paintMatchRequested', is: 'Yes — Match my existing paint color' }
-  },
-  {
-    id: 'paintMatchBrand',
-    label: 'Do you know the existing paint brand? (Optional)',
-    type: 'text',
-    placeholder: 'e.g. Behr, Sherwin-Williams',
     condition: { field: 'paintMatchRequested', is: 'Yes — Match my existing paint color' }
   },
   {
