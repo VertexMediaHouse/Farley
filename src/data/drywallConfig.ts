@@ -169,8 +169,15 @@ export const drywallConfig: QuestionConfig[] = [
   {
     id: 'ceilingHeight',
     label: 'Height (ft)',
-    type: 'number',
-    placeholder: 'ft',
+    type: 'dropdown',
+    required: true,
+    options: [
+      '',
+      '9 feet',
+      '10 feet',
+      '11 feet',
+      '12 feet'
+    ],
     condition: { field: 'ceilingAbove8', is: 'Yes' },
   },
   {

@@ -150,10 +150,10 @@ export const paintConfig: QuestionConfig[] = [
     required: true,
     options: [
       '',
-      '9ft',
-      '10ft',
-      '11ft',
-      '12ft'
+      '9 feet',
+      '10 feet',
+      '11 feet',
+      '12 feet'
     ],
     condition: { field: 'ceilingAbove8', is: 'Yes' },
   },
