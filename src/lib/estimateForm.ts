@@ -32,7 +32,126 @@ export interface EstimateDraft {
   contact: ContactData;
 }
 
-/** Strip File objects before persisting to localStorage. */
+export interface SerializedFile {
+  name: string;
+  type: string;
+  dataUrl: string;
+}
+
+export function fileToDataUrl(file: File, maxSize = 800): Promise<string> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxSize) {
+            height *= maxSize / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width *= maxSize / height;
+            height = maxSize;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.onerror = () => {
+        resolve((e.target?.result as string) || '');
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  });
+}
+
+export async function serializeAreas(areas: AreaValues[]): Promise<Record<string, unknown>[]> {
+  return Promise.all(
+    areas.map(async (area) => {
+      const out: Record<string, unknown> = {};
+      for (const k in area) {
+        const v = area[k];
+        if (Array.isArray(v)) {
+          const serializedArray = await Promise.all(
+            v.map(async (item) => {
+              if (item instanceof File) {
+                const dataUrl = await fileToDataUrl(item);
+                return {
+                  name: item.name,
+                  type: 'image/jpeg',
+                  dataUrl,
+                } as SerializedFile;
+              } else if (item && typeof item === 'object' && item !== null && 'dataUrl' in item) {
+                return item;
+              }
+              return item;
+            })
+          );
+          out[k] = serializedArray;
+        } else {
+          out[k] = v;
+        }
+      }
+      return out;
+    })
+  );
+}
+
+export function dataURLtoFile(dataurl: string, filename: string, mimeType?: string): File | null {
+  if (!dataurl || typeof dataurl !== 'string') return null;
+  const arr = dataurl.split(',');
+  if (arr.length < 2) return null;
+  const match = arr[0].match(/:(.*?);/);
+  const mime = mimeType || (match ? match[1] : 'image/jpeg');
+  try {
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  } catch (e) {
+    console.error('Failed to convert dataURL to File', e);
+    return null;
+  }
+}
+
+export function deserializeAreas(areas: Record<string, unknown>[]): AreaValues[] {
+  if (!Array.isArray(areas)) return [];
+  return areas.map((area) => {
+    const out: AreaValues = {};
+    for (const k in area) {
+      const v = area[k];
+      if (Array.isArray(v)) {
+        out[k] = v
+          .map((item) => {
+            if (item && typeof item === 'object' && 'dataUrl' in item && typeof (item as any).dataUrl === 'string') {
+              return dataURLtoFile((item as any).dataUrl, (item as any).name || 'photo.jpg', (item as any).type);
+            }
+            return item;
+          })
+          .filter((item): item is NonNullable<typeof item> => item !== null);
+      } else {
+        out[k] = v as any;
+      }
+    }
+    return out;
+  });
+}
+
+/** Legacy stripFiles compatibility function */
 export function stripFiles(areas: AreaValues[]): Record<string, unknown>[] {
   return areas.map(area => {
     const out: Record<string, unknown> = {};
@@ -44,22 +163,30 @@ export function stripFiles(areas: AreaValues[]): Record<string, unknown>[] {
   });
 }
 
-export function saveDraft(draft: EstimateDraft): void {
+export async function saveDraft(draft: EstimateDraft): Promise<void> {
   try {
+    const drywallSerialized = await serializeAreas(draft.drywall);
+    const paintSerialized = await serializeAreas(draft.paint);
     localStorage.setItem(ESTIMATE_DRAFT_KEY, JSON.stringify({
       ...draft,
-      drywall: stripFiles(draft.drywall),
-      // trim: stripFiles(draft.trim),
-      paint: stripFiles(draft.paint),
+      drywall: drywallSerialized,
+      paint: paintSerialized,
     }));
-  } catch { /* ignore quota errors */ }
+  } catch (e) {
+    console.error('Failed to save estimate draft', e);
+  }
 }
 
 export function loadDraft(): Partial<EstimateDraft> | null {
   try {
     const saved = localStorage.getItem(ESTIMATE_DRAFT_KEY);
     if (!saved) return null;
-    return JSON.parse(saved);
+    const parsed = JSON.parse(saved);
+    return {
+      ...parsed,
+      drywall: parsed.drywall ? deserializeAreas(parsed.drywall) : undefined,
+      paint: parsed.paint ? deserializeAreas(parsed.paint) : undefined,
+    };
   } catch {
     return null;
   }

@@ -45,8 +45,8 @@ async function run() {
     try {
       const { html: appHtml, helmet } = render(url)
 
-      // Inject rendered HTML into root div
-      let html = template.replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`)
+      // Inject rendered HTML into root div with a data attribute to identify the prerendered route
+      let html = template.replace('<div id="root"></div>', `<div id="root" data-prerendered="${url}">${appHtml}</div>`)
 
       // Inject helmet tags (title, meta, canonical) into head if available
       if (helmet) {

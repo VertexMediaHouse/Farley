@@ -1,43 +1,45 @@
-var __create = Object.create;
 var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
+// .wrangler/tmp/pages-qTcks9/functionsWorker-0.9169043659996918.mjs
+var __create = Object.create;
+var __defProp2 = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __esm = (fn, res, err) => function __init() {
+var __name2 = /* @__PURE__ */ __name((target, value) => __defProp2(target, "name", { value, configurable: true }), "__name");
+var __esm = /* @__PURE__ */ __name((fn, res, err) => /* @__PURE__ */ __name(function __init() {
   if (err) throw err[0];
   try {
     return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
   } catch (e) {
     throw err = [e], e;
   }
-};
-var __commonJS = (cb, mod) => function __require() {
+}, "__init"), "__esm");
+var __commonJS = /* @__PURE__ */ __name((cb, mod) => /* @__PURE__ */ __name(function __require() {
   try {
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   } catch (e) {
     throw mod = 0, e;
   }
-};
-var __copyProps = (to, from, except, desc) => {
+}, "__require"), "__commonJS");
+var __copyProps = /* @__PURE__ */ __name((to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+        __defProp2(to, key, { get: /* @__PURE__ */ __name(() => from[key], "get"), enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
   }
   return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+}, "__copyProps");
+var __toESM = /* @__PURE__ */ __name((mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
   // If the importer is in node compatibility mode or this is not an ESM
   // file that has been converted to a CommonJS file using a Babel-
   // compatible transform (i.e. "__esModule" has not been set), then set
   // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  isNodeMode || !mod || !mod.__esModule ? __defProp2(target, "default", { value: mod, enumerable: true }) : target,
   mod
-));
-
-// api/apify-scrape.js
+)), "__toESM");
 async function onRequestPost(context) {
   const { request, env } = context;
   const token = env.APIFY_TOKEN || env.VITE_APIFY_TOKEN;
@@ -91,14 +93,13 @@ async function onRequestPost(context) {
     );
   }
 }
+__name(onRequestPost, "onRequestPost");
 var init_apify_scrape = __esm({
   "api/apify-scrape.js"() {
-    init_functionsRoutes_0_002407258628655873();
-    __name(onRequestPost, "onRequestPost");
+    init_functionsRoutes_0_46032305980876();
+    __name2(onRequestPost, "onRequestPost");
   }
 });
-
-// api/chat.js
 async function onRequestPost2(context) {
   const { request, env } = context;
   const apiKey = env.OPENAI_API_KEY;
@@ -138,14 +139,13 @@ async function onRequestPost2(context) {
     );
   }
 }
+__name(onRequestPost2, "onRequestPost2");
 var init_chat = __esm({
   "api/chat.js"() {
-    init_functionsRoutes_0_002407258628655873();
-    __name(onRequestPost2, "onRequestPost");
+    init_functionsRoutes_0_46032305980876();
+    __name2(onRequestPost2, "onRequestPost");
   }
 });
-
-// ../node_modules/postal-mime/src/decode-strings.js
 function decodeBase64(base64) {
   let bufferLength = Math.ceil(base64.length / 4) * 3;
   const len = base64.length;
@@ -173,6 +173,7 @@ function decodeBase64(base64) {
   }
   return arrayBuffer;
 }
+__name(decodeBase64, "decodeBase64");
 function getDecoder(charset) {
   charset = (charset || "utf8").trim().toLowerCase();
   charset = charsetAliases.get(charset) || charset;
@@ -184,6 +185,7 @@ function getDecoder(charset) {
   }
   return decoder;
 }
+__name(getDecoder, "getDecoder");
 async function blobToArrayBuffer(blob) {
   if ("arrayBuffer" in blob) {
     return await blob.arrayBuffer();
@@ -199,12 +201,14 @@ async function blobToArrayBuffer(blob) {
     fr.readAsArrayBuffer(blob);
   });
 }
+__name(blobToArrayBuffer, "blobToArrayBuffer");
 function getHex(c) {
   if (c >= 48 && c <= 57 || c >= 97 && c <= 102 || c >= 65 && c <= 70) {
     return String.fromCharCode(c);
   }
   return false;
 }
+__name(getHex, "getHex");
 function decodeWord(charset, encoding, str) {
   let splitPos = charset.indexOf("*");
   if (splitPos >= 0) {
@@ -242,6 +246,7 @@ function decodeWord(charset, encoding, str) {
   }
   return getDecoder(charset).decode(byteStr);
 }
+__name(decodeWord, "decodeWord");
 function decodeWords(str) {
   let joinString = true;
   let done = false;
@@ -279,6 +284,7 @@ function decodeWords(str) {
     }
   }
 }
+__name(decodeWords, "decodeWords");
 function decodeURIComponentWithCharset(encodedStr, charset) {
   charset = charset || "utf-8";
   let encodedBytes = [];
@@ -304,6 +310,7 @@ function decodeURIComponentWithCharset(encodedStr, charset) {
   }
   return getDecoder(charset).decode(byteStr);
 }
+__name(decodeURIComponentWithCharset, "decodeURIComponentWithCharset");
 function decodeParameterValueContinuations(header) {
   let paramKeys = /* @__PURE__ */ new Map();
   Object.keys(header.params).forEach((key) => {
@@ -338,40 +345,45 @@ function decodeParameterValueContinuations(header) {
     );
   });
 }
-var textEncoder, base64Chars, base64Lookup, charsetAliases;
+__name(decodeParameterValueContinuations, "decodeParameterValueContinuations");
+var textEncoder;
+var base64Chars;
+var base64Lookup;
+var charsetAliases;
 var init_decode_strings = __esm({
   "../node_modules/postal-mime/src/decode-strings.js"() {
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     textEncoder = new TextEncoder();
     base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     base64Lookup = new Uint8Array(256);
     for (let i = 0; i < base64Chars.length; i++) {
       base64Lookup[base64Chars.charCodeAt(i)] = i;
     }
-    __name(decodeBase64, "decodeBase64");
+    __name2(decodeBase64, "decodeBase64");
     charsetAliases = /* @__PURE__ */ new Map([
       ["iso-8859-8-i", "iso-8859-8"],
       ["iso-8859-8-e", "iso-8859-8"]
     ]);
-    __name(getDecoder, "getDecoder");
-    __name(blobToArrayBuffer, "blobToArrayBuffer");
-    __name(getHex, "getHex");
-    __name(decodeWord, "decodeWord");
-    __name(decodeWords, "decodeWords");
-    __name(decodeURIComponentWithCharset, "decodeURIComponentWithCharset");
-    __name(decodeParameterValueContinuations, "decodeParameterValueContinuations");
+    __name2(getDecoder, "getDecoder");
+    __name2(blobToArrayBuffer, "blobToArrayBuffer");
+    __name2(getHex, "getHex");
+    __name2(decodeWord, "decodeWord");
+    __name2(decodeWords, "decodeWords");
+    __name2(decodeURIComponentWithCharset, "decodeURIComponentWithCharset");
+    __name2(decodeParameterValueContinuations, "decodeParameterValueContinuations");
   }
 });
-
-// ../node_modules/postal-mime/src/pass-through-decoder.js
 var PassThroughDecoder;
 var init_pass_through_decoder = __esm({
   "../node_modules/postal-mime/src/pass-through-decoder.js"() {
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     init_decode_strings();
     PassThroughDecoder = class {
       static {
         __name(this, "PassThroughDecoder");
+      }
+      static {
+        __name2(this, "PassThroughDecoder");
       }
       constructor() {
         this.chunks = [];
@@ -386,16 +398,17 @@ var init_pass_through_decoder = __esm({
     };
   }
 });
-
-// ../node_modules/postal-mime/src/base64-decoder.js
 var Base64Decoder;
 var init_base64_decoder = __esm({
   "../node_modules/postal-mime/src/base64-decoder.js"() {
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     init_decode_strings();
     Base64Decoder = class {
       static {
         __name(this, "Base64Decoder");
+      }
+      static {
+        __name2(this, "Base64Decoder");
       }
       constructor(opts) {
         opts = opts || {};
@@ -432,12 +445,14 @@ var init_base64_decoder = __esm({
     };
   }
 });
-
-// ../node_modules/postal-mime/src/qp-decoder.js
-var VALID_QP_REGEX, QP_SPLIT_REGEX, SOFT_LINE_BREAK_REGEX, PARTIAL_QP_ENDING_REGEX, QPDecoder;
+var VALID_QP_REGEX;
+var QP_SPLIT_REGEX;
+var SOFT_LINE_BREAK_REGEX;
+var PARTIAL_QP_ENDING_REGEX;
+var QPDecoder;
 var init_qp_decoder = __esm({
   "../node_modules/postal-mime/src/qp-decoder.js"() {
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     init_decode_strings();
     VALID_QP_REGEX = /^=[a-f0-9]{2}$/i;
     QP_SPLIT_REGEX = /(?==[a-f0-9]{2})/i;
@@ -446,6 +461,9 @@ var init_qp_decoder = __esm({
     QPDecoder = class {
       static {
         __name(this, "QPDecoder");
+      }
+      static {
+        __name2(this, "QPDecoder");
       }
       constructor(opts) {
         opts = opts || {};
@@ -537,12 +555,11 @@ var init_qp_decoder = __esm({
     };
   }
 });
-
-// ../node_modules/postal-mime/src/mime-node.js
-var defaultDecoder, MimeNode;
+var defaultDecoder;
+var MimeNode;
 var init_mime_node = __esm({
   "../node_modules/postal-mime/src/mime-node.js"() {
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     init_decode_strings();
     init_pass_through_decoder();
     init_base64_decoder();
@@ -551,6 +568,9 @@ var init_mime_node = __esm({
     MimeNode = class {
       static {
         __name(this, "MimeNode");
+      }
+      static {
+        __name2(this, "MimeNode");
       }
       constructor(options) {
         this.options = options || {};
@@ -825,12 +845,11 @@ var init_mime_node = __esm({
     };
   }
 });
-
-// ../node_modules/postal-mime/src/html-entities.js
-var htmlEntities, html_entities_default;
+var htmlEntities;
+var html_entities_default;
 var init_html_entities = __esm({
   "../node_modules/postal-mime/src/html-entities.js"() {
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     htmlEntities = {
       "&AElig": "\xC6",
       "&AElig;": "\xC6",
@@ -3067,8 +3086,6 @@ var init_html_entities = __esm({
     html_entities_default = htmlEntities;
   }
 });
-
-// ../node_modules/postal-mime/src/text-format.js
 function decodeHTMLEntities(str) {
   return str.replace(/&(#\d+|#x[a-f0-9]+|[a-z]+\d*);?/gi, (match2, entity) => {
     if (typeof html_entities_default[match2] === "string") {
@@ -3096,6 +3113,7 @@ function decodeHTMLEntities(str) {
     return output;
   });
 }
+__name(decodeHTMLEntities, "decodeHTMLEntities");
 function escapeHtml(str) {
   return str.trim().replace(/[<>"'?&]/g, (c) => {
     let hex = c.charCodeAt(0).toString(16);
@@ -3105,21 +3123,25 @@ function escapeHtml(str) {
     return "&#x" + hex.toUpperCase() + ";";
   });
 }
+__name(escapeHtml, "escapeHtml");
 function textToHtml(str) {
   let html = escapeHtml(str).replace(/\n/g, "<br />");
   return "<div>" + html + "</div>";
 }
+__name(textToHtml, "textToHtml");
 function htmlToText(str) {
   str = str.replace(/\r?\n/g, "").replace(/<\!\-\-.*?\-\->/gi, " ").replace(/<br\b[^>]*>/gi, "\n").replace(/<\/?(p|div|table|tr|td|th)\b[^>]*>/gi, "\n\n").replace(/<script\b[^>]*>.*?<\/script\b[^>]*>/gi, " ").replace(/^.*<body\b[^>]*>/i, "").replace(/^.*<\/head\b[^>]*>/i, "").replace(/^.*<\!doctype\b[^>]*>/i, "").replace(/<\/body\b[^>]*>.*$/i, "").replace(/<\/html\b[^>]*>.*$/i, "").replace(/<a\b[^>]*href\s*=\s*["']?([^\s"']+)[^>]*>/gi, " ($1) ").replace(/<\/?(span|em|i|strong|b|u|a)\b[^>]*>/gi, "").replace(/<li\b[^>]*>[\n\u0001\s]*/gi, "* ").replace(/<hr\b[^>]*>/g, "\n-------------\n").replace(/<[^>]*>/g, " ").replace(/\u0001/g, "\n").replace(/[ \t]+/g, " ").replace(/^\s+$/gm, "").replace(/\n\n+/g, "\n\n").replace(/^\n+/, "\n").replace(/\n+$/, "\n");
   str = decodeHTMLEntities(str);
   return str;
 }
+__name(htmlToText, "htmlToText");
 function formatTextAddress(address) {
   return [].concat(address.name || []).concat(address.name ? `<${address.address}>` : address.address).join(" ");
 }
+__name(formatTextAddress, "formatTextAddress");
 function formatTextAddresses(addresses) {
   let parts = [];
-  let processAddress = /* @__PURE__ */ __name((address, partCounter) => {
+  let processAddress = /* @__PURE__ */ __name2((address, partCounter) => {
     if (partCounter) {
       parts.push(", ");
     }
@@ -3136,12 +3158,14 @@ function formatTextAddresses(addresses) {
   addresses.forEach(processAddress);
   return parts.join("");
 }
+__name(formatTextAddresses, "formatTextAddresses");
 function formatHtmlAddress(address) {
   return `<a href="mailto:${escapeHtml(address.address)}" class="postal-email-address">${escapeHtml(address.name || `<${address.address}>`)}</a>`;
 }
+__name(formatHtmlAddress, "formatHtmlAddress");
 function formatHtmlAddresses(addresses) {
   let parts = [];
-  let processAddress = /* @__PURE__ */ __name((address, partCounter) => {
+  let processAddress = /* @__PURE__ */ __name2((address, partCounter) => {
     if (partCounter) {
       parts.push('<span class="postal-email-address-separator">, </span>');
     }
@@ -3158,6 +3182,7 @@ function formatHtmlAddresses(addresses) {
   addresses.forEach(processAddress);
   return parts.join(" ");
 }
+__name(formatHtmlAddresses, "formatHtmlAddresses");
 function foldLines(str, lineLength, afterSpace) {
   str = (str || "").toString();
   lineLength = lineLength || 76;
@@ -3186,6 +3211,7 @@ function foldLines(str, lineLength, afterSpace) {
   }
   return result;
 }
+__name(foldLines, "foldLines");
 function formatTextHeader(message) {
   let rows = [];
   if (message.from) {
@@ -3237,6 +3263,7 @@ ${lineMarker}
 `;
   return template;
 }
+__name(formatTextHeader, "formatTextHeader");
 function formatHtmlHeader(message) {
   let rows = [];
   if (message.from) {
@@ -3288,25 +3315,24 @@ function formatHtmlHeader(message) {
   )}${rows.length ? "</div>" : ""}</div>`;
   return template;
 }
+__name(formatHtmlHeader, "formatHtmlHeader");
 var init_text_format = __esm({
   "../node_modules/postal-mime/src/text-format.js"() {
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     init_html_entities();
-    __name(decodeHTMLEntities, "decodeHTMLEntities");
-    __name(escapeHtml, "escapeHtml");
-    __name(textToHtml, "textToHtml");
-    __name(htmlToText, "htmlToText");
-    __name(formatTextAddress, "formatTextAddress");
-    __name(formatTextAddresses, "formatTextAddresses");
-    __name(formatHtmlAddress, "formatHtmlAddress");
-    __name(formatHtmlAddresses, "formatHtmlAddresses");
-    __name(foldLines, "foldLines");
-    __name(formatTextHeader, "formatTextHeader");
-    __name(formatHtmlHeader, "formatHtmlHeader");
+    __name2(decodeHTMLEntities, "decodeHTMLEntities");
+    __name2(escapeHtml, "escapeHtml");
+    __name2(textToHtml, "textToHtml");
+    __name2(htmlToText, "htmlToText");
+    __name2(formatTextAddress, "formatTextAddress");
+    __name2(formatTextAddresses, "formatTextAddresses");
+    __name2(formatHtmlAddress, "formatHtmlAddress");
+    __name2(formatHtmlAddresses, "formatHtmlAddresses");
+    __name2(foldLines, "foldLines");
+    __name2(formatTextHeader, "formatTextHeader");
+    __name2(formatHtmlHeader, "formatHtmlHeader");
   }
 });
-
-// ../node_modules/postal-mime/src/address-parser.js
 function _handleAddress(tokens, depth) {
   let isGroup = false;
   let state = "text";
@@ -3397,7 +3423,7 @@ function _handleAddress(tokens, depth) {
           break;
         }
       }
-      let _regexHandler = /* @__PURE__ */ __name(function(address2) {
+      let _regexHandler = /* @__PURE__ */ __name2(function(address2) {
         if (!data.address.length) {
           data.address = [address2.trim()];
           return " ";
@@ -3450,6 +3476,7 @@ function _handleAddress(tokens, depth) {
   }
   return addresses;
 }
+__name(_handleAddress, "_handleAddress");
 function addressParser(str, options) {
   options = options || {};
   let depth = options._depth || 0;
@@ -3482,7 +3509,7 @@ function addressParser(str, options) {
   });
   if (options.flatten) {
     let addresses2 = [];
-    let walkAddressList = /* @__PURE__ */ __name((list) => {
+    let walkAddressList = /* @__PURE__ */ __name2((list) => {
       list.forEach((address2) => {
         if (address2.group) {
           return walkAddressList(address2.group);
@@ -3496,15 +3523,21 @@ function addressParser(str, options) {
   }
   return parsedAddresses;
 }
-var Tokenizer, MAX_NESTED_GROUP_DEPTH, address_parser_default;
+__name(addressParser, "addressParser");
+var Tokenizer;
+var MAX_NESTED_GROUP_DEPTH;
+var address_parser_default;
 var init_address_parser = __esm({
   "../node_modules/postal-mime/src/address-parser.js"() {
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     init_decode_strings();
-    __name(_handleAddress, "_handleAddress");
+    __name2(_handleAddress, "_handleAddress");
     Tokenizer = class {
       static {
         __name(this, "Tokenizer");
+      }
+      static {
+        __name2(this, "Tokenizer");
       }
       constructor(str) {
         this.str = (str || "").toString();
@@ -3599,12 +3632,10 @@ var init_address_parser = __esm({
       }
     };
     MAX_NESTED_GROUP_DEPTH = 50;
-    __name(addressParser, "addressParser");
+    __name2(addressParser, "addressParser");
     address_parser_default = addressParser;
   }
 });
-
-// ../node_modules/postal-mime/src/base64-encoder.js
 function base64ArrayBuffer(arrayBuffer) {
   var base64 = "";
   var encodings = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -3636,21 +3667,23 @@ function base64ArrayBuffer(arrayBuffer) {
   }
   return base64;
 }
+__name(base64ArrayBuffer, "base64ArrayBuffer");
 var init_base64_encoder = __esm({
   "../node_modules/postal-mime/src/base64-encoder.js"() {
-    init_functionsRoutes_0_002407258628655873();
-    __name(base64ArrayBuffer, "base64ArrayBuffer");
+    init_functionsRoutes_0_46032305980876();
+    __name2(base64ArrayBuffer, "base64ArrayBuffer");
   }
 });
-
-// ../node_modules/postal-mime/src/postal-mime.js
 function toCamelCase(key) {
   return key.replace(/-(.)/g, (o, c) => c.toUpperCase());
 }
-var MAX_NESTING_DEPTH, MAX_HEADERS_SIZE, PostalMime;
+__name(toCamelCase, "toCamelCase");
+var MAX_NESTING_DEPTH;
+var MAX_HEADERS_SIZE;
+var PostalMime;
 var init_postal_mime = __esm({
   "../node_modules/postal-mime/src/postal-mime.js"() {
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     init_mime_node();
     init_text_format();
     init_address_parser();
@@ -3658,10 +3691,13 @@ var init_postal_mime = __esm({
     init_base64_encoder();
     MAX_NESTING_DEPTH = 256;
     MAX_HEADERS_SIZE = 2 * 1024 * 1024;
-    __name(toCamelCase, "toCamelCase");
+    __name2(toCamelCase, "toCamelCase");
     PostalMime = class _PostalMime {
       static {
-        __name(this, "PostalMime");
+        __name(this, "_PostalMime");
+      }
+      static {
+        __name2(this, "PostalMime");
       }
       static parse(buf, options) {
         const parser = new _PostalMime(options);
@@ -3768,7 +3804,7 @@ var init_postal_mime = __esm({
         let textTypes = /* @__PURE__ */ new Set();
         let textMap = this.textMap = /* @__PURE__ */ new Map();
         let forceRfc822Attachments = this.forceRfc822Attachments();
-        let walk = /* @__PURE__ */ __name(async (node, alternative, related) => {
+        let walk = /* @__PURE__ */ __name2(async (node, alternative, related) => {
           alternative = alternative || false;
           related = related || false;
           if (!node.contentType.multipart) {
@@ -3946,7 +3982,7 @@ var init_postal_mime = __esm({
           return true;
         }
         let forceRfc822Attachments = false;
-        let walk = /* @__PURE__ */ __name((node) => {
+        let walk = /* @__PURE__ */ __name2((node) => {
           if (!node.contentType.multipart) {
             if (node.contentType.parsed && ["message/delivery-status", "message/feedback-report"].includes(node.contentType.parsed.value)) {
               forceRfc822Attachments = true;
@@ -4089,12 +4125,10 @@ var init_postal_mime = __esm({
     };
   }
 });
-
-// ../node_modules/standardwebhooks/dist/timing_safe_equal.js
 var require_timing_safe_equal = __commonJS({
   "../node_modules/standardwebhooks/dist/timing_safe_equal.js"(exports) {
     "use strict";
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.timingSafeEqual = void 0;
     function assert(expr, msg = "") {
@@ -4103,6 +4137,7 @@ var require_timing_safe_equal = __commonJS({
       }
     }
     __name(assert, "assert");
+    __name2(assert, "assert");
     function timingSafeEqual(a, b) {
       if (a.byteLength !== b.byteLength) {
         return false;
@@ -4124,17 +4159,16 @@ var require_timing_safe_equal = __commonJS({
       return out === 0;
     }
     __name(timingSafeEqual, "timingSafeEqual");
+    __name2(timingSafeEqual, "timingSafeEqual");
     exports.timingSafeEqual = timingSafeEqual;
   }
 });
-
-// ../node_modules/@stablelib/base64/lib/base64.js
 var require_base64 = __commonJS({
   "../node_modules/@stablelib/base64/lib/base64.js"(exports) {
     "use strict";
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     var __extends = exports && exports.__extends || /* @__PURE__ */ (function() {
-      var extendStatics = /* @__PURE__ */ __name(function(d, b) {
+      var extendStatics = /* @__PURE__ */ __name2(function(d, b) {
         extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
           d2.__proto__ = b2;
         } || function(d2, b2) {
@@ -4148,6 +4182,7 @@ var require_base64 = __commonJS({
           this.constructor = d;
         }
         __name(__, "__");
+        __name2(__, "__");
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
       };
     })();
@@ -4162,7 +4197,8 @@ var require_base64 = __commonJS({
           }
           this._paddingCharacter = _paddingCharacter;
         }
-        __name(Coder2, "Coder");
+        __name(Coder2, "Coder2");
+        __name2(Coder2, "Coder");
         Coder2.prototype.encodedLength = function(length) {
           if (!this._paddingCharacter) {
             return (length * 8 + 5) / 6 | 0;
@@ -4290,11 +4326,13 @@ var require_base64 = __commonJS({
       return stdCoder.encode(data);
     }
     __name(encode, "encode");
+    __name2(encode, "encode");
     exports.encode = encode;
     function decode(s) {
       return stdCoder.decode(s);
     }
     __name(decode, "decode");
+    __name2(decode, "decode");
     exports.decode = decode;
     var URLSafeCoder = (
       /** @class */
@@ -4303,7 +4341,8 @@ var require_base64 = __commonJS({
         function URLSafeCoder2() {
           return _super !== null && _super.apply(this, arguments) || this;
         }
-        __name(URLSafeCoder2, "URLSafeCoder");
+        __name(URLSafeCoder2, "URLSafeCoder2");
+        __name2(URLSafeCoder2, "URLSafeCoder");
         URLSafeCoder2.prototype._encodeByte = function(b) {
           var result = b;
           result += 65;
@@ -4331,11 +4370,13 @@ var require_base64 = __commonJS({
       return urlSafeCoder.encode(data);
     }
     __name(encodeURLSafe, "encodeURLSafe");
+    __name2(encodeURLSafe, "encodeURLSafe");
     exports.encodeURLSafe = encodeURLSafe;
     function decodeURLSafe(s) {
       return urlSafeCoder.decode(s);
     }
     __name(decodeURLSafe, "decodeURLSafe");
+    __name2(decodeURLSafe, "decodeURLSafe");
     exports.decodeURLSafe = decodeURLSafe;
     exports.encodedLength = function(length) {
       return stdCoder.encodedLength(length);
@@ -4348,11 +4389,9 @@ var require_base64 = __commonJS({
     };
   }
 });
-
-// ../node_modules/fast-sha256/sha256.js
 var require_sha256 = __commonJS({
   "../node_modules/fast-sha256/sha256.js"(exports, module) {
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     (function(root, factory) {
       var exports2 = {};
       factory(exports2);
@@ -4488,6 +4527,7 @@ var require_sha256 = __commonJS({
         return pos;
       }
       __name(hashBlocks, "hashBlocks");
+      __name2(hashBlocks, "hashBlocks");
       var Hash = (
         /** @class */
         (function() {
@@ -4502,7 +4542,8 @@ var require_sha256 = __commonJS({
             this.finished = false;
             this.reset();
           }
-          __name(Hash2, "Hash");
+          __name(Hash2, "Hash2");
+          __name2(Hash2, "Hash");
           Hash2.prototype.reset = function() {
             this.state[0] = 1779033703;
             this.state[1] = 3144134277;
@@ -4639,7 +4680,8 @@ var require_sha256 = __commonJS({
               pad[i] = 0;
             }
           }
-          __name(HMAC2, "HMAC");
+          __name(HMAC2, "HMAC2");
+          __name2(HMAC2, "HMAC");
           HMAC2.prototype.reset = function() {
             this.inner._restoreState(this.istate, this.inner.blockSize);
             this.outer._restoreState(this.ostate, this.outer.blockSize);
@@ -4681,6 +4723,7 @@ var require_sha256 = __commonJS({
         return digest;
       }
       __name(hash, "hash");
+      __name2(hash, "hash");
       exports2.hash = hash;
       exports2["default"] = hash;
       function hmac(key, data) {
@@ -4690,6 +4733,7 @@ var require_sha256 = __commonJS({
         return digest;
       }
       __name(hmac, "hmac");
+      __name2(hmac, "hmac");
       exports2.hmac = hmac;
       function fillBuffer(buffer, hmac2, info, counter) {
         var num = counter[0];
@@ -4708,6 +4752,7 @@ var require_sha256 = __commonJS({
         counter[0]++;
       }
       __name(fillBuffer, "fillBuffer");
+      __name2(fillBuffer, "fillBuffer");
       var hkdfSalt = new Uint8Array(exports2.digestLength);
       function hkdf(key, salt, info, length) {
         if (salt === void 0) {
@@ -4735,6 +4780,7 @@ var require_sha256 = __commonJS({
         return out;
       }
       __name(hkdf, "hkdf");
+      __name2(hkdf, "hkdf");
       exports2.hkdf = hkdf;
       function pbkdf2(password, salt, iterations, dkLen) {
         var prf = new HMAC(password);
@@ -4777,16 +4823,15 @@ var require_sha256 = __commonJS({
         return dk;
       }
       __name(pbkdf2, "pbkdf2");
+      __name2(pbkdf2, "pbkdf2");
       exports2.pbkdf2 = pbkdf2;
     });
   }
 });
-
-// ../node_modules/standardwebhooks/dist/index.js
 var require_dist = __commonJS({
   "../node_modules/standardwebhooks/dist/index.js"(exports) {
     "use strict";
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Webhook = exports.WebhookVerificationError = void 0;
     var timing_safe_equal_1 = require_timing_safe_equal();
@@ -4795,7 +4840,10 @@ var require_dist = __commonJS({
     var WEBHOOK_TOLERANCE_IN_SECONDS = 5 * 60;
     var ExtendableError = class _ExtendableError extends Error {
       static {
-        __name(this, "ExtendableError");
+        __name(this, "_ExtendableError");
+      }
+      static {
+        __name2(this, "ExtendableError");
       }
       constructor(message) {
         super(message);
@@ -4806,7 +4854,10 @@ var require_dist = __commonJS({
     };
     var WebhookVerificationError = class _WebhookVerificationError extends ExtendableError {
       static {
-        __name(this, "WebhookVerificationError");
+        __name(this, "_WebhookVerificationError");
+      }
+      static {
+        __name2(this, "WebhookVerificationError");
       }
       constructor(message) {
         super(message);
@@ -4817,7 +4868,10 @@ var require_dist = __commonJS({
     exports.WebhookVerificationError = WebhookVerificationError;
     var Webhook2 = class _Webhook {
       static {
-        __name(this, "Webhook");
+        __name(this, "_Webhook");
+      }
+      static {
+        __name2(this, "Webhook");
       }
       constructor(secret, options) {
         if (!secret) {
@@ -4898,12 +4952,11 @@ var require_dist = __commonJS({
     Webhook2.prefix = "whsec_";
   }
 });
-
-// ../node_modules/resend/dist/index.mjs
 function buildPaginationUrl(base, options) {
   const queryString = buildPaginationQuery(options);
   return queryString ? `${base}?${queryString}` : base;
 }
+__name(buildPaginationUrl, "buildPaginationUrl");
 function buildPaginationQuery(options) {
   const searchParams = new URLSearchParams();
   if (options.limit !== void 0) searchParams.set("limit", options.limit.toString());
@@ -4911,6 +4964,7 @@ function buildPaginationQuery(options) {
   if ("before" in options && options.before !== void 0) searchParams.set("before", options.before);
   return searchParams.toString();
 }
+__name(buildPaginationQuery, "buildPaginationQuery");
 function parseStepConfig(step) {
   switch (step.type) {
     case "trigger":
@@ -4977,6 +5031,7 @@ function parseStepConfig(step) {
       };
   }
 }
+__name(parseStepConfig, "parseStepConfig");
 function parseConnection(connection) {
   return {
     from: connection.from,
@@ -4984,6 +5039,7 @@ function parseConnection(connection) {
     type: connection.type
   };
 }
+__name(parseConnection, "parseConnection");
 function parseAutomationToApiOptions(automation) {
   return {
     name: automation.name,
@@ -4992,6 +5048,7 @@ function parseAutomationToApiOptions(automation) {
     connections: automation.connections.map(parseConnection)
   };
 }
+__name(parseAutomationToApiOptions, "parseAutomationToApiOptions");
 function parseEventToApiOptions(event) {
   return {
     event: event.event,
@@ -5000,6 +5057,7 @@ function parseEventToApiOptions(event) {
     payload: event.payload
   };
 }
+__name(parseEventToApiOptions, "parseEventToApiOptions");
 function parseAttachments(attachments) {
   return attachments?.map((attachment) => ({
     content: attachment.content,
@@ -5009,6 +5067,7 @@ function parseAttachments(attachments) {
     content_id: attachment.contentId
   }));
 }
+__name(parseAttachments, "parseAttachments");
 function parseEmailToApiOptions(email) {
   return {
     attachments: parseAttachments(email.attachments),
@@ -5030,6 +5089,7 @@ function parseEmailToApiOptions(email) {
     topic_id: email.topicId
   };
 }
+__name(parseEmailToApiOptions, "parseEmailToApiOptions");
 async function render(node) {
   let render2;
   try {
@@ -5039,6 +5099,7 @@ async function render(node) {
   }
   return render2(node);
 }
+__name(render, "render");
 function buildRecipientsQuery(options) {
   const { type, email, bounceType, ...pagination } = options;
   const searchParams = new URLSearchParams(buildPaginationQuery(pagination));
@@ -5047,6 +5108,7 @@ function buildRecipientsQuery(options) {
   if (bounceType !== void 0) searchParams.set("bounce_type", bounceType);
   return searchParams.toString();
 }
+__name(buildRecipientsQuery, "buildRecipientsQuery");
 function parseContactPropertyFromApi(contactProperty) {
   return {
     id: contactProperty.id,
@@ -5056,6 +5118,7 @@ function parseContactPropertyFromApi(contactProperty) {
     fallbackValue: contactProperty.fallback_value
   };
 }
+__name(parseContactPropertyFromApi, "parseContactPropertyFromApi");
 function parseContactPropertyToApiOptions(contactProperty) {
   if ("key" in contactProperty) return {
     key: contactProperty.key,
@@ -5064,6 +5127,7 @@ function parseContactPropertyToApiOptions(contactProperty) {
   };
   return { fallback_value: contactProperty.fallbackValue };
 }
+__name(parseContactPropertyToApiOptions, "parseContactPropertyToApiOptions");
 function parseDomainToApiOptions(domain) {
   return {
     name: domain.name,
@@ -5076,6 +5140,7 @@ function parseDomainToApiOptions(domain) {
     tracking_subdomain: domain.trackingSubdomain
   };
 }
+__name(parseDomainToApiOptions, "parseDomainToApiOptions");
 function buildMetricsQuery(options) {
   const params = {
     start_date: options.startDate,
@@ -5092,12 +5157,14 @@ function buildMetricsQuery(options) {
   for (const [key, value] of Object.entries(params)) if (value !== void 0 && value !== "") searchParams.set(key, value);
   return searchParams.toString();
 }
+__name(buildMetricsQuery, "buildMetricsQuery");
 function buildSuppressionsQuery(options) {
   const { origin, ...pagination } = options;
   const searchParams = new URLSearchParams(buildPaginationQuery(pagination));
   if (origin) searchParams.set("origin", origin);
   return searchParams.toString();
 }
+__name(buildSuppressionsQuery, "buildSuppressionsQuery");
 function getPaginationQueryProperties(options = {}) {
   const query = new URLSearchParams();
   if (options.before) query.set("before", options.before);
@@ -5105,6 +5172,7 @@ function getPaginationQueryProperties(options = {}) {
   if (options.limit) query.set("limit", options.limit.toString());
   return query.size > 0 ? `?${query.toString()}` : "";
 }
+__name(getPaginationQueryProperties, "getPaginationQueryProperties");
 function parseVariables(variables) {
   return variables?.map((variable) => ({
     key: variable.key,
@@ -5112,6 +5180,7 @@ function parseVariables(variables) {
     fallback_value: variable.fallbackValue
   }));
 }
+__name(parseVariables, "parseVariables");
 function parseTemplateToApiOptions(template) {
   return {
     name: "name" in template ? template.name : void 0,
@@ -5124,24 +5193,63 @@ function parseTemplateToApiOptions(template) {
     variables: parseVariables(template.variables)
   };
 }
+__name(parseTemplateToApiOptions, "parseTemplateToApiOptions");
 function getDefaultBaseUrl() {
   return typeof process !== "undefined" && process.env ? process.env.RESEND_BASE_URL || defaultBaseUrl : defaultBaseUrl;
 }
+__name(getDefaultBaseUrl, "getDefaultBaseUrl");
 function getDefaultUserAgent() {
   return typeof process !== "undefined" && process.env ? process.env.RESEND_USER_AGENT || defaultUserAgent : defaultUserAgent;
 }
-var import_standardwebhooks, version, ApiKeys, AutomationRuns, Automations, Batch$1, Broadcasts, ContactProperties, ContactImports, ContactSegments, ContactTopics, Contacts, DomainClaims, Domains, Attachments$1, Attachments, Receiving, Emails, Events$1, Logs, OAuthGrants, Segments, Batch, missingIdentifierError, Suppressions, ChainableTemplateResult, Templates, Topics, Attempts, Events, Webhooks, defaultBaseUrl, defaultUserAgent, Resend;
+__name(getDefaultUserAgent, "getDefaultUserAgent");
+var import_standardwebhooks;
+var version;
+var ApiKeys;
+var AutomationRuns;
+var Automations;
+var Batch$1;
+var Broadcasts;
+var ContactProperties;
+var ContactImports;
+var ContactSegments;
+var ContactTopics;
+var Contacts;
+var DomainClaims;
+var Domains;
+var Attachments$1;
+var Attachments;
+var Receiving;
+var Emails;
+var Events$1;
+var Logs;
+var OAuthGrants;
+var Segments;
+var Batch;
+var missingIdentifierError;
+var Suppressions;
+var ChainableTemplateResult;
+var Templates;
+var Topics;
+var Attempts;
+var Events;
+var Webhooks;
+var defaultBaseUrl;
+var defaultUserAgent;
+var Resend;
 var init_dist = __esm({
   "../node_modules/resend/dist/index.mjs"() {
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     init_postal_mime();
     import_standardwebhooks = __toESM(require_dist(), 1);
     version = "6.26.0";
-    __name(buildPaginationUrl, "buildPaginationUrl");
-    __name(buildPaginationQuery, "buildPaginationQuery");
+    __name2(buildPaginationUrl, "buildPaginationUrl");
+    __name2(buildPaginationQuery, "buildPaginationQuery");
     ApiKeys = class {
       static {
         __name(this, "ApiKeys");
+      }
+      static {
+        __name2(this, "ApiKeys");
       }
       constructor(resend) {
         this.resend = resend;
@@ -5164,6 +5272,9 @@ var init_dist = __esm({
       static {
         __name(this, "AutomationRuns");
       }
+      static {
+        __name2(this, "AutomationRuns");
+      }
       constructor(resend) {
         this.resend = resend;
       }
@@ -5182,13 +5293,16 @@ var init_dist = __esm({
         return await this.resend.get(url);
       }
     };
-    __name(parseStepConfig, "parseStepConfig");
-    __name(parseConnection, "parseConnection");
-    __name(parseAutomationToApiOptions, "parseAutomationToApiOptions");
-    __name(parseEventToApiOptions, "parseEventToApiOptions");
+    __name2(parseStepConfig, "parseStepConfig");
+    __name2(parseConnection, "parseConnection");
+    __name2(parseAutomationToApiOptions, "parseAutomationToApiOptions");
+    __name2(parseEventToApiOptions, "parseEventToApiOptions");
     Automations = class {
       static {
         __name(this, "Automations");
+      }
+      static {
+        __name2(this, "Automations");
       }
       constructor(resend) {
         this.resend = resend;
@@ -5225,12 +5339,15 @@ var init_dist = __esm({
         return await this.resend.post(`/automations/${id}/stop`);
       }
     };
-    __name(parseAttachments, "parseAttachments");
-    __name(parseEmailToApiOptions, "parseEmailToApiOptions");
-    __name(render, "render");
+    __name2(parseAttachments, "parseAttachments");
+    __name2(parseEmailToApiOptions, "parseEmailToApiOptions");
+    __name2(render, "render");
     Batch$1 = class {
       static {
         __name(this, "Batch$1");
+      }
+      static {
+        __name2(this, "Batch$1");
       }
       constructor(resend) {
         this.resend = resend;
@@ -5259,6 +5376,9 @@ var init_dist = __esm({
     Broadcasts = class {
       static {
         __name(this, "Broadcasts");
+      }
+      static {
+        __name2(this, "Broadcasts");
       }
       constructor(resend) {
         this.resend = resend;
@@ -5320,12 +5440,15 @@ var init_dist = __esm({
         });
       }
     };
-    __name(buildRecipientsQuery, "buildRecipientsQuery");
-    __name(parseContactPropertyFromApi, "parseContactPropertyFromApi");
-    __name(parseContactPropertyToApiOptions, "parseContactPropertyToApiOptions");
+    __name2(buildRecipientsQuery, "buildRecipientsQuery");
+    __name2(parseContactPropertyFromApi, "parseContactPropertyFromApi");
+    __name2(parseContactPropertyToApiOptions, "parseContactPropertyToApiOptions");
     ContactProperties = class {
       static {
         __name(this, "ContactProperties");
+      }
+      static {
+        __name2(this, "ContactProperties");
       }
       constructor(resend) {
         this.resend = resend;
@@ -5398,6 +5521,9 @@ var init_dist = __esm({
       static {
         __name(this, "ContactImports");
       }
+      static {
+        __name2(this, "ContactImports");
+      }
       constructor(resend) {
         this.resend = resend;
       }
@@ -5442,6 +5568,9 @@ var init_dist = __esm({
     ContactSegments = class {
       static {
         __name(this, "ContactSegments");
+      }
+      static {
+        __name2(this, "ContactSegments");
       }
       constructor(resend) {
         this.resend = resend;
@@ -5490,6 +5619,9 @@ var init_dist = __esm({
       static {
         __name(this, "ContactTopics");
       }
+      static {
+        __name2(this, "ContactTopics");
+      }
       constructor(resend) {
         this.resend = resend;
       }
@@ -5523,6 +5655,9 @@ var init_dist = __esm({
     Contacts = class {
       static {
         __name(this, "Contacts");
+      }
+      static {
+        __name2(this, "Contacts");
       }
       constructor(resend) {
         this.resend = resend;
@@ -5620,10 +5755,13 @@ var init_dist = __esm({
         return this.resend.delete(`/audiences/${payload.audienceId}/contacts/${payload?.email ? payload?.email : payload?.id}`);
       }
     };
-    __name(parseDomainToApiOptions, "parseDomainToApiOptions");
+    __name2(parseDomainToApiOptions, "parseDomainToApiOptions");
     DomainClaims = class {
       static {
         __name(this, "DomainClaims");
+      }
+      static {
+        __name2(this, "DomainClaims");
       }
       constructor(resend) {
         this.resend = resend;
@@ -5648,6 +5786,9 @@ var init_dist = __esm({
     Domains = class {
       static {
         __name(this, "Domains");
+      }
+      static {
+        __name2(this, "Domains");
       }
       constructor(resend) {
         this.resend = resend;
@@ -5683,6 +5824,9 @@ var init_dist = __esm({
       static {
         __name(this, "Attachments$1");
       }
+      static {
+        __name2(this, "Attachments$1");
+      }
       constructor(resend) {
         this.resend = resend;
       }
@@ -5700,6 +5844,9 @@ var init_dist = __esm({
       static {
         __name(this, "Attachments");
       }
+      static {
+        __name2(this, "Attachments");
+      }
       constructor(resend) {
         this.resend = resend;
       }
@@ -5716,6 +5863,9 @@ var init_dist = __esm({
     Receiving = class {
       static {
         __name(this, "Receiving");
+      }
+      static {
+        __name2(this, "Receiving");
       }
       constructor(resend) {
         this.resend = resend;
@@ -5838,6 +5988,9 @@ var init_dist = __esm({
       static {
         __name(this, "Emails");
       }
+      static {
+        __name2(this, "Emails");
+      }
       constructor(resend) {
         this.resend = resend;
         this.attachments = new Attachments$1(resend);
@@ -5873,10 +6026,13 @@ var init_dist = __esm({
         return await this.resend.get(url);
       }
     };
-    __name(buildMetricsQuery, "buildMetricsQuery");
+    __name2(buildMetricsQuery, "buildMetricsQuery");
     Events$1 = class {
       static {
         __name(this, "Events$1");
+      }
+      static {
+        __name2(this, "Events$1");
       }
       constructor(resend) {
         this.resend = resend;
@@ -5905,6 +6061,9 @@ var init_dist = __esm({
       static {
         __name(this, "Logs");
       }
+      static {
+        __name2(this, "Logs");
+      }
       constructor(resend) {
         this.resend = resend;
       }
@@ -5920,6 +6079,9 @@ var init_dist = __esm({
       static {
         __name(this, "OAuthGrants");
       }
+      static {
+        __name2(this, "OAuthGrants");
+      }
       constructor(resend) {
         this.resend = resend;
       }
@@ -5934,6 +6096,9 @@ var init_dist = __esm({
     Segments = class {
       static {
         __name(this, "Segments");
+      }
+      static {
+        __name2(this, "Segments");
       }
       constructor(resend) {
         this.resend = resend;
@@ -5959,6 +6124,9 @@ var init_dist = __esm({
       static {
         __name(this, "Batch");
       }
+      static {
+        __name2(this, "Batch");
+      }
       constructor(resend) {
         this.resend = resend;
       }
@@ -5969,7 +6137,7 @@ var init_dist = __esm({
         return this.resend.post("/suppressions/batch/remove", options);
       }
     };
-    missingIdentifierError = /* @__PURE__ */ __name(() => ({
+    missingIdentifierError = /* @__PURE__ */ __name2(() => ({
       data: null,
       headers: null,
       error: {
@@ -5981,6 +6149,9 @@ var init_dist = __esm({
     Suppressions = class {
       static {
         __name(this, "Suppressions");
+      }
+      static {
+        __name2(this, "Suppressions");
       }
       constructor(resend) {
         this.resend = resend;
@@ -6003,13 +6174,16 @@ var init_dist = __esm({
         return this.resend.delete(`/suppressions/${encodeURIComponent(idOrEmail)}`);
       }
     };
-    __name(buildSuppressionsQuery, "buildSuppressionsQuery");
-    __name(getPaginationQueryProperties, "getPaginationQueryProperties");
-    __name(parseVariables, "parseVariables");
-    __name(parseTemplateToApiOptions, "parseTemplateToApiOptions");
+    __name2(buildSuppressionsQuery, "buildSuppressionsQuery");
+    __name2(getPaginationQueryProperties, "getPaginationQueryProperties");
+    __name2(parseVariables, "parseVariables");
+    __name2(parseTemplateToApiOptions, "parseTemplateToApiOptions");
     ChainableTemplateResult = class {
       static {
         __name(this, "ChainableTemplateResult");
+      }
+      static {
+        __name2(this, "ChainableTemplateResult");
       }
       constructor(promise, publishFn) {
         this.promise = promise;
@@ -6031,6 +6205,9 @@ var init_dist = __esm({
     Templates = class {
       static {
         __name(this, "Templates");
+      }
+      static {
+        __name2(this, "Templates");
       }
       constructor(resend) {
         this.resend = resend;
@@ -6065,6 +6242,9 @@ var init_dist = __esm({
     Topics = class {
       static {
         __name(this, "Topics");
+      }
+      static {
+        __name2(this, "Topics");
       }
       constructor(resend) {
         this.resend = resend;
@@ -6120,6 +6300,9 @@ var init_dist = __esm({
       static {
         __name(this, "Attempts");
       }
+      static {
+        __name2(this, "Attempts");
+      }
       constructor(resend) {
         this.resend = resend;
       }
@@ -6132,6 +6315,9 @@ var init_dist = __esm({
     Events = class {
       static {
         __name(this, "Events");
+      }
+      static {
+        __name2(this, "Events");
       }
       constructor(resend) {
         this.resend = resend;
@@ -6154,6 +6340,9 @@ var init_dist = __esm({
     Webhooks = class {
       static {
         __name(this, "Webhooks");
+      }
+      static {
+        __name2(this, "Webhooks");
       }
       constructor(resend) {
         this.resend = resend;
@@ -6185,11 +6374,14 @@ var init_dist = __esm({
     };
     defaultBaseUrl = "https://api.resend.com";
     defaultUserAgent = `resend-node:${version}`;
-    __name(getDefaultBaseUrl, "getDefaultBaseUrl");
-    __name(getDefaultUserAgent, "getDefaultUserAgent");
+    __name2(getDefaultBaseUrl, "getDefaultBaseUrl");
+    __name2(getDefaultUserAgent, "getDefaultUserAgent");
     Resend = class {
       static {
         __name(this, "Resend");
+      }
+      static {
+        __name2(this, "Resend");
       }
       constructor(key, options) {
         this.key = key;
@@ -6358,8 +6550,6 @@ var init_dist = __esm({
     };
   }
 });
-
-// api/submit-estimate.js
 async function onRequestPost3(context) {
   const { request, env } = context;
   try {
@@ -6372,12 +6562,12 @@ async function onRequestPost3(context) {
       lineItems,
       notes
     } = payload;
-    const fmt = /* @__PURE__ */ __name((val) => {
+    const fmt = /* @__PURE__ */ __name2((val) => {
       if (val === void 0 || val === null || val === "") return "\u2014";
       if (Array.isArray(val)) return val.length ? val.join(", ") : "\u2014";
       return String(val);
     }, "fmt");
-    const row = /* @__PURE__ */ __name((label, value) => {
+    const row = /* @__PURE__ */ __name2((label, value) => {
       const display = fmt(value);
       if (display === "\u2014") return "";
       return `<tr>
@@ -6394,7 +6584,7 @@ async function onRequestPost3(context) {
     if (answers?.services?.paint) servicesList.push("Paint");
     if (answers?.services?.trim) servicesList.push("Trim & Baseboard");
     if (answers?.services?.electrical) servicesList.push("Electrical");
-    const buildLineItemsTable = /* @__PURE__ */ __name(() => {
+    const buildLineItemsTable = /* @__PURE__ */ __name2(() => {
       if (!lineItems || lineItems.length === 0) {
         return `
           <div style="
@@ -6872,18 +7062,17 @@ async function onRequestPost3(context) {
     );
   }
 }
+__name(onRequestPost3, "onRequestPost3");
 var init_submit_estimate = __esm({
   "api/submit-estimate.js"() {
-    init_functionsRoutes_0_002407258628655873();
+    init_functionsRoutes_0_46032305980876();
     init_dist();
-    __name(onRequestPost3, "onRequestPost");
+    __name2(onRequestPost3, "onRequestPost");
   }
 });
-
-// ../.wrangler/tmp/pages-WTMWtg/functionsRoutes-0.002407258628655873.mjs
 var routes;
-var init_functionsRoutes_0_002407258628655873 = __esm({
-  "../.wrangler/tmp/pages-WTMWtg/functionsRoutes-0.002407258628655873.mjs"() {
+var init_functionsRoutes_0_46032305980876 = __esm({
+  "../.wrangler/tmp/pages-qTcks9/functionsRoutes-0.46032305980876.mjs"() {
     init_apify_scrape();
     init_chat();
     init_submit_estimate();
@@ -6912,18 +7101,10 @@ var init_functionsRoutes_0_002407258628655873 = __esm({
     ];
   }
 });
-
-// ../.wrangler/tmp/bundle-1EZs1e/middleware-loader.entry.ts
-init_functionsRoutes_0_002407258628655873();
-
-// ../.wrangler/tmp/bundle-1EZs1e/middleware-insertion-facade.js
-init_functionsRoutes_0_002407258628655873();
-
-// ../node_modules/wrangler/templates/pages-template-worker.ts
-init_functionsRoutes_0_002407258628655873();
-
-// ../node_modules/path-to-regexp/dist.es2015/index.js
-init_functionsRoutes_0_002407258628655873();
+init_functionsRoutes_0_46032305980876();
+init_functionsRoutes_0_46032305980876();
+init_functionsRoutes_0_46032305980876();
+init_functionsRoutes_0_46032305980876();
 function lexer(str) {
   var tokens = [];
   var i = 0;
@@ -7008,6 +7189,7 @@ function lexer(str) {
   return tokens;
 }
 __name(lexer, "lexer");
+__name2(lexer, "lexer");
 function parse(str, options) {
   if (options === void 0) {
     options = {};
@@ -7018,18 +7200,18 @@ function parse(str, options) {
   var key = 0;
   var i = 0;
   var path = "";
-  var tryConsume = /* @__PURE__ */ __name(function(type) {
+  var tryConsume = /* @__PURE__ */ __name2(function(type) {
     if (i < tokens.length && tokens[i].type === type)
       return tokens[i++].value;
   }, "tryConsume");
-  var mustConsume = /* @__PURE__ */ __name(function(type) {
+  var mustConsume = /* @__PURE__ */ __name2(function(type) {
     var value2 = tryConsume(type);
     if (value2 !== void 0)
       return value2;
     var _a2 = tokens[i], nextType = _a2.type, index = _a2.index;
     throw new TypeError("Unexpected ".concat(nextType, " at ").concat(index, ", expected ").concat(type));
   }, "mustConsume");
-  var consumeText = /* @__PURE__ */ __name(function() {
+  var consumeText = /* @__PURE__ */ __name2(function() {
     var result2 = "";
     var value2;
     while (value2 = tryConsume("CHAR") || tryConsume("ESCAPED_CHAR")) {
@@ -7037,7 +7219,7 @@ function parse(str, options) {
     }
     return result2;
   }, "consumeText");
-  var isSafe = /* @__PURE__ */ __name(function(value2) {
+  var isSafe = /* @__PURE__ */ __name2(function(value2) {
     for (var _i = 0, delimiter_1 = delimiter; _i < delimiter_1.length; _i++) {
       var char2 = delimiter_1[_i];
       if (value2.indexOf(char2) > -1)
@@ -7045,7 +7227,7 @@ function parse(str, options) {
     }
     return false;
   }, "isSafe");
-  var safePattern = /* @__PURE__ */ __name(function(prefix2) {
+  var safePattern = /* @__PURE__ */ __name2(function(prefix2) {
     var prev = result[result.length - 1];
     var prevText = prefix2 || (prev && typeof prev === "string" ? prev : "");
     if (prev && !prevText) {
@@ -7108,12 +7290,14 @@ function parse(str, options) {
   return result;
 }
 __name(parse, "parse");
+__name2(parse, "parse");
 function match(str, options) {
   var keys = [];
   var re = pathToRegexp(str, keys, options);
   return regexpToFunction(re, keys, options);
 }
 __name(match, "match");
+__name2(match, "match");
 function regexpToFunction(re, keys, options) {
   if (options === void 0) {
     options = {};
@@ -7127,7 +7311,7 @@ function regexpToFunction(re, keys, options) {
       return false;
     var path = m[0], index = m.index;
     var params = /* @__PURE__ */ Object.create(null);
-    var _loop_1 = /* @__PURE__ */ __name(function(i2) {
+    var _loop_1 = /* @__PURE__ */ __name2(function(i2) {
       if (m[i2] === void 0)
         return "continue";
       var key = keys[i2 - 1];
@@ -7146,14 +7330,17 @@ function regexpToFunction(re, keys, options) {
   };
 }
 __name(regexpToFunction, "regexpToFunction");
+__name2(regexpToFunction, "regexpToFunction");
 function escapeString(str) {
   return str.replace(/([.+*?=^!:${}()[\]|/\\])/g, "\\$1");
 }
 __name(escapeString, "escapeString");
+__name2(escapeString, "escapeString");
 function flags(options) {
   return options && options.sensitive ? "" : "i";
 }
 __name(flags, "flags");
+__name2(flags, "flags");
 function regexpToRegexp(path, keys) {
   if (!keys)
     return path;
@@ -7174,6 +7361,7 @@ function regexpToRegexp(path, keys) {
   return path;
 }
 __name(regexpToRegexp, "regexpToRegexp");
+__name2(regexpToRegexp, "regexpToRegexp");
 function arrayToRegexp(paths, keys, options) {
   var parts = paths.map(function(path) {
     return pathToRegexp(path, keys, options).source;
@@ -7181,10 +7369,12 @@ function arrayToRegexp(paths, keys, options) {
   return new RegExp("(?:".concat(parts.join("|"), ")"), flags(options));
 }
 __name(arrayToRegexp, "arrayToRegexp");
+__name2(arrayToRegexp, "arrayToRegexp");
 function stringToRegexp(path, keys, options) {
   return tokensToRegexp(parse(path, options), keys, options);
 }
 __name(stringToRegexp, "stringToRegexp");
+__name2(stringToRegexp, "stringToRegexp");
 function tokensToRegexp(tokens, keys, options) {
   if (options === void 0) {
     options = {};
@@ -7240,6 +7430,7 @@ function tokensToRegexp(tokens, keys, options) {
   return new RegExp(route, flags(options));
 }
 __name(tokensToRegexp, "tokensToRegexp");
+__name2(tokensToRegexp, "tokensToRegexp");
 function pathToRegexp(path, keys, options) {
   if (path instanceof RegExp)
     return regexpToRegexp(path, keys);
@@ -7248,8 +7439,7 @@ function pathToRegexp(path, keys, options) {
   return stringToRegexp(path, keys, options);
 }
 __name(pathToRegexp, "pathToRegexp");
-
-// ../node_modules/wrangler/templates/pages-template-worker.ts
+__name2(pathToRegexp, "pathToRegexp");
 var escapeRegex = /[.+?^${}()|[\]\\]/g;
 function* executeRequest(request) {
   const requestPath = new URL(request.url).pathname;
@@ -7300,13 +7490,14 @@ function* executeRequest(request) {
   }
 }
 __name(executeRequest, "executeRequest");
+__name2(executeRequest, "executeRequest");
 var pages_template_worker_default = {
   async fetch(originalRequest, env, workerContext) {
     let request = originalRequest;
     const handlerIterator = executeRequest(request);
     let data = {};
     let isFailOpen = false;
-    const next = /* @__PURE__ */ __name(async (input, init) => {
+    const next = /* @__PURE__ */ __name2(async (input, init) => {
       if (input !== void 0) {
         let url = input;
         if (typeof input === "string") {
@@ -7333,7 +7524,7 @@ var pages_template_worker_default = {
           },
           env,
           waitUntil: workerContext.waitUntil.bind(workerContext),
-          passThroughOnException: /* @__PURE__ */ __name(() => {
+          passThroughOnException: /* @__PURE__ */ __name2(() => {
             isFailOpen = true;
           }, "passThroughOnException")
         };
@@ -7361,17 +7552,15 @@ var pages_template_worker_default = {
     }
   }
 };
-var cloneResponse = /* @__PURE__ */ __name((response) => (
+var cloneResponse = /* @__PURE__ */ __name2((response) => (
   // https://fetch.spec.whatwg.org/#null-body-status
   new Response(
     [101, 204, 205, 304].includes(response.status) ? null : response.body,
     response
   )
 ), "cloneResponse");
-
-// ../node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
-init_functionsRoutes_0_002407258628655873();
-var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+init_functionsRoutes_0_46032305980876();
+var drainBody = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } finally {
@@ -7387,9 +7576,7 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
   }
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
-
-// ../node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
-init_functionsRoutes_0_002407258628655873();
+init_functionsRoutes_0_46032305980876();
 function reduceError(e) {
   return {
     name: e?.name,
@@ -7399,7 +7586,8 @@ function reduceError(e) {
   };
 }
 __name(reduceError, "reduceError");
-var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+__name2(reduceError, "reduceError");
+var jsonError = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } catch (e) {
@@ -7417,21 +7605,18 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
   }
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
-
-// ../.wrangler/tmp/bundle-1EZs1e/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
 ];
 var middleware_insertion_facade_default = pages_template_worker_default;
-
-// ../node_modules/wrangler/templates/middleware/common.ts
-init_functionsRoutes_0_002407258628655873();
+init_functionsRoutes_0_46032305980876();
 var __facade_middleware__ = [];
 function __facade_register__(...args) {
   __facade_middleware__.push(...args.flat());
 }
 __name(__facade_register__, "__facade_register__");
+__name2(__facade_register__, "__facade_register__");
 function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   const [head, ...tail] = middlewareChain;
   const middlewareCtx = {
@@ -7443,6 +7628,7 @@ function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   return head(request, env, ctx, middlewareCtx);
 }
 __name(__facade_invokeChain__, "__facade_invokeChain__");
+__name2(__facade_invokeChain__, "__facade_invokeChain__");
 function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   return __facade_invokeChain__(request, env, ctx, dispatch, [
     ...__facade_middleware__,
@@ -7450,9 +7636,11 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 __name(__facade_invoke__, "__facade_invoke__");
-
-// ../.wrangler/tmp/bundle-1EZs1e/middleware-loader.entry.ts
+__name2(__facade_invoke__, "__facade_invoke__");
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
+  static {
+    __name(this, "___Facade_ScheduledController__");
+  }
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
     this.cron = cron;
@@ -7461,7 +7649,7 @@ var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   scheduledTime;
   cron;
   static {
-    __name(this, "__Facade_ScheduledController__");
+    __name2(this, "__Facade_ScheduledController__");
   }
   #noRetry;
   noRetry() {
@@ -7478,7 +7666,7 @@ function wrapExportedHandler(worker) {
   for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
     __facade_register__(middleware);
   }
-  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+  const fetchDispatcher = /* @__PURE__ */ __name2(function(request, env, ctx) {
     if (worker.fetch === void 0) {
       throw new Error("Handler does not export a fetch() function.");
     }
@@ -7487,7 +7675,7 @@ function wrapExportedHandler(worker) {
   return {
     ...worker,
     fetch(request, env, ctx) {
-      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+      const dispatcher = /* @__PURE__ */ __name2(function(type, init) {
         if (type === "scheduled" && worker.scheduled !== void 0) {
           const controller = new __Facade_ScheduledController__(
             Date.now(),
@@ -7503,6 +7691,7 @@ function wrapExportedHandler(worker) {
   };
 }
 __name(wrapExportedHandler, "wrapExportedHandler");
+__name2(wrapExportedHandler, "wrapExportedHandler");
 function wrapWorkerEntrypoint(klass) {
   if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
     return klass;
@@ -7511,7 +7700,7 @@ function wrapWorkerEntrypoint(klass) {
     __facade_register__(middleware);
   }
   return class extends klass {
-    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
+    #fetchDispatcher = /* @__PURE__ */ __name2((request, env, ctx) => {
       this.env = env;
       this.ctx = ctx;
       if (super.fetch === void 0) {
@@ -7519,7 +7708,7 @@ function wrapWorkerEntrypoint(klass) {
       }
       return super.fetch(request);
     }, "#fetchDispatcher");
-    #dispatcher = /* @__PURE__ */ __name((type, init) => {
+    #dispatcher = /* @__PURE__ */ __name2((type, init) => {
       if (type === "scheduled" && super.scheduled !== void 0) {
         const controller = new __Facade_ScheduledController__(
           Date.now(),
@@ -7542,6 +7731,7 @@ function wrapWorkerEntrypoint(klass) {
   };
 }
 __name(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
+__name2(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
 var WRAPPED_ENTRY;
 if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapExportedHandler(middleware_insertion_facade_default);
@@ -7549,8 +7739,186 @@ if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapWorkerEntrypoint(middleware_insertion_facade_default);
 }
 var middleware_loader_entry_default = WRAPPED_ENTRY;
-export {
-  __INTERNAL_WRANGLER_MIDDLEWARE__,
-  middleware_loader_entry_default as default
+
+// node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+var drainBody2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } finally {
+    try {
+      if (request.body !== null && !request.bodyUsed) {
+        const reader = request.body.getReader();
+        while (!(await reader.read()).done) {
+        }
+      }
+    } catch (e) {
+      console.error("Failed to drain the unused request body.", e);
+    }
+  }
+}, "drainBody");
+var middleware_ensure_req_body_drained_default2 = drainBody2;
+
+// node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
+function reduceError2(e) {
+  return {
+    name: e?.name,
+    message: e?.message ?? String(e),
+    stack: e?.stack,
+    cause: e?.cause === void 0 ? void 0 : reduceError2(e.cause)
+  };
+}
+__name(reduceError2, "reduceError");
+var jsonError2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } catch (e) {
+    const error = reduceError2(e);
+    const body = JSON.stringify(error);
+    const headers = {
+      "Content-Type": "application/json",
+      "MF-Experimental-Error-Stack": "true"
+    };
+    const encoded = encodeURIComponent(body);
+    if (encoded.length <= 8192) {
+      headers["MF-Experimental-Error-Stack-Payload"] = encoded;
+    }
+    return new Response(body, { status: 500, headers });
+  }
+}, "jsonError");
+var middleware_miniflare3_json_error_default2 = jsonError2;
+
+// .wrangler/tmp/bundle-QLyGI0/middleware-insertion-facade.js
+var __INTERNAL_WRANGLER_MIDDLEWARE__2 = [
+  middleware_ensure_req_body_drained_default2,
+  middleware_miniflare3_json_error_default2
+];
+var middleware_insertion_facade_default2 = middleware_loader_entry_default;
+
+// node_modules/wrangler/templates/middleware/common.ts
+var __facade_middleware__2 = [];
+function __facade_register__2(...args) {
+  __facade_middleware__2.push(...args.flat());
+}
+__name(__facade_register__2, "__facade_register__");
+function __facade_invokeChain__2(request, env, ctx, dispatch, middlewareChain) {
+  const [head, ...tail] = middlewareChain;
+  const middlewareCtx = {
+    dispatch,
+    next(newRequest, newEnv) {
+      return __facade_invokeChain__2(newRequest, newEnv, ctx, dispatch, tail);
+    }
+  };
+  return head(request, env, ctx, middlewareCtx);
+}
+__name(__facade_invokeChain__2, "__facade_invokeChain__");
+function __facade_invoke__2(request, env, ctx, dispatch, finalMiddleware) {
+  return __facade_invokeChain__2(request, env, ctx, dispatch, [
+    ...__facade_middleware__2,
+    finalMiddleware
+  ]);
+}
+__name(__facade_invoke__2, "__facade_invoke__");
+
+// .wrangler/tmp/bundle-QLyGI0/middleware-loader.entry.ts
+var __Facade_ScheduledController__2 = class ___Facade_ScheduledController__2 {
+  constructor(scheduledTime, cron, noRetry) {
+    this.scheduledTime = scheduledTime;
+    this.cron = cron;
+    this.#noRetry = noRetry;
+  }
+  scheduledTime;
+  cron;
+  static {
+    __name(this, "__Facade_ScheduledController__");
+  }
+  #noRetry;
+  noRetry() {
+    if (!(this instanceof ___Facade_ScheduledController__2)) {
+      throw new TypeError("Illegal invocation");
+    }
+    this.#noRetry();
+  }
 };
-//# sourceMappingURL=functionsWorker-0.061042589792264845.mjs.map
+function wrapExportedHandler2(worker) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
+    return worker;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
+    __facade_register__2(middleware);
+  }
+  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+    if (worker.fetch === void 0) {
+      throw new Error("Handler does not export a fetch() function.");
+    }
+    return worker.fetch(request, env, ctx);
+  }, "fetchDispatcher");
+  return {
+    ...worker,
+    fetch(request, env, ctx) {
+      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+        if (type === "scheduled" && worker.scheduled !== void 0) {
+          const controller = new __Facade_ScheduledController__2(
+            Date.now(),
+            init.cron ?? "",
+            () => {
+            }
+          );
+          return worker.scheduled(controller, env, ctx);
+        }
+      }, "dispatcher");
+      return __facade_invoke__2(request, env, ctx, dispatcher, fetchDispatcher);
+    }
+  };
+}
+__name(wrapExportedHandler2, "wrapExportedHandler");
+function wrapWorkerEntrypoint2(klass) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
+    return klass;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
+    __facade_register__2(middleware);
+  }
+  return class extends klass {
+    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
+      this.env = env;
+      this.ctx = ctx;
+      if (super.fetch === void 0) {
+        throw new Error("Entrypoint class does not define a fetch() function.");
+      }
+      return super.fetch(request);
+    }, "#fetchDispatcher");
+    #dispatcher = /* @__PURE__ */ __name((type, init) => {
+      if (type === "scheduled" && super.scheduled !== void 0) {
+        const controller = new __Facade_ScheduledController__2(
+          Date.now(),
+          init.cron ?? "",
+          () => {
+          }
+        );
+        return super.scheduled(controller);
+      }
+    }, "#dispatcher");
+    fetch(request) {
+      return __facade_invoke__2(
+        request,
+        this.env,
+        this.ctx,
+        this.#dispatcher,
+        this.#fetchDispatcher
+      );
+    }
+  };
+}
+__name(wrapWorkerEntrypoint2, "wrapWorkerEntrypoint");
+var WRAPPED_ENTRY2;
+if (typeof middleware_insertion_facade_default2 === "object") {
+  WRAPPED_ENTRY2 = wrapExportedHandler2(middleware_insertion_facade_default2);
+} else if (typeof middleware_insertion_facade_default2 === "function") {
+  WRAPPED_ENTRY2 = wrapWorkerEntrypoint2(middleware_insertion_facade_default2);
+}
+var middleware_loader_entry_default2 = WRAPPED_ENTRY2;
+export {
+  __INTERNAL_WRANGLER_MIDDLEWARE__2 as __INTERNAL_WRANGLER_MIDDLEWARE__,
+  middleware_loader_entry_default2 as default
+};
+//# sourceMappingURL=functionsWorker-0.9169043659996918.js.map
