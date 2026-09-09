@@ -499,37 +499,38 @@ export async function onRequestPost(context) {
     // Send via Resend
     // ---------------------------------------------------------
     const resendApiKey =
-      env.RESEND_API_KEY || 're_xxxxxxxxx';
-
-    if (resendApiKey === 're_xxxxxxxxx') {
-      console.warn(
-        "Please replace 're_xxxxxxxxx' with your real Resend API key."
-      );
-    }
+      env.RESEND_API_KEY ||
+      (typeof process !== 'undefined' && process.env?.RESEND_API_KEY);
 
     const resend = new Resend(resendApiKey);
 
     const emailPayload = {
       from: 'onboarding@resend.dev',
-      to: 'kanhardik106@gmail.com',
-      subject: `New Estimate Request — ${
-        contact?.fullName ||
-        contact?.clientName ||
-        'Client'
-      } — $${estimateTotal}`,
+      to: ['kanhardik106@gmail.com', 'h.kansara106@gmail.com', '202512036@dau.ac.in'],
+      subject: `New Estimate Request — ${contact?.fullName || contact?.clientName || 'Client'} — $${estimateTotal}`,
       html: html
     };
-
 
     // Add attachments if we have any
     if (attachments.length > 0) {
       emailPayload.attachments = attachments;
     }
 
+    let { data, error } = await resend.emails.send(emailPayload);
 
-    const { data, error } =
-      await resend.emails.send(emailPayload);
-
+    // If Resend rejected sending to multiple recipients due to testing domain (onboarding@resend.dev) restrictions,
+    // fallback automatically to sending to the primary verified recipient.
+    if (error && Array.isArray(emailPayload.to) && emailPayload.to.length > 1) {
+      console.warn(`Resend multi-recipient error (${error.message}). Retrying with primary recipient: kanhardik106@gmail.com`);
+      const fallbackResult = await resend.emails.send({
+        ...emailPayload,
+        to: 'kanhardik106@gmail.com'
+      });
+      if (!fallbackResult.error) {
+        data = fallbackResult.data;
+        error = null;
+      }
+    }
 
     if (error) {
       console.error("Resend error:", error);
@@ -547,7 +548,6 @@ export async function onRequestPost(context) {
         }
       );
     }
-
 
     return new Response(
       JSON.stringify({

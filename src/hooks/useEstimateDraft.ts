@@ -28,7 +28,7 @@ export function useEstimateDraft() {
   useEffect(() => {
     const saved = loadDraft();
     if (saved) {
-      if (saved.step) setStep(saved.step);
+      if (saved.step) setStep(Math.min(saved.step, 3));
       if (saved.drywall?.length) setDrywall(saved.drywall);
 
       if (saved.paint?.length) setPaint(saved.paint);
@@ -40,7 +40,7 @@ export function useEstimateDraft() {
   useEffect(() => {
     // Don't save until the component has re-rendered with the loaded state.
     if (!restored) return;
-    saveDraft({ step, drywall, paint, contact });
+    saveDraft({ step: Math.min(step, 3), drywall, paint, contact });
   }, [step, drywall, paint, contact, restored]);
 
   const goTo = (n: number) => {

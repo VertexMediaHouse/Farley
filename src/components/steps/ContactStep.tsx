@@ -2,6 +2,7 @@ import { useState } from "react";
 import StepHeader from "../StepHeader";
 import NavigationButtons from "../NavigationButtons";
 import { input as inp, label as lbl, errorText } from "../theme";
+import { TOTAL_STEPS } from "../../data/stepConfig";
 
 interface ContactData {
   isCommercial: string;
@@ -71,8 +72,6 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
     if (isSub) {
       if (!data.fullName.trim()) e.fullName = "Required";
 
-      if (!data.companyName.trim()) e.companyName = "Required";
-
       if (!data.phoneNumber.trim()) {
         e.phoneNumber = "Required";
       } else if (!isValidPhone(data.phoneNumber)) {
@@ -96,8 +95,8 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
 
   return (
     <div>
-      <StepHeader title="Contact Information" step={1} total={4} />
-
+      <StepHeader title="Contact Information" step={1} total={TOTAL_STEPS} />
+      
       <div className="space-y-5">
         <div>
           <label className={lbl}>
@@ -246,7 +245,7 @@ export default function ContactStep({ data, onChange, onNext }: Props) {
 
       <NavigationButtons
         step={1}
-        total={4}
+        total={TOTAL_STEPS}
         onBack={() => { }}
         onNext={handleNext}
       />

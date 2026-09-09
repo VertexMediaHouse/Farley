@@ -169,6 +169,7 @@ export async function saveDraft(draft: EstimateDraft): Promise<void> {
     const paintSerialized = await serializeAreas(draft.paint);
     localStorage.setItem(ESTIMATE_DRAFT_KEY, JSON.stringify({
       ...draft,
+      step: Math.min(draft.step || 1, 3),
       drywall: drywallSerialized,
       paint: paintSerialized,
     }));
@@ -182,6 +183,9 @@ export function loadDraft(): Partial<EstimateDraft> | null {
     const saved = localStorage.getItem(ESTIMATE_DRAFT_KEY);
     if (!saved) return null;
     const parsed = JSON.parse(saved);
+    if (parsed.step && parsed.step >= 4) {
+      parsed.step = 3;
+    }
     return {
       ...parsed,
       drywall: parsed.drywall ? deserializeAreas(parsed.drywall) : undefined,
