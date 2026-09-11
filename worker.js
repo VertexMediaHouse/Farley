@@ -22,7 +22,6 @@ export default {
 };
 
 // ─── Email Handler ─────────────────────────────────────────────────────────────
-
 async function handleSubmitEstimate(request, env) {
   try {
     const payload = await request.json();
@@ -31,48 +30,61 @@ async function handleSubmitEstimate(request, env) {
       answers,
       estimateTotal,
       thumbnails,
+      areaThumbnails,
+      rawAreas,
       lineItems,
       notes,
     } = payload;
 
-    // Helper: format a value for display
     const fmt = (val) => {
       if (val === undefined || val === null || val === '') return '—';
       if (Array.isArray(val)) return val.length ? val.join(', ') : '—';
       return String(val);
     };
 
-    // Helper: build a detail row
     const row = (label, value) => {
       const display = fmt(value);
       if (display === '—') return '';
       return `<tr>
-        <td style="padding:6px 12px;color:#64748b;font-weight:600;white-space:nowrap;vertical-align:top;">
-          ${label}
-        </td>
-        <td style="padding:6px 12px;color:#0f172a;">
-          ${display}
-        </td>
+        <td style="padding:6px 12px;color:#64748b;font-weight:600;white-space:nowrap;vertical-align:top;">${label}</td>
+        <td style="padding:6px 12px;color:#0f172a;">${display}</td>
       </tr>`;
     };
 
-    // Build services list
-    const servicesList = [];
-    if (answers?.services?.drywall) servicesList.push('Drywall');
-    if (answers?.services?.paint) servicesList.push('Paint');
-    if (answers?.services?.trim) servicesList.push('Trim & Baseboard');
-    if (answers?.services?.electrical) servicesList.push('Electrical');
+    // NEW: build per-area photo blocks + descriptions from rawAreas/areaThumbnails
+    const buildAreaExtrasHtml = () => {
+      if (!areaThumbnails || Object.keys(areaThumbnails).length === 0) return '';
+      let html = '';
+      Object.entries(areaThumbnails).forEach(([areaName, imgs]) => {
+        if (!imgs || !imgs.length) return;
 
-    // Helper: build the Scope of Work / Line Items table
+        let description = '';
+        if (rawAreas) {
+          const match = areaName.match(/(\w+) Area (\d+)/);
+          if (match) {
+            const type = match[1].toLowerCase();
+            const idx = parseInt(match[2], 10) - 1;
+            const areaObj = rawAreas?.[type]?.[idx];
+            if (areaObj) description = areaObj.repairDescription || areaObj.projectDescription || '';
+          }
+        }
+
+        html += `
+          <div style="margin:16px 0;">
+            <h4 style="margin:0 0 6px;font-size:13px;color:#0f172a;">${areaName}</h4>
+            ${description ? `<p style="margin:0 0 8px;font-size:12px;color:#64748b;font-style:italic;">${description}</p>` : ''}
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              ${imgs.map((src, i) => `<img src="${src}" alt="${areaName} photo ${i + 1}" style="width:90px;height:90px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;" />`).join('')}
+            </div>
+          </div>`;
+      });
+      return html;
+    };
+
     const buildLineItemsTable = () => {
       if (!lineItems || lineItems.length === 0) {
-        return `
-          <div style="padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#64748b;font-size:13px;">
-            No scope of work items were added.
-          </div>
-        `;
+        return `<div style="padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#64748b;font-size:13px;">No scope of work items were added.</div>`;
       }
-
       let table = `
         <table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-size:13px;">
           <thead>
@@ -82,41 +94,27 @@ async function handleSubmitEstimate(request, env) {
               <th style="text-align:right;padding:10px 12px;font-weight:700;color:#334155;border-bottom:1px solid #e2e8f0;">Detail</th>
             </tr>
           </thead>
-          <tbody>
-      `;
-
+          <tbody>`;
       lineItems.forEach((item) => {
-        const detail =
-          item.detail ||
-          (item.quantity && item.unit ? `${item.quantity} ${item.unit}` : '');
-
+        const detail = item.detail || (item.quantity && item.unit ? `${item.quantity} ${item.unit}` : '');
         table += `
           <tr style="border-bottom:1px solid #e2e8f0;">
             <td style="padding:8px 12px;color:#64748b;vertical-align:top;">${item.area || ''}</td>
             <td style="padding:8px 12px;color:#0f172a;vertical-align:top;">${item.label || ''}</td>
             <td style="padding:8px 12px;text-align:right;color:#475569;vertical-align:top;">${detail}</td>
-          </tr>
-        `;
+          </tr>`;
       });
-
       table += `</tbody></table>`;
       return table;
     };
 
-    // Build the email HTML
     const html = `
       <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:680px;margin:0 auto;color:#334155;">
-
         <div style="background:linear-gradient(135deg,#2F9BF0,#1E86D8);padding:28px 32px;border-radius:12px 12px 0 0;">
           <h1 style="margin:0;color:#fff;font-size:22px;">New Estimate Request Submitted</h1>
-          <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px;">
-            A client has submitted their project details through the online calculator.
-          </p>
+          <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:14px;">A client has submitted their project details through the online calculator.</p>
         </div>
-
         <div style="background:#fff;padding:28px 32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;">
-
-          <!-- Customer Information -->
           <h2 style="font-size:16px;color:#0f172a;border-bottom:2px solid #2F9BF0;padding-bottom:8px;margin:0 0 16px;">Customer Information</h2>
           <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
             ${row('Name', contact?.fullName || contact?.clientName)}
@@ -129,11 +127,10 @@ async function handleSubmitEstimate(request, env) {
             ${row('Subcontractor', contact?.isSubcontractor)}
           </table>
 
-          <!-- Scope of Work -->
           <h2 style="font-size:16px;color:#0f172a;border-bottom:2px solid #2F9BF0;padding-bottom:8px;margin:24px 0 16px;">Scope of Work</h2>
           ${buildLineItemsTable()}
+          ${buildAreaExtrasHtml()}
 
-          <!-- Drywall Details -->
           ${answers?.services?.drywall ? `
             <h3 style="font-size:14px;color:#f97316;margin:20px 0 12px;">Drywall Details</h3>
             <table style="width:100%;border-collapse:collapse;margin-bottom:20px;background:#fafafa;border-radius:8px;">
@@ -166,10 +163,8 @@ async function handleSubmitEstimate(request, env) {
               ${row('Existing Texture', answers.drywall_existing_texture)}
               ${row('Insulation', answers.drywall_insulation)}
               ${row('Two Story', answers.is_two_story)}
-            </table>
-          ` : ''}
+            </table>` : ''}
 
-          <!-- Paint Details -->
           ${answers?.services?.paint ? `
             <h3 style="font-size:14px;color:#000;margin:20px 0 12px;">Paint Details</h3>
             <table style="width:100%;border-collapse:collapse;margin-bottom:20px;background:#fafafa;border-radius:8px;">
@@ -191,10 +186,8 @@ async function handleSubmitEstimate(request, env) {
               ${row('Paint Color Explorer', answers.paintColorExplorer)}
               ${row('Paint Sheen', answers.paintSheen)}
               ${row('Paint Additional Info', answers.paint_additional_info)}
-            </table>
-          ` : ''}
+            </table>` : ''}
 
-          <!-- Trim Details -->
           ${answers?.services?.trim ? `
             <h3 style="font-size:14px;color:#10b981;margin:20px 0 12px;">Trim &amp; Baseboard Details</h3>
             <table style="width:100%;border-collapse:collapse;margin-bottom:20px;background:#fafafa;border-radius:8px;">
@@ -208,10 +201,8 @@ async function handleSubmitEstimate(request, env) {
               ${row('Casing Size', answers.trim_casing)}
               ${row('Casing Linear Feet', answers.trim_casing_linear_feet)}
               ${row('Casing Primed', answers.trim_casing_primed)}
-            </table>
-          ` : ''}
+            </table>` : ''}
 
-          <!-- Electrical Details -->
           ${answers?.services?.electrical || answers?.electrical_services ? `
             <h3 style="font-size:14px;color:#eab308;margin:20px 0 12px;">Electrical Details</h3>
             <table style="width:100%;border-collapse:collapse;margin-bottom:20px;background:#fafafa;border-radius:8px;">
@@ -220,10 +211,8 @@ async function handleSubmitEstimate(request, env) {
               ${row('Light Count', answers.electrical_light_count)}
               ${row('Fan Count', answers.electrical_fan_count)}
               ${row('Fixture Count', answers.electrical_fixture_count)}
-            </table>
-          ` : ''}
+            </table>` : ''}
 
-          <!-- General Info -->
           <h2 style="font-size:16px;color:#0f172a;border-bottom:2px solid #2F9BF0;padding-bottom:8px;margin:24px 0 16px;">General Info</h2>
           <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
             ${row('Room Occupied', answers?.is_occupied)}
@@ -232,24 +221,20 @@ async function handleSubmitEstimate(request, env) {
             ${row('Additional Notes', notes)}
           </table>
 
-          <!-- Grand Total -->
           <div style="background:linear-gradient(135deg,#f0f9ff,#eff6ff);border:2px solid #2F9BF0;border-radius:12px;padding:20px;text-align:center;margin:24px 0;">
             <div style="font-size:13px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:1px;">Estimated Grand Total</div>
             <div style="font-size:32px;font-weight:900;color:#2F9BF0;margin-top:8px;">$${estimateTotal || '0.00'}</div>
           </div>
 
-          <!-- Footer -->
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;" />
           <p style="font-size:12px;color:#94a3b8;text-align:center;">
             Generated by Farley Construction &amp; Development Estimate Calculator<br />
             ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}
           </p>
-
         </div>
       </div>
     `;
 
-    // Prepare image attachments from base64 thumbnails
     const attachments = [];
     if (thumbnails && thumbnails.length > 0) {
       thumbnails.forEach((thumb, idx) => {
@@ -269,52 +254,43 @@ async function handleSubmitEstimate(request, env) {
       });
     }
 
-    // Send via Resend
     const resendApiKey = env.RESEND_API_KEY;
     if (!resendApiKey) {
       console.error('RESEND_API_KEY is not set in Worker environment variables');
       return new Response(
-        JSON.stringify({ success: false, error: 'Server misconfiguration: RESEND_API_KEY not set' }),
+        JSON.stringify({ success: false, error: 'Server misconfiguration: RESEND_API_KEY not set in Cloudflare' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    const resend = new Resend(resendApiKey);
 
     const emailPayload = {
       from: 'Drywall@farleycdinc.com',
       to: 'kanhardik106@gmail.com',
-      // to: [
-      //   'Aaron@farleycdinc.com',
-      //   'Ashish@farleycdinc.com',
-      //   'Kyle@farleycdinc.com',
-      //   'Facilities@farleycdinc.com'
-      // ],
       subject: `New Estimate Request — ${contact?.fullName || contact?.clientName || 'Client'} — $${estimateTotal}`,
       html,
     };
+    if (attachments.length > 0) emailPayload.attachments = attachments;
 
-    if (attachments.length > 0) {
-      emailPayload.attachments = attachments;
-    }
+    const resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(emailPayload),
+    });
+    const resendData = await resendResponse.json();
 
-    const { data, error } = await resend.emails.send(emailPayload);
-
-    if (error) {
-      console.error('Resend error:', error);
+    if (!resendResponse.ok) {
+      console.error('Resend API error:', resendData);
       return new Response(
-        JSON.stringify({ success: false, error: error.message }),
+        JSON.stringify({ success: false, error: `Resend API Error: ${resendData?.message || JSON.stringify(resendData)}` }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    return new Response(
-      JSON.stringify({ success: true, data }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ success: true, data: resendData }), { headers: { 'Content-Type': 'application/json' } });
   } catch (err) {
     console.error('Unexpected error in submit-estimate:', err);
     return new Response(
-      JSON.stringify({ success: false, error: err?.message || 'Internal server error' }),
+      JSON.stringify({ success: false, error: `Worker crash: ${err?.message || 'Internal server error'}` }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
