@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { FaTools, FaPaintRoller, FaAddressCard, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+// import { useState } from 'react';
+// import { FaTools, FaPaintRoller, FaAddressCard, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaTools, FaPaintRoller, FaAddressCard,} from 'react-icons/fa';
 import type { AreaValues } from '../types/form';
-import { calculateEstimate } from '../lib/estimate';
-import type { LineItem } from '../lib/estimate';
+// import { calculateEstimate } from '../lib/estimate';
+// import type { LineItem } from '../lib/estimate';
 
 const STEPS = [
   { label: 'Referral', hint: 'Commercial & Subcontractor info', Icon: FaAddressCard },
@@ -34,14 +35,14 @@ function filledCount(areas: AreaValues[]) {
 }
 
 /** Format currency */
-function fmt(amount: number): string {
-  return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
+// function fmt(amount: number): string {
+//   return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+// }
 
 export default function StepSidebar({
-  step, onStepClick, phone, phoneHref, drywall, paint, customQuestions = [], contact,
+  step, onStepClick, phone, phoneHref, drywall, paint,
 }: Props) {
-  const [expanded, setExpanded] = useState(false);
+  // const [expanded, setExpanded] = useState(false);
 
   const pct = Math.round((step / STEPS.length) * 100);
 
@@ -52,12 +53,12 @@ export default function StepSidebar({
   ];
   const started = summary.some(s => s.n > 0);
 
-  const estimate = calculateEstimate({
-    drywall,
-    paint,
-    sameWorkArea: contact?.sameWorkArea,
-  }, customQuestions);
-  const hasEstimate = estimate.lineItems.length > 0;
+  // const estimate = calculateEstimate({
+  //   drywall,
+  //   paint,
+  //   sameWorkArea: contact?.sameWorkArea,
+  // }, customQuestions);
+  // const hasEstimate = estimate.lineItems.length > 0;
 
   return (
     <aside className="lg:sticky lg:top-6 lg:self-start">
@@ -119,6 +120,7 @@ export default function StepSidebar({
             })}
           </ol>
         </div>
+        {/* Preliminary estimate – commented out for now
         {hasEstimate && (
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">
@@ -167,6 +169,7 @@ export default function StepSidebar({
             </p>
           </div>
         )}
+        */}
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-400">

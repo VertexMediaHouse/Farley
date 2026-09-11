@@ -267,7 +267,12 @@ async function handleSubmitEstimate(request, env) {
 
     const emailPayload = {
       from: 'Drywall@farleycdinc.com',
-      to: 'kanhardik106@gmail.com',
+      to: [
+        'Aaron@farleycdinc.com',
+        'Ashish@farleycdinc.com',
+        'Kyle@farleycdinc.com',
+        'Facilities@farleycdinc.com'
+      ],
       subject: `New Estimate Request — ${contact?.fullName || contact?.clientName || 'Client'} — $${estimateTotal}`,
       html,
     };
