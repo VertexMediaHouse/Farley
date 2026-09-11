@@ -258,7 +258,12 @@ async function handleSubmitEstimate(request, env) {
     if (!resendApiKey) {
       console.error('RESEND_API_KEY is not set in Worker environment variables');
       return new Response(
-        JSON.stringify({ success: false, error: 'Server misconfiguration: RESEND_API_KEY not set in Cloudflare' }),
+        JSON.stringify({
+          success: false,
+          error: 'Server misconfiguration: RESEND_API_KEY not set in Cloudflare',
+          debug_env_keys: Object.keys(env),          // <-- shows which vars/bindings ARE present
+          debug_has_assets: typeof env.ASSETS,        // sanity check
+        }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
