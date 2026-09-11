@@ -271,6 +271,13 @@ async function handleSubmitEstimate(request, env) {
 
     // Send via Resend
     const resendApiKey = env.RESEND_API_KEY;
+    if (!resendApiKey) {
+      console.error('RESEND_API_KEY is not set in Worker environment variables');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Server misconfiguration: RESEND_API_KEY not set' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
     const resend = new Resend(resendApiKey);
 
     const emailPayload = {
