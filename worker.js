@@ -1,9 +1,5 @@
 import { Resend } from 'resend';
 
-// ─── Cloudflare Worker Entry Point ────────────────────────────────────────────
-// Routes /api/submit-estimate → email handler
-// Everything else → static assets (your built React app)
-
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -13,7 +9,10 @@ export default {
       if (request.method === 'POST') {
         return handleSubmitEstimate(request, env);
       }
-      return new Response('Method Not Allowed', { status: 405 });
+      return new Response(
+        JSON.stringify({ success: false, error: 'Method Not Allowed' }), 
+        { status: 405, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
     // ── Static assets (React SPA) ──────────────────────────────────────────────
@@ -24,6 +23,18 @@ export default {
 // ─── Email Handler ─────────────────────────────────────────────────────────────
 async function handleSubmitEstimate(request, env) {
   try {
+    const resendApiKey = env.RESEND_API_KEY;
+    if (!resendApiKey) {
+      console.error('RESEND_API_KEY is not set in Worker environment variables');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Server misconfiguration: Email service is not configured properly.'
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const payload = await request.json();
     const {
       contact,
@@ -254,20 +265,6 @@ async function handleSubmitEstimate(request, env) {
       });
     }
 
-    const resendApiKey = env.RESEND_API_KEY;
-    if (!resendApiKey) {
-      console.error('RESEND_API_KEY is not set in Worker environment variables');
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Server misconfiguration: RESEND_API_KEY not set in Cloudflare',
-          debug_env_keys: Object.keys(env),          // <-- shows which vars/bindings ARE present
-          debug_has_assets: typeof env.ASSETS,        // sanity check
-        }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
     const emailPayload = {
       from: 'Drywall@farleycdinc.com',
       to: 'kanhardik106@gmail.com',
@@ -278,7 +275,10 @@ async function handleSubmitEstimate(request, env) {
 
     const resendResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(emailPayload),
     });
     const resendData = await resendResponse.json();
@@ -286,16 +286,22 @@ async function handleSubmitEstimate(request, env) {
     if (!resendResponse.ok) {
       console.error('Resend API error:', resendData);
       return new Response(
-        JSON.stringify({ success: false, error: `Resend API Error: ${resendData?.message || JSON.stringify(resendData)}` }),
+        JSON.stringify({
+          success: false,
+          error: `Failed to send email. Service responded with an error.`
+        }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    return new Response(JSON.stringify({ success: true, data: resendData }), { headers: { 'Content-Type': 'application/json' } });
+    return new Response(
+      JSON.stringify({ success: true, data: resendData }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (err) {
     console.error('Unexpected error in submit-estimate:', err);
     return new Response(
-      JSON.stringify({ success: false, error: `Worker crash: ${err?.message || 'Internal server error'}` }),
+      JSON.stringify({ success: false, error: 'Internal server error while processing the request.' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
