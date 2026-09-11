@@ -1087,9 +1087,12 @@ export default function EstimateWizard() {
     const autoValid = [
       'dimensions_optional', 'contact_info_optional', 'photo_upload',
       'section_intro', 'combined', 'demolition_combined', 'yesno_combined',
+      'checkbox_with_input',
     ]
     if (autoValid.includes(step.type)) return true
     if (step.id === 'additional_info') return true
+    // Corner count is optional — user may not know exact number yet
+    if (step.id === 'drywall_corner_count') return true
     if (step.type === 'baseboard_product') return !!answers.baseboard_product_url
 
     if (step.type === 'price_pair') {
@@ -1104,11 +1107,34 @@ export default function EstimateWizard() {
       return arr.length > 0
     }
     const val = answers[step.id]
-    if (step.type === 'radio') return val !== undefined && val !== ''
+    if (step.type === 'radio') {
+      // Treat 'Other: ' (with nothing after the prefix) as not yet filled
+      if (val === 'Other: ' || val === 'Other:') return false
+      return val !== undefined && val !== ''
+    }
     if (step.type === 'text' || step.type === 'number' || step.type === 'textarea') {
       return val !== undefined && String(val).trim() !== ''
     }
     return true
+  }
+
+  const getValidationHint = (): string => {
+    if (currentStepIndex === 0) {
+      const validZip = /^\d{5}$/.test(String(answers.zipcode || ''))
+      if (!validZip) return 'Please enter a valid 5-digit ZIP code'
+      return 'Please select at least one service'
+    }
+    const step = dynamicSteps[currentStepIndex - 1]
+    if (!step) return ''
+    if (step.type === 'checkbox') return 'Please select at least one option to continue'
+    if (step.type === 'radio') {
+      const val = answers[step.id]
+      if (val === 'Other: ' || val === 'Other:') return 'Please type something in the "Other" field'
+      return 'Please select an option to continue'
+    }
+    if (step.type === 'text' || step.type === 'number') return 'Please fill in the field above to continue'
+    if (step.type === 'baseboard_product') return 'Please select a baseboard product to continue'
+    return ''
   }
 
   // ─── Navigation ──────────────────────────────────────────────────────────────
@@ -2009,6 +2035,23 @@ export default function EstimateWizard() {
         </div>
 
         {/* ── Navigation ── */}
+        {!isStepValid() && getValidationHint() && (
+          <div style={{
+            margin: '0 8px 4px',
+            padding: '8px 14px',
+            background: 'rgba(245,158,11,0.08)',
+            border: '1px solid rgba(245,158,11,0.3)',
+            borderRadius: '8px',
+            color: '#92400e',
+            fontSize: '0.82rem',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}>
+            ⚠️ {getValidationHint()}
+          </div>
+        )}
         <div className="wizard-actions">
           <button type="button" className="btn btn-glass" disabled={currentStepIndex === 0} onClick={handlePrev} style={{ color: 'black' }}>
             ← Back
