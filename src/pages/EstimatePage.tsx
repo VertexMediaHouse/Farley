@@ -496,7 +496,6 @@ export default function EstimatePage() {
               </p>
             </div>
           )}
-npm
           {/* Subcontractor Work Order Card */}
           {isSubcontractor && (
             <div className="subcontractor-work-order-card" style={{

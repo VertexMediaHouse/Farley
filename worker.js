@@ -128,11 +128,16 @@ async function handleSubmitEstimate(request, env) {
         <div style="background:#fff;padding:28px 32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;">
           <h2 style="font-size:16px;color:#0f172a;border-bottom:2px solid #2F9BF0;padding-bottom:8px;margin:0 0 16px;">Customer Information</h2>
           <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
-            ${row('Name', contact?.fullName || contact?.clientName)}
+            ${(contact?.isSubcontractor === 'yes' || contact?.isSubcontractor === 'Yes') ? `
+              ${row('Referral Partner Name', contact?.fullName)}
+              ${row('Referral Partner Phone', contact?.phoneNumber)}
+              ${row('Referral Partner Email', contact?.emailAddress)}
+            ` : ''}
+            ${row('Client Name', contact?.clientName || contact?.fullName)}
             ${row('Company', contact?.companyName)}
-            ${row('Phone', contact?.phoneNumber || contact?.clientPhone)}
-            ${row('Email', contact?.emailAddress || contact?.clientEmail)}
-            ${row('Address', contact?.clientAddress || answers?.address)}
+            ${row('Client Phone', contact?.clientPhone || contact?.phoneNumber)}
+            ${row('Client Email', contact?.clientEmail || contact?.emailAddress)}
+            ${row('Client Address', contact?.clientAddress || answers?.address)}
             ${row('ZIP Code', answers?.zipcode)}
             ${row('Commercial Project', contact?.isCommercial)}
             ${row('Subcontractor', contact?.isSubcontractor)}
@@ -273,7 +278,7 @@ async function handleSubmitEstimate(request, env) {
         'Kyle@farleycdinc.com',
         'Facilities@farleycdinc.com'
       ],
-      subject: `New Estimate Request — ${contact?.fullName || contact?.clientName || 'Client'} — $${estimateTotal}`,
+      subject: `New Estimate Request — ${contact?.clientName || contact?.fullName || 'Client'} — $${estimateTotal}`,
       html,
     };
     if (attachments.length > 0) emailPayload.attachments = attachments;
