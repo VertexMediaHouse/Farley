@@ -905,8 +905,8 @@ export default function EstimatePage() {
 
                       {/* Paint color swatch — only shown for Paint Area rows */}
                       {areaName.toLowerCase().includes('paint') && (() => {
-                        let areaPaintLabel = paintColorLabel;
-                        let areaPaintHex = paintColorHex;
+                        let areaPaintLabel: string | undefined = paintColorLabel;
+                        let areaPaintHex: string | undefined = paintColorHex;
                         let areaSheen = answers.paintSheen;
 
                         if (data.rawAreas?.paint) {
