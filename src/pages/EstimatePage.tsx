@@ -904,8 +904,48 @@ export default function EstimatePage() {
                       </table>
 
                       {/* Paint color swatch — only shown for Paint Area rows */}
-                      {areaName.toLowerCase().includes('paint') && paintColorLabel && (() => {
-                        const hex = paintColorHex;
+                      {areaName.toLowerCase().includes('paint') && (() => {
+                        let areaPaintLabel = paintColorLabel;
+                        let areaPaintHex = paintColorHex;
+                        let areaSheen = answers.paintSheen;
+
+                        if (data.rawAreas?.paint) {
+                          const match = areaName.match(/Area (\d+)/i);
+                          if (match) {
+                            const idx = parseInt(match[1], 10) - 1;
+                            const rawArea = data.rawAreas.paint[idx];
+                            if (rawArea) {
+                              // Only respect paintColorExplorer if the user actually chose to pick a color
+                              // (meaning they didn't choose to match existing paint, and they don't already have the paint)
+                              const isPickingColor = rawArea.paintMatchRequested?.includes('No') && rawArea.paintHasPaint === 'No';
+                              
+                              if (rawArea.paintColorExplorer && isPickingColor) {
+                                const rawColor = rawArea.paintColorExplorer;
+                                if (rawColor.includes('|')) {
+                                  const parts = rawColor.split('|').map((s: string) => s.trim());
+                                  areaPaintLabel = parts[0];
+                                  areaPaintHex = parts[1];
+                                } else {
+                                  areaPaintLabel = rawColor;
+                                  areaPaintHex = rawArea.paintColorExplorer_hex || areaPaintHex;
+                                }
+                              } else {
+                                areaPaintLabel = undefined;
+                                areaPaintHex = undefined;
+                              }
+                              
+                              if (rawArea.paintSheen && isPickingColor) {
+                                areaSheen = rawArea.paintSheen;
+                              } else if (!isPickingColor) {
+                                areaSheen = undefined;
+                              }
+                            }
+                          }
+                        }
+
+                        if (!areaPaintLabel) return null;
+
+                        const hex = areaPaintHex;
                         // Compute luminance to decide text color
                         let textColor = '#0f172a';
                         let labelColor = 'rgba(0,0,0,0.5)';
@@ -941,7 +981,7 @@ export default function EstimatePage() {
                             <div>
                               <div style={{ fontSize: '0.68rem', fontWeight: 700, color: labelColor, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Selected Paint Color</div>
                               <div style={{ fontSize: '1.02rem', fontWeight: 800, color: textColor, marginTop: '2px', letterSpacing: '0.01em' }}>
-                                {paintColorLabel} {answers.paintSheen && `(${answers.paintSheen})`}
+                                {areaPaintLabel} {areaSheen && `(${areaSheen})`}
                               </div>
                               {hex && <div style={{ fontSize: '0.72rem', fontWeight: 600, color: labelColor, marginTop: '2px', fontFamily: 'monospace' }}>{hex.toUpperCase()}</div>}
                             </div>
