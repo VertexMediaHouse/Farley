@@ -45,6 +45,7 @@ async function handleSubmitEstimate(request, env) {
       rawAreas,
       lineItems,
       notes,
+      scopeOfWork,
     } = payload;
 
     const fmt = (val) => {
@@ -119,6 +120,32 @@ async function handleSubmitEstimate(request, env) {
       return table;
     };
 
+    const buildScopeOfWorkHtml = () => {
+      if (!scopeOfWork || scopeOfWork.length === 0) return '';
+      let html = `<div style="background:#fafafa;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:24px;">
+        <h3 style="margin:0 0 16px 0;font-size:15px;color:#0f172a;border-bottom:1px solid #e2e8f0;padding-bottom:8px;">Project Scope Questionnaire</h3>`;
+      
+      scopeOfWork.forEach((item) => {
+        html += `
+          <div style="margin-bottom:16px;">
+            <div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;margin-bottom:4px;">${item.question}</div>
+            <div style="font-size:14px;color:#0f172a;font-weight:600;margin-bottom:8px;">${item.answer || '—'}</div>`;
+            
+        if (item.photos && item.photos.length > 0) {
+          html += `<div style="display:flex;flex-wrap:wrap;gap:8px;">`;
+          item.photos.forEach((src, pIdx) => {
+            html += `<img src="${src}" alt="${item.question} photo ${pIdx + 1}" style="width:100px;height:100px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;" />`;
+          });
+          html += `</div>`;
+        }
+        
+        html += `</div>`;
+      });
+      
+      html += `</div>`;
+      return html;
+    };
+
     const html = `
       <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:680px;margin:0 auto;color:#334155;">
         <div style="background:linear-gradient(135deg,#2F9BF0,#1E86D8);padding:28px 32px;border-radius:12px 12px 0 0;">
@@ -144,90 +171,9 @@ async function handleSubmitEstimate(request, env) {
           </table>
 
           <h2 style="font-size:16px;color:#0f172a;border-bottom:2px solid #2F9BF0;padding-bottom:8px;margin:24px 0 16px;">Scope of Work</h2>
+          ${buildScopeOfWorkHtml()}
           ${buildLineItemsTable()}
           ${buildAreaExtrasHtml()}
-
-          ${answers?.services?.drywall ? `
-            <h3 style="font-size:14px;color:#f97316;margin:20px 0 12px;">Drywall Details</h3>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:20px;background:#fafafa;border-radius:8px;">
-              ${row('Drywall Areas', answers.drywall_area)}
-              ${row('Drywall Type', answers.drywall_type)}
-              ${row('Wall Sqft', answers.drywall_wall_sqft)}
-              ${row('Ceiling Sqft', answers.drywall_ceiling_sqft)}
-              ${row('Bathroom Wall Sqft', answers.drywall_bathroom_wall_sqft)}
-              ${row('Bathroom Ceiling Sqft', answers.drywall_bathroom_ceiling_sqft)}
-              ${row('Demo Wall Sqft', answers.drywall_demo_wall_sqft)}
-              ${row('Demo Ceiling Sqft', answers.drywall_demo_ceiling_sqft)}
-              ${row('Demo Insulation Sqft', answers.drywall_demo_insulation_sqft)}
-              ${row('Demo Baseboard Ft', answers.drywall_demo_baseboard_ft)}
-              ${row('Soffits Sqft', answers.drywall_soffits_sqft)}
-              ${row('Soffit Type', answers.soffit_type)}
-              ${row('Soffit Linear Feet', answers.soffit_linear_feet)}
-              ${row('Ceiling Height > 8ft', answers.ceiling_height_greater_than_8ft)}
-              ${row('Ceiling Height (ft)', answers.ceiling_height_specify)}
-              ${row('Vaulted Ceiling', answers.drywall_vaulted_ceiling)}
-              ${row('Vaulted Width', answers.drywall_vaulted_width)}
-              ${row('Vaulted Height', answers.drywall_vaulted_height)}
-              ${row('Corner Metal', answers.drywall_corner_metal)}
-              ${row('Corner Metal Type', answers.corner_metal_type)}
-              ${row('Corner Metal Length', answers.corner_metal_length)}
-              ${row('Corner Metal Qty', answers.drywall_corner_metal_qty)}
-              ${row('Corner Count', answers.drywall_corner_count)}
-              ${row('Arch Needed', answers.arch_needed)}
-              ${row('Arch Count', answers.arch_count)}
-              ${row('Texture', answers.drywall_texture)}
-              ${row('Existing Texture', answers.drywall_existing_texture)}
-              ${row('Insulation', answers.drywall_insulation)}
-              ${row('Two Story', answers.is_two_story)}
-            </table>` : ''}
-
-          ${answers?.services?.paint ? `
-            <h3 style="font-size:14px;color:#000;margin:20px 0 12px;">Paint Details</h3>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:20px;background:#fafafa;border-radius:8px;">
-              ${row('Paint Areas', answers.paint_area)}
-              ${row('Primer', answers.paint_primer)}
-              ${row('Wall Sqft', answers.paint_wall_sqft)}
-              ${row('Ceiling Sqft', answers.paint_ceiling_sqft)}
-              ${row('Bath Ceiling Sqft', answers.paint_bath_ceiling_sqft)}
-              ${row('Bath Wall Sqft', answers.paint_bath_wall_sqft)}
-              ${row('Trim Areas', answers.paint_trim_area)}
-              ${row('Trim Linear Ft', answers.paint_trim_linear_ft)}
-              ${row('Baseboards Linear Ft', answers.paint_baseboards_linear_ft)}
-              ${row('Ceiling Height > 8ft', answers.paint_ceiling_height_over_8ft)}
-              ${row('Paint Ceiling Height', answers.paint_ceiling_height)}
-              ${row('Customer Providing Paint', answers.paint_customer_providing)}
-              ${row('Contractor Providing Paint', answers.paint_contractor_providing)}
-              ${row('Match Existing Color', answers.paint_match_existing)}
-              ${row('Paint Brand / Color', answers.paint_brand_color)}
-              ${row('Paint Color Explorer', answers.paintColorExplorer)}
-              ${row('Paint Sheen', answers.paintSheen)}
-              ${row('Paint Additional Info', answers.paint_additional_info)}
-            </table>` : ''}
-
-          ${answers?.services?.trim ? `
-            <h3 style="font-size:14px;color:#10b981;margin:20px 0 12px;">Trim &amp; Baseboard Details</h3>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:20px;background:#fafafa;border-radius:8px;">
-              ${row('Trim Services', answers.trim_services)}
-              ${row('Baseboard Height', answers.trim_baseboard_height)}
-              ${row('Baseboard Product', answers.baseboard_product_name)}
-              ${row('Base Material', answers.trim_base_material)}
-              ${row('Base Linear Feet', answers.trim_base_linear_feet)}
-              ${row('Base Primed', answers.trim_base_primed)}
-              ${row('Casing Material', answers.trim_casing_material)}
-              ${row('Casing Size', answers.trim_casing)}
-              ${row('Casing Linear Feet', answers.trim_casing_linear_feet)}
-              ${row('Casing Primed', answers.trim_casing_primed)}
-            </table>` : ''}
-
-          ${answers?.services?.electrical || answers?.electrical_services ? `
-            <h3 style="font-size:14px;color:#eab308;margin:20px 0 12px;">Electrical Details</h3>
-            <table style="width:100%;border-collapse:collapse;margin-bottom:20px;background:#fafafa;border-radius:8px;">
-              ${row('Electrical Services', answers.electrical_services)}
-              ${row('Light Size', answers.electrical_light_size)}
-              ${row('Light Count', answers.electrical_light_count)}
-              ${row('Fan Count', answers.electrical_fan_count)}
-              ${row('Fixture Count', answers.electrical_fixture_count)}
-            </table>` : ''}
 
           <h2 style="font-size:16px;color:#0f172a;border-bottom:2px solid #2F9BF0;padding-bottom:8px;margin:24px 0 16px;">General Info</h2>
           <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
@@ -272,12 +218,13 @@ async function handleSubmitEstimate(request, env) {
 
     const emailPayload = {
       from: 'Drywall@farleycdinc.com',
-      to: [
-        'Aaron@farleycdinc.com',
-        'Ashish@farleycdinc.com',
-        'Kyle@farleycdinc.com',
-        'Facilities@farleycdinc.com'
-      ],
+      // to: [
+      //   'Aaron@farleycdinc.com',
+      //   'Ashish@farleycdinc.com',
+      //   'Kyle@farleycdinc.com',
+      //   'Facilities@farleycdinc.com'
+      // ],
+      to:"h.kansara106@gmail.com",
       subject: `New Estimate Request — ${contact?.clientName || contact?.fullName || 'Client'} — $${estimateTotal}`,
       html,
     };

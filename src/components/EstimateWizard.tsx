@@ -303,7 +303,7 @@ export default function EstimateWizard() {
   })
 
   const [estimate, setEstimate] = useState<EstimateResult | null>(null)
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<{ file: File; stepId: string }[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [isGeneratingEstimate, setIsGeneratingEstimate] = useState(false)
   const [estimateError, setEstimateError] = useState('')
@@ -332,15 +332,15 @@ export default function EstimateWizard() {
     setTimeout(() => galleryInputRef.current?.click(), 30)
   }, [])
 
-  const openGlobalCamera = useCallback(() => {
-    pendingUploadCtx.current = null
-    pendingGlobalUpload.current = true
+  const openGlobalCamera = useCallback((stepId: string) => {
+    pendingUploadCtx.current = { stepId, index: -1 }
+    pendingGlobalUpload.current = false
     setTimeout(() => cameraInputRef.current?.click(), 30)
   }, [])
 
-  const openGlobalGallery = useCallback(() => {
-    pendingUploadCtx.current = null
-    pendingGlobalUpload.current = true
+  const openGlobalGallery = useCallback((stepId: string) => {
+    pendingUploadCtx.current = { stepId, index: -1 }
+    pendingGlobalUpload.current = false
     setTimeout(() => galleryInputRef.current?.click(), 30)
   }, [])
 
@@ -348,11 +348,13 @@ export default function EstimateWizard() {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
-    if (pendingGlobalUpload.current) {
-      setUploadedFiles((prev) => [...prev, file])
-    } else if (pendingUploadCtx.current) {
+    if (pendingUploadCtx.current) {
       const { stepId, index } = pendingUploadCtx.current
-      updatePhoto(stepId, index, file)
+      if (index === -1) {
+        setUploadedFiles((prev) => [...prev, { file, stepId }])
+      } else {
+        updatePhoto(stepId, index, file)
+      }
     }
   }, [])
 
@@ -360,11 +362,13 @@ export default function EstimateWizard() {
     const files = e.target.files ? Array.from(e.target.files) : []
     if (!files.length) return
     e.target.value = ''
-    if (pendingGlobalUpload.current) {
-      setUploadedFiles((prev) => [...prev, ...files])
-    } else if (pendingUploadCtx.current) {
+    if (pendingUploadCtx.current) {
       const { stepId, index } = pendingUploadCtx.current
-      updatePhoto(stepId, index, files[0])
+      if (index === -1) {
+        setUploadedFiles((prev) => [...prev, ...files.map(f => ({ file: f, stepId }))])
+      } else {
+        updatePhoto(stepId, index, files[0])
+      }
     }
   }, [])
 
@@ -495,7 +499,7 @@ export default function EstimateWizard() {
       else delete next[key]
       return next
     })
-    if (file) setUploadedFiles((prev) => [...prev, file])
+    if (file) setUploadedFiles((prev) => [...prev, { file, stepId }])
   }
 
   const clearRowPhoto = (stepId: string, index: number, _dimensionId: string) => {
@@ -1248,8 +1252,96 @@ export default function EstimateWizard() {
 
       // Generate thumbnails before storing in localStorage.
       const thumbnails = uploadedFiles.length > 0
-        ? await generateThumbnails(uploadedFiles)
+        ? await generateThumbnails(uploadedFiles.map(u => u.file))
         : []
+
+      const thumbnailsByStep: Record<string, string[]> = {};
+      uploadedFiles.forEach((u, i) => {
+        if (!thumbnailsByStep[u.stepId]) thumbnailsByStep[u.stepId] = [];
+        thumbnailsByStep[u.stepId].push(thumbnails[i]);
+      });
+
+      // Build Scope of Work exact answers
+      const scopeOfWork = dynamicSteps.map(step => {
+        if (step.type === 'section_intro') return null;
+
+        let answerStr = '';
+        let hasAnswer = false;
+
+        if (step.type === 'combined') {
+            const items = combinedItems[step.id] || [];
+            answerStr = items.map(item => item.sqft ? `${item.sqft} ${step.fields?.dimension?.placeholder?.includes('inch') ? 'inches' : 'sqft/lf'}` : '').filter(Boolean).join(', ');
+            if (answerStr) hasAnswer = true;
+        } else if (step.type === 'price_pair') {
+            const base = enrichedAnswers[step.fields?.base?.id] || '';
+            const casing = enrichedAnswers[step.fields?.casing?.id] || '';
+            answerStr = `Base: ${base}, Casing: ${casing}`;
+            if (base || casing) hasAnswer = true;
+        } else if (step.type === 'checkbox' || step.type === 'checkbox_with_input') {
+            const vals = Array.isArray(enrichedAnswers[step.id]) ? enrichedAnswers[step.id] : (enrichedAnswers[step.id] ? [enrichedAnswers[step.id]] : []);
+            if (vals.length) {
+                answerStr = vals.join(', ');
+                if (step.type === 'checkbox_with_input' && step.inputField && enrichedAnswers[step.inputField.id]) {
+                    answerStr += ` (${enrichedAnswers[step.inputField.id]} ${step.inputField.label})`;
+                }
+                hasAnswer = true;
+            }
+        } else if (step.type === 'demolition_combined') {
+            const items: string[] = [];
+            (step.options || []).forEach((opt: string) => {
+                const map: any = {
+                    'Remove Existing Wall Drywall': 'drywall_demo_wall_sqft',
+                    'Remove Existing Ceiling Drywall': 'drywall_demo_ceiling_sqft',
+                    'Remove Insulation (sqft)': 'drywall_demo_insulation_sqft',
+                    'Remove Base Board (linear ft)': 'drywall_demo_baseboard_ft',
+                    'Remove Popcorn Ceiling': 'drywall_popcorn_sqft',
+                    'Wallpaper Removal': 'drywall_wallpaper_sqft',
+                };
+                const val = enrichedAnswers[map[opt]];
+                if (val) items.push(`${opt}: ${val}`);
+            });
+            if (items.length) {
+                answerStr = items.join(' | ');
+                hasAnswer = true;
+            }
+        } else if (step.type === 'yesno_combined') {
+            const val = enrichedAnswers[step.id];
+            answerStr = val || '';
+            if (val) hasAnswer = true;
+            if (val === 'Yes') {
+                if (step.id === 'drywall_vaulted_ceiling') {
+                    answerStr += ` (L: ${enrichedAnswers.drywall_vaulted_ceiling}, W: ${enrichedAnswers.drywall_vaulted_width}, H: ${enrichedAnswers.drywall_vaulted_height})`;
+                } else if (step.fields?.yes?.id && enrichedAnswers[step.fields.yes.id]) {
+                    answerStr += ` - ${enrichedAnswers[step.fields.yes.id]}`;
+                }
+            }
+        } else if (step.type === 'baseboard_product') {
+            if (enrichedAnswers.baseboard_product_name) {
+                answerStr = enrichedAnswers.baseboard_product_name;
+                hasAnswer = true;
+            }
+        } else if (step.type === 'photo_upload') {
+            if (thumbnailsByStep[step.id] && thumbnailsByStep[step.id].length > 0) {
+                hasAnswer = true;
+            }
+        } else {
+            const val = enrichedAnswers[step.id];
+            if (val && val !== 'Other: ' && val !== 'Other:') {
+                answerStr = String(val).replace('Other: ', 'Other: ');
+                hasAnswer = true;
+            }
+        }
+
+        if (hasAnswer) {
+            return {
+                id: step.id,
+                question: step.title || step.label || step.id,
+                answer: answerStr,
+                photos: thumbnailsByStep[step.id] || []
+            };
+        }
+        return null;
+      }).filter(Boolean);
 
       const result = calculateEstimate(enrichedAnswers)
       setEstimate(result)
@@ -1261,6 +1353,7 @@ export default function EstimateWizard() {
             answers: enrichedAnswers,
             estimate: result,
             thumbnails,
+            scopeOfWork,
           }),
         )
       } catch (e) {
@@ -1280,7 +1373,7 @@ export default function EstimateWizard() {
       }
 
       try {
-        const uploadResult = await uploadFilesToDrive(uploadedFiles)
+        const uploadResult = await uploadFilesToDrive(uploadedFiles.map(u => u.file))
         console.log('Photos uploaded to Drive folder:', uploadResult.folderCreated)
       } catch (err) {
         console.error('Photo upload failed:', err)
@@ -1831,25 +1924,28 @@ export default function EstimateWizard() {
 
                         {/* Two-button row — calls stable refs, no label/input pairing */}
                         <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '320px' }}>
-                          <button type="button" style={{ ...camBtnStyle, background: 'var(--blue)', color: '#fff', border: '1.5px solid var(--blue)' }} onClick={openGlobalCamera}>
+                          <button type="button" style={{ ...camBtnStyle, background: 'var(--blue)', color: '#fff', border: '1.5px solid var(--blue)' }} onClick={() => openGlobalCamera(currentStep.id)}>
                             📷 Take Photo
                           </button>
-                          <button type="button" style={{ ...uploadBtnStyle }} onClick={openGlobalGallery}>
+                          <button type="button" style={{ ...uploadBtnStyle }} onClick={() => openGlobalGallery(currentStep.id)}>
                             📂 Upload File
                           </button>
                         </div>
 
-                        {uploadedFiles.length > 0 && (
+                        {uploadedFiles.filter(u => u.stepId === currentStep.id).length > 0 && (
                           <div style={{ width: '100%', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'left' }}>
                             <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a' }}>
-                              {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} selected:
+                              {uploadedFiles.filter(u => u.stepId === currentStep.id).length} file{uploadedFiles.filter(u => u.stepId === currentStep.id).length !== 1 ? 's' : ''} selected:
                             </span>
-                            {uploadedFiles.map((file, idx) => (
-                              <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.03)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.82rem' }}>
-                                <span style={{ color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>{file.name}</span>
-                                <button type="button" onClick={() => removeFile(idx)} style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: 'none', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700 }}>✕</button>
-                              </div>
-                            ))}
+                            {uploadedFiles.map((fileObj, idx) => {
+                              if (fileObj.stepId !== currentStep.id) return null;
+                              return (
+                                <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.03)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.82rem' }}>
+                                  <span style={{ color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>{fileObj.file.name}</span>
+                                  <button type="button" onClick={() => removeFile(idx)} style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: 'none', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 700 }}>✕</button>
+                                </div>
+                              )
+                            })}
                           </div>
                         )}
                         <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Photos will be uploaded when you submit the estimate.</span>
