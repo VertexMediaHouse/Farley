@@ -497,39 +497,7 @@ export default function EstimatePage() {
             </div>
           )}
 
-          {/* Scope of Work Questionnaire */}
-          {data.scopeOfWork && data.scopeOfWork.length > 0 && (
-            <div className="estimate-project-details" style={{
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              padding: '20px',
-              marginBottom: '35px'
-            }}>
-              <h3 style={{ margin: '0 0 16px 0', fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>
-                Project Scope Description
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {data.scopeOfWork.map((item, idx) => (
-                  <div key={idx}>
-                    <strong style={{ display: 'block', fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>
-                      {item.question}
-                    </strong>
-                    <div style={{ fontSize: '1rem', fontWeight: 600, color: '#0f172a', marginBottom: '8px' }}>
-                      {item.answer || '—'}
-                    </div>
-                    {item.photos && item.photos.length > 0 && (
-                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        {item.photos.map((src, pIdx) => (
-                          <img key={pIdx} src={src} alt={`${item.question} photo ${pIdx + 1}`} style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+
 
           {/* Edit Mode Notice (hidden on print) */}
           <div className="no-print" style={{

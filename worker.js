@@ -125,19 +125,33 @@ async function handleSubmitEstimate(request, env) {
       let html = `<div style="background:#fafafa;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:24px;">
         <h3 style="margin:0 0 16px 0;font-size:15px;color:#0f172a;border-bottom:1px solid #e2e8f0;padding-bottom:8px;">Project Scope Questionnaire</h3>`;
       
-      scopeOfWork.forEach((item) => {
-        html += `
-          <div style="margin-bottom:16px;">
-            <div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;margin-bottom:4px;">${item.question}</div>
-            <div style="font-size:14px;color:#0f172a;font-weight:600;margin-bottom:8px;">${item.answer || '—'}</div>`;
-            
-        if (item.photos && item.photos.length > 0) {
-          html += `<div style="display:flex;flex-wrap:wrap;gap:8px;">`;
-          item.photos.forEach((src, pIdx) => {
-            html += `<img src="${src}" alt="${item.question} photo ${pIdx + 1}" style="width:100px;height:100px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;" />`;
-          });
+      const groupedScope = {};
+      scopeOfWork.forEach(item => {
+        const area = item.areaName || 'General';
+        if (!groupedScope[area]) groupedScope[area] = [];
+        groupedScope[area].push(item);
+      });
+
+      Object.entries(groupedScope).forEach(([areaName, items]) => {
+        html += `<div style="margin-bottom:24px;">
+          <h4 style="margin:0 0 12px 0;font-size:14px;color:#2F9BF0;font-weight:700;border-bottom:2px solid #e0f2fe;padding-bottom:4px;">${areaName}</h4>`;
+          
+        items.forEach((item) => {
+          html += `
+            <div style="margin-bottom:16px;padding-left:12px;border-left:3px solid #e2e8f0;">
+              <div style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;margin-bottom:4px;">${item.question}</div>
+              <div style="font-size:14px;color:#0f172a;font-weight:600;margin-bottom:8px;">${item.answer || '—'}</div>`;
+              
+          if (item.photos && item.photos.length > 0) {
+            html += `<div style="display:flex;flex-wrap:wrap;gap:8px;">`;
+            item.photos.forEach((src, pIdx) => {
+              html += `<img src="${src}" alt="photo ${pIdx + 1}" style="width:100px;height:100px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;" />`;
+            });
+            html += `</div>`;
+          }
+          
           html += `</div>`;
-        }
+        });
         
         html += `</div>`;
       });

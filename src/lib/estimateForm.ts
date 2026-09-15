@@ -378,7 +378,7 @@ export async function submitEstimate(
   const thumbnails = allFiles.length > 0 ? await generateThumbnails(allFiles) : [];
   
   // Build scope of work dynamically based on area configurations
-  const scopeOfWork: { id: string; question: string; answer: string; photos: string[] }[] = [];
+  const scopeOfWork: { id: string; areaName?: string; question: string; answer: string; photos: string[] }[] = [];
   
   const buildScopeForArea = async (areas: AreaValues[], configs: any[], prefix: string) => {
     for (let i = 0; i < areas.length; i++) {
@@ -430,7 +430,8 @@ export async function submitEstimate(
         if (answerStr) {
           scopeOfWork.push({
             id: `${areaPrefix} - ${q.id}`,
-            question: `[${areaPrefix}] ${q.label}`,
+            areaName: areaPrefix,
+            question: q.label,
             answer: answerStr,
             photos: qPhotos
           });
