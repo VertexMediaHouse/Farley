@@ -1,8 +1,10 @@
 import type { AreaValues } from '../types/form';
 import { calculateEstimate } from './estimate';
 import { adaptV2ToV1Estimate } from '../utils/estimateAdapter';
+import { evalCondition } from '../utils/formUtils';
+import { drywallConfig } from '../data/drywallConfig';
+import { paintConfig } from '../data/paintConfig';
 import type { CustomQuestionRecord } from './customQuestionsStore';
-// import { getStoreIdForZip, runHomeDepotActorLive } from './homeDepotLiveScrape';
 
 export const ESTIMATE_DRAFT_KEY = 'fcd_estimate_v2';
 export const ESTIMATE_RESULT_KEY = 'fcd_estimate_data';
@@ -375,13 +377,79 @@ export async function submitEstimate(
   
   const thumbnails = allFiles.length > 0 ? await generateThumbnails(allFiles) : [];
   
+  // Build scope of work dynamically based on area configurations
+  const scopeOfWork: { id: string; question: string; answer: string; photos: string[] }[] = [];
+  
+  const buildScopeForArea = async (areas: AreaValues[], configs: any[], prefix: string) => {
+    for (let i = 0; i < areas.length; i++) {
+      const area = areas[i];
+      const areaPrefix = `${prefix} Area ${i + 1}`;
+      
+      for (const q of configs) {
+        // Check if question was visible
+        const isVisible = !q.condition || evalCondition(q.condition, area);
+        if (!isVisible) continue;
+        
+        let answerStr = '';
+        let qPhotos: string[] = [];
+        
+        if (q.type === 'photoUpload') {
+          const files = area[q.id];
+          if (Array.isArray(files) && files.length > 0) {
+            const validFiles = files.filter(f => f instanceof File) as File[];
+            if (validFiles.length > 0) {
+              qPhotos = await generateThumbnails(validFiles);
+              answerStr = `${validFiles.length} photo(s) uploaded`;
+            }
+          }
+        } else if (q.type === 'repeatableGroup') {
+           const rawStr = area[q.id];
+           if (typeof rawStr === 'string' && rawStr) {
+             try {
+               const parsed = JSON.parse(rawStr);
+               answerStr = `${parsed.length} item(s) added`;
+             } catch {
+               answerStr = 'Data added';
+             }
+           }
+        } else if (q.type === 'notice') {
+          continue; // Skip notice blocks in scope of work
+        } else {
+          const val = area[q.id];
+          if (val && typeof val === 'string') {
+            answerStr = val;
+            
+            // For catalog dropdowns, we only store the URL in value. 
+            // We can check if it's paintColorExplorer or catalog, but the string is enough to show they answered.
+            if (q.type === 'paintColorExplorer' && val.includes('|')) {
+              answerStr = val.split('|')[0].trim();
+            }
+          }
+        }
+        
+        if (answerStr) {
+          scopeOfWork.push({
+            id: `${areaPrefix} - ${q.id}`,
+            question: `[${areaPrefix}] ${q.label}`,
+            answer: answerStr,
+            photos: qPhotos
+          });
+        }
+      }
+    }
+  };
+
+  await buildScopeForArea(drywall, drywallConfig, 'Drywall');
+  await buildScopeForArea(paint, paintConfig, 'Paint');
+  
   localStorage.setItem(ESTIMATE_RESULT_KEY, JSON.stringify({ 
     answers: formData, 
     estimate: result, 
     thumbnails, 
     areaThumbnails,
     rawAreas: { drywall, paint },
-    contact 
+    contact,
+    scopeOfWork
   }));
   // NOTE: Do NOT remove ESTIMATE_DRAFT_KEY here.
   // The draft must survive so "Modify My Project" on the estimate page

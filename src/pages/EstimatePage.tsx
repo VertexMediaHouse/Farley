@@ -198,8 +198,6 @@ export default function EstimatePage() {
     JSON.stringify(editedItems) !== JSON.stringify(estimate.lineItems);
 
   const hasPaintMatch = data.rawAreas?.paint?.some((p: any) => p.paintMatchRequested === 'Yes — Match my existing paint color');
-  const isSubcontractor = data.contact?.isSubcontractor === 'yes' || data.contact?.isSubcontractor === 'Yes';
-
   // Decode paint color: stored as "Name (Number)|#hex" or separately in paintColorExplorer_hex
   // (supports both new pipe-encoded format and legacy split format)
   const rawPaintColor = answers.paintColorExplorer ?? '';
@@ -496,50 +494,6 @@ export default function EstimatePage() {
               <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.5' }}>
                 Customer has requested that the existing paint color be matched as closely as reasonably possible. Exact color and sheen matching cannot be guaranteed. Corner-to-corner painting is recommended for the most uniform finished appearance. Customer has elected the painting scope and square footage shown in this estimate.
               </p>
-            </div>
-          )}
-          {/* Subcontractor Work Order Card */}
-          {isSubcontractor && (
-            <div className="subcontractor-work-order-card" style={{
-              background: '#f8fafc',
-              border: '2px solid #cbd5e1',
-              borderRadius: '12px',
-              padding: '24px',
-              marginBottom: '35px'
-            }}>
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                📋 Subcontractor Work Order
-              </h3>
-              {hasPaintMatch && (
-                <div style={{
-                  background: '#fef2f2',
-                  border: '1px solid #fee2e2',
-                  color: '#991b1b',
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  fontWeight: 800,
-                  fontSize: '0.85rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  marginBottom: '16px'
-                }}>
-                  🚨 PAINT MATCH REQUIRED
-                </div>
-              )}
-              <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: 700, color: '#334155' }}>
-                Instructions to subcontractor:
-              </h4>
-              <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.88rem', color: '#475569', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: '1.5' }}>
-                <li>Review the customer's uploaded paint photos before or upon arrival.</li>
-                <li>Confirm the area that requires paint matching.</li>
-                <li>Determine whether an existing paint sample is available.</li>
-                <li>If necessary, carefully obtain a small physical sample from the existing painted surface in an appropriate location.</li>
-                <li>Take the sample when purchasing project materials.</li>
-                <li>Have the paint supplier color-match the sample as closely as reasonably possible.</li>
-                <li>Purchase the appropriate paint and sheen based on the project specifications and available match.</li>
-                <li>Complete only the painting scope authorized in the work order unless an approved change order is issued.</li>
-                <li style={{ fontWeight: 600 }}>The subcontractor should not promise the customer a 100% exact match.</li>
-              </ul>
             </div>
           )}
 
