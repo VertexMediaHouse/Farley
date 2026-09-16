@@ -232,13 +232,13 @@ async function handleSubmitEstimate(request, env) {
 
     const emailPayload = {
       from: 'Drywall@farleycdinc.com',
-      // to: [
-      //   'Aaron@farleycdinc.com',
-      //   'Ashish@farleycdinc.com',
-      //   'Kyle@farleycdinc.com',
-      //   'Facilities@farleycdinc.com'
-      // ],
-      to:"h.kansara106@gmail.com",
+      to: [
+        'Aaron@farleycdinc.com',
+        'Ashish@farleycdinc.com',
+        'Kyle@farleycdinc.com',
+        'Facilities@farleycdinc.com'
+      ],
+      // to:"h.kansara106@gmail.com",
       subject: `New Estimate Request — ${contact?.clientName || contact?.fullName || 'Client'} — $${estimateTotal}`,
       html,
     };

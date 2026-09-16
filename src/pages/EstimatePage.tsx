@@ -517,7 +517,7 @@ export default function EstimatePage() {
             <span>
               {isEditing
                 ? "✏️ Editing enabled. Adjust measurements or remove items — totals update automatically."
-                : "🔒 This estimate is locked. Click Edit Estimate to make changes."}
+                : "🔒 This estimate is locked. Click Edit Sqft to make changes."}
             </span>
             <div style={{ display: 'flex', gap: '10px' }}>
               {isEditing && isEdited && (
@@ -552,7 +552,7 @@ export default function EstimatePage() {
                   cursor: 'pointer'
                 }}
               >
-                {isEditing ? 'Done editing' : 'Edit Estimate ✏️'}
+                {isEditing ? 'Done editing' : 'Edit Sqft ✏️'}
               </button>
             </div>
           </div>
@@ -938,7 +938,77 @@ export default function EstimatePage() {
             </div>
 
 
-            {/* Render Thumbnails if available and not already shown per area (Legacy fallback) */}
+            {/* ── Scope of Work — Photos labeled by question ────────────── */}
+            {data.scopeOfWork && data.scopeOfWork.length > 0 && (
+              <div style={{
+                marginTop: '15px',
+                padding: '24px',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px'
+              }}>
+                <h3 style={{ marginTop: 0, fontSize: '1.05rem', fontWeight: 700, color: '#0f172a', marginBottom: '20px' }}>
+                  📋 Your Project Details
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {data.scopeOfWork
+                    .filter((entry: any) => entry.answer || (entry.photos && entry.photos.length > 0))
+                    .map((entry: any, idx: number) => (
+                    <div key={entry.id || idx} style={{
+                      padding: '14px 16px',
+                      background: '#ffffff',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '10px',
+                    }}>
+                      <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '4px' }}>
+                        {entry.question}
+                      </div>
+                      {entry.answer && (
+                        <div style={{ fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }}>
+                          {entry.answer}
+                        </div>
+                      )}
+                      {entry.photos && entry.photos.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
+                          {entry.photos.map((src: string, pIdx: number) => (
+                            <div key={pIdx} style={{
+                              position: 'relative',
+                              width: '100px',
+                              height: '100px',
+                              borderRadius: '8px',
+                              overflow: 'hidden',
+                              border: '1px solid #cbd5e1',
+                              background: '#fff'
+                            }}>
+                              <img src={src} alt={`${entry.question} — photo ${pIdx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <div style={{
+                                position: 'absolute',
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                background: 'rgba(15,23,42,0.65)',
+                                color: '#fff',
+                                fontSize: '0.6rem',
+                                fontWeight: 600,
+                                padding: '2px 6px',
+                                textAlign: 'center',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                              }}>
+                                Photo {pIdx + 1}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Legacy fallback — only if no scopeOfWork and no per-area thumbnails */}
             {(!data.scopeOfWork || data.scopeOfWork.length === 0) && thumbnails && thumbnails.length > 0 && (!data?.areaThumbnails || Object.keys(data.areaThumbnails).length === 0) && (
               <div className="estimate-thumbnails-section" style={{
                 marginTop: '15px',

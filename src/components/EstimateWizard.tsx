@@ -718,7 +718,7 @@ export default function EstimateWizard() {
             id: 'drywall_corner_length',
             title: 'What is the length of corner metal?',
             type: 'radio',
-            options: ['8ft', '10ft', 'Other'],
+            options: ['8ft', '10ft'],
           })
         }
       }
@@ -1090,13 +1090,13 @@ export default function EstimateWizard() {
 
     const autoValid = [
       'dimensions_optional', 'contact_info_optional', 'photo_upload',
-      'section_intro', 'combined', 'demolition_combined', 'yesno_combined',
+      'section_intro', 'demolition_combined',
       'checkbox_with_input',
     ]
     if (autoValid.includes(step.type)) return true
     if (step.id === 'additional_info') return true
-    // Corner count is optional — user may not know exact number yet
-    if (step.id === 'drywall_corner_count') return true
+    // Corner count & length are optional — user may not know exact details yet
+    if (step.id === 'drywall_corner_count' || step.id === 'drywall_corner_length') return true
     if (step.type === 'baseboard_product') return !!answers.baseboard_product_url
 
     if (step.type === 'price_pair') {
@@ -1104,6 +1104,21 @@ export default function EstimateWizard() {
         (answers[step.fields.base.id] || '').trim() !== '' &&
         (answers[step.fields.casing.id] || '').trim() !== ''
       )
+    }
+    if (step.type === 'combined') {
+      return (answers[step.fields.dimension.id] || '').trim() !== ''
+    }
+    if (step.type === 'yesno_combined') {
+      const val = answers[step.id]
+      if (val !== 'Yes' && val !== 'No') return false
+      if (val === 'Yes') {
+        if (step.id === 'drywall_vaulted_ceiling') {
+          return !!(answers.drywall_vaulted_ceiling && answers.drywall_vaulted_width && answers.drywall_vaulted_height)
+        } else if (step.fields?.yes?.id) {
+          return !!answers[step.fields.yes.id]
+        }
+      }
+      return true
     }
     if (step.type === 'checkbox') {
       const val = answers[step.id]
@@ -1431,7 +1446,7 @@ export default function EstimateWizard() {
           <button type="button" className="btn btn-blue" onClick={() => navigate('/estimate')} style={{ width: '100%', padding: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
             View Detailed Estimate 📄
           </button>
-          <button type="button" className="btn btn-glass" onClick={() => { setEstimate(null); setCurrentStepIndex(0) }} style={{ width: '100%', padding: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', color: '#000', border: '1px solid rgba(0,0,0,0.1)', background: 'rgba(0,0,0,0.03)' }}>
+          <button type="button" className="btn btn-glass" onClick={() => { setEstimate(null); setCurrentStepIndex(totalSteps - 1) }} style={{ width: '100%', padding: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', color: '#000', border: '1px solid rgba(0,0,0,0.1)', background: 'rgba(0,0,0,0.03)' }}>
             ← Back / Edit Answers
           </button>
         </div>
