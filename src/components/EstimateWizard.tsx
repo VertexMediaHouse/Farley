@@ -1146,6 +1146,12 @@ export default function EstimateWizard() {
     const step = dynamicSteps[currentStepIndex - 1]
     if (!step) return ''
     if (step.type === 'checkbox') return 'Please select at least one option to continue'
+    if (step.type === 'combined') return 'Please enter a square footage or dimension to continue'
+    if (step.type === 'yesno_combined') {
+      const val = answers[step.id]
+      if (!val) return 'Please select Yes or No to continue'
+      return 'Please fill in the required dimensions to continue'
+    }
     if (step.type === 'radio') {
       const val = answers[step.id]
       if (val === 'Other: ' || val === 'Other:') return 'Please type something in the "Other" field'

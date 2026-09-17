@@ -117,8 +117,13 @@ function Field({
       <RepeatableGroup
         q={q}
         rawValue={val}
+        errors={errors}
+        savedPhotos={(values[`${q.id}_photos_map`] as any) || {}}
         onChange={(v) => onChange(q.id, v)}
-        onFilesChange={(files) => onChange(`${q.id}_photos`, files as any)}
+        onPhotosMapChange={(map) => {
+          onChange(`${q.id}_photos_map`, map as any);
+          onChange(`${q.id}_photos`, Object.values(map).flat() as any);
+        }}
       />
     );
   }
@@ -241,13 +246,17 @@ interface RepeatableRecord {
 function RepeatableGroup({
   q,
   rawValue,
+  errors = {},
+  savedPhotos = {},
   onChange,
-  onFilesChange,
+  onPhotosMapChange,
 }: {
   q: QuestionConfig;
   rawValue: string;
+  errors?: Record<string, string>;
+  savedPhotos?: Record<string, File[]>;
   onChange: (v: string) => void;
-  onFilesChange?: (files: File[]) => void;
+  onPhotosMapChange?: (map: Record<string, File[]>) => void;
 }) {
   const children = q.children ?? [];
 
@@ -270,16 +279,15 @@ function RepeatableGroup({
 
   const records = parseRecords(rawValue);
 
-  const [photos, setPhotos] = useState<Record<string, File[]>>({});
+  const photos = savedPhotos;
 
   const setRowPhotos = (idx: number, fieldId: string, files: File[]) => {
     const key = `${idx}:${fieldId}`;
     const nextPhotos = { ...photos, [key]: files };
-    setPhotos(nextPhotos);
     // mirror the count into the record so the JSON stays serializable
     const next = records.map((r, i) => i === idx ? { ...r, [fieldId]: String(files.length) } : r);
     commit(next);
-    if (onFilesChange) onFilesChange(Object.values(nextPhotos).flat());
+    if (onPhotosMapChange) onPhotosMapChange(nextPhotos);
   };
 
   const commit = (next: RepeatableRecord[]) => {
@@ -323,6 +331,9 @@ function RepeatableGroup({
             )}
           </div>
           {children.map(child => {
+            const errKey = `${q.id}_${idx}_${child.id}`;
+            const err = errors?.[errKey];
+            
             if (child.type === 'photoUpload') {
               const rowFiles = photos[`${idx}:${child.id}`] ?? [];
               return (
@@ -342,6 +353,7 @@ function RepeatableGroup({
                       onChange={f => setRowPhotos(idx, child.id, f ? [f] : [])}
                     />
                   )}
+                  {err && <p className="mt-1 text-xs text-red-500">{err}</p>}
                 </div>
               );
             }
@@ -361,6 +373,7 @@ function RepeatableGroup({
                       <option key={o} value={o}>{o || 'Select…'}</option>
                     ))}
                   </select>
+                  {err && <p className="mt-1 text-xs text-red-500">{err}</p>}
                 </div>
               );
             }
@@ -377,9 +390,11 @@ function RepeatableGroup({
                   value={rec[child.id] ?? ''}
                   onChange={e => updateField(idx, child.id, e.target.value)}
                 />
+                {err && <p className="mt-1 text-xs text-red-500">{err}</p>}
               </div>
             );
           })}
+
         </div>
       ))}
       <button

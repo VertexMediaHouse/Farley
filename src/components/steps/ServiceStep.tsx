@@ -8,10 +8,12 @@ import AreaManager from '../AreaManager';
 import { validateConfig } from '../FormRenderer';
 import { useQuestionCopy } from '../../context/CopyProvider';
 
+type AreaValuesUpdater = AreaValues[] | ((prev: AreaValues[]) => AreaValues[]);
+
 interface Props {
   path: ServicePath;
   areas: AreaValues[];
-  onChange: (areas: AreaValues[]) => void;
+  onChange: (updater: AreaValuesUpdater) => void;
   onBack: () => void;
   onNext: () => void;
   isLast?: boolean;
@@ -24,8 +26,9 @@ export default function ServiceStep({ path, areas, onChange, onBack, onNext, isL
   const { step, title } = STEP_META[path];
 
   const updateArea = (i: number, id: string, val: AreaValues[string]) => {
-    onChange(areas.map((a, idx) => idx === i ? { ...a, [id]: val } : a));
+    onChange((prev: AreaValues[]) => prev.map((a, idx) => idx === i ? { ...a, [id]: val } : a));
   };
+
 
   const validate = () => {
     const errs: Record<number, Record<string, string>> = {};
@@ -38,7 +41,7 @@ export default function ServiceStep({ path, areas, onChange, onBack, onNext, isL
   };
 
   const proceed = () => { if (validate()) onNext(); };
-  const skip = () => { onChange([]); onNext(); };
+  const skip = () => { onChange(() => []); onNext(); };
 
   return (
     <div>
@@ -48,8 +51,8 @@ export default function ServiceStep({ path, areas, onChange, onBack, onNext, isL
         areas={areas}
         questions={questions}
         onAreaChange={updateArea}
-        onAddArea={() => onChange([...areas, {}])}
-        onRemoveArea={i => onChange(areas.filter((_, idx) => idx !== i))}
+        onAddArea={() => onChange(prev => [...prev, {}])}
+        onRemoveArea={i => onChange(prev => prev.filter((_, idx) => idx !== i))}
         errors={errors}
       />
       <NavigationButtons

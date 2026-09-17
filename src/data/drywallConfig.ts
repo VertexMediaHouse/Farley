@@ -212,7 +212,6 @@ export const drywallConfig: QuestionConfig[] = [
         label: 'Upload Photos',
         type: 'photoUpload',
         multiple: true,
-        required: true,
       },
     ]
   },
@@ -264,7 +263,6 @@ export const drywallConfig: QuestionConfig[] = [
     type: 'photoUpload',
     multiple: true,
     condition: { field: 'needArchCornerMetal', is: 'Yes' },
-    required: true,
   },
   {
     id: 'texture',
