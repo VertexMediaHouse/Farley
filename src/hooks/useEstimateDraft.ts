@@ -25,6 +25,8 @@ export function useEstimateDraft() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
+  // Restore after mount (not in useState) so hydration matches the prerendered HTML.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const saved = loadDraft();
     if (saved) {
@@ -36,6 +38,7 @@ export function useEstimateDraft() {
     }
     setRestored(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     // Don't save until the component has re-rendered with the loaded state.

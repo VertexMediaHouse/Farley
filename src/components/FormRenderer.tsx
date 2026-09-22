@@ -1,7 +1,8 @@
+import type { Loose } from '../types/loose';
 import { useEffect, useState } from 'react';
 import type { QuestionConfig, AreaValues } from '../types/form';
 import UploadBox from './UploadBox';
-import InfoButton from './InfoButton';;
+import InfoButton from './InfoButton';
 import { input as inp, label as lbl, errorText } from './theme';
 import PaintExplorer from './paintexplorer/paintexplorer';
 import type { PaintColor } from './paintexplorer/types';
@@ -22,7 +23,7 @@ export function validateConfig(config: QuestionConfig[], values: AreaValues): Re
         // For simplicity, just checking if first record is missing a required child field
         children.forEach(c => {
           if (c.required) {
-            records.forEach((rec: any, idx: number) => {
+            records.forEach((rec: Loose, idx: number) => {
               if (!rec[c.id]) {
                 errs[`${q.id}_${idx}_${c.id}`] = 'Required';
                 errs[q.id] = 'Required fields missing in group';
@@ -97,7 +98,7 @@ function Field({
   const files = (Array.isArray(values[q.id]) ? values[q.id] : []) as File[];
   const err = errors[q.id];
 
-  const Label = () => (
+  const labelEl = (
     <label className={lbl}>
       {q.label}{q.required && <span className="ml-0.5 text-red-500">*</span>}
       {q.helpText && <InfoButton helpText={q.helpText} />}
@@ -118,11 +119,11 @@ function Field({
         q={q}
         rawValue={val}
         errors={errors}
-        savedPhotos={(values[`${q.id}_photos_map`] as any) || {}}
+        savedPhotos={(values[`${q.id}_photos_map`] as Loose) || {}}
         onChange={(v) => onChange(q.id, v)}
         onPhotosMapChange={(map) => {
-          onChange(`${q.id}_photos_map`, map as any);
-          onChange(`${q.id}_photos`, Object.values(map).flat() as any);
+          onChange(`${q.id}_photos_map`, map as Loose);
+          onChange(`${q.id}_photos`, Object.values(map).flat() as Loose);
         }}
       />
     );
@@ -131,7 +132,7 @@ function Field({
   if (q.type === 'photoUpload') {
     return (
       <div>
-        <Label />
+        {labelEl}
         {q.multiple ? (
           <MultiUpload files={files} onChange={f => onChange(q.id, f)} />
         ) : (
@@ -147,7 +148,7 @@ function Field({
   if (q.type === 'paintColorExplorer') {
     return (
       <div>
-        <Label />
+        {labelEl}
         <PaintExplorer
           selected={val}
           onSelect={(color: PaintColor) => {
@@ -177,7 +178,7 @@ function Field({
   if (q.type === 'dropdown') {
     return (
       <div>
-        <Label />
+        {labelEl}
         <select className={inp} value={val} onChange={e => onChange(q.id, e.target.value)}>
           {q.options?.map(o => <option key={o} value={o}>{o || 'Select…'}</option>)}
         </select>
@@ -189,7 +190,7 @@ function Field({
   if (q.type === 'textarea') {
     return (
       <div>
-        <Label />
+        {labelEl}
         <textarea
           rows={4}
           className={`${inp} resize-none`}
@@ -224,7 +225,7 @@ function Field({
   // text / number
   return (
     <div>
-      <Label />
+      {labelEl}
       <input
         type={q.type === 'number' ? 'number' : 'text'}
         className={inp}

@@ -1,3 +1,4 @@
+import type { Loose } from './loose';
 export interface CatalogProduct {
   name: string;
   url: string;
@@ -55,4 +56,4 @@ export interface QuestionConfig {
   children?: QuestionConfig[];
 }
 
-export type AreaValues = Record<string, string | string[] | File[] | Record<string, any>[] | null>;
+export type AreaValues = Record<string, string | string[] | File[] | Record<string, Loose>[] | null>;

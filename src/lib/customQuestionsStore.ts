@@ -33,7 +33,7 @@ export async function fetchCustomQuestions(path?: 'drywall' | 'paint'): Promise<
 }
 
 export async function saveCustomQuestion(record: Omit<CustomQuestionRecord, 'id' | 'created_at' | 'updated_at'> & { id?: string }) {
-  const payload: any = {
+  const payload: Record<string, unknown> = {
     path: record.path,
     insert_after_id: record.insert_after_id,
     config: record.config,

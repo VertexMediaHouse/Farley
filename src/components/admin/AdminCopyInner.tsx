@@ -39,14 +39,14 @@ export default function AdminCopyInner() {
       await saveOverride(q.id, { ...overrides[q.id], label });
     }
     setOverrides(await fetchOverrides());
-    setDirty(d => { const { [q.id]: _, ...rest } = d; return rest; });
+    setDirty(d => { const rest = { ...d }; delete rest[q.id]; return rest; });
     setSaving(null);
   };
 
   const reset = async (q: QuestionConfig) => {
     await resetOverride(q.id);
     setOverrides(await fetchOverrides());
-    setDirty(d => { const { [q.id]: _, ...rest } = d; return rest; });
+    setDirty(d => { const rest = { ...d }; delete rest[q.id]; return rest; });
   };
 
   return (

@@ -1,3 +1,4 @@
+import type { Loose } from '../types/loose';
 import { PRICING } from '../data/pricing';
 import type { CustomQuestionRecord } from './customQuestionsStore';
 // import { trimConfig } from '../data/trimConfig';
@@ -33,7 +34,7 @@ export interface EstimateResult {
 }
 
 interface AreaValues {
-  [key: string]: any;
+  [key: string]: Loose;
 }
 
 /** Look up a catalog product by its Home Depot URL from trimConfig. */
@@ -215,14 +216,17 @@ export function calculateEstimate(
     if (area.needDemolition && PRICING.demolition[area.needDemolition]) {
       const demoRate = PRICING.demolition[area.needDemolition];
       const isLinear = area.needDemolition === 'Base board' || area.needDemolition === 'Door casing';
-      const demoQty = isLinear
-        ? parseFloat(area.demolitionLinearFeet) || 0
-        : parseFloat(area.demolitionSquareFootage) || 0;
+      // ponytail: "same area" just reuses the area's own sqft/lft; a "No" answer means
+      // a different area was demoed and we have no qty for it, so it prices as 0 —
+      // add a qty prompt for that case if it turns out clients pick "No" often.
+      const demoQty = area.demolitionSameArea === 'Yes'
+        ? (isLinear ? parseFloat(area.linearFeet) || 0 : parseFloat(area.squareFootage) || 0)
+        : 0;
       addItem(areaName, `Demolition: ${area.needDemolition}`, `${demoQty} unit(s)`, demoQty * demoRate, {
         quantity: demoQty, rate: demoRate, unit: isLinear ? 'lft' : 'sqft',
       });
     } else if (area.needDemolition === 'Popcorn Ceiling scraping') {
-      const dSqft = parseFloat(area.demolitionSquareFootage) || 0;
+      const dSqft = area.demolitionSameArea === 'Yes' ? parseFloat(area.squareFootage) || 0 : 0;
       const rate = PRICING.popcornScraping.rateFor(dSqft);
       addItem(areaName, 'Popcorn Ceiling Scraping', `${dSqft} sqft`, dSqft * rate, {
         quantity: dSqft, rate, unit: 'sqft',
@@ -232,7 +236,7 @@ export function calculateEstimate(
     // Haul Away
     if (area.needHaulAway === 'Yes') {
       let hSqft = parseFloat(area.haulAwaySquareFootage);
-      if (isNaN(hSqft)) hSqft = parseFloat(area.demolitionSquareFootage) || 0;
+      if (isNaN(hSqft) && area.demolitionSameArea === 'Yes') hSqft = parseFloat(area.squareFootage) || 0;
       if (hSqft > 0) {
         if (hSqft <= 50) {
           // Flat fee up to 50 sqft — no clean per-unit rate to edit against
@@ -261,7 +265,7 @@ export function calculateEstimate(
     if (area.needCornerMetal === 'Yes' && typeof area.cornerMetals === 'string') {
       try {
         const metals = JSON.parse(area.cornerMetals);
-        metals.forEach((m: any) => {
+        metals.forEach((m: Loose) => {
           const mType = m.metalType as keyof typeof PRICING.cornerMetal;
           const qty = parseFloat(m.quantity) || 0;
           if (mType && qty > 0 && PRICING.cornerMetal[mType]) {
@@ -270,14 +274,16 @@ export function calculateEstimate(
             });
           }
         });
-      } catch (e) { }
+      } catch {
+      // ignore malformed JSON
+    }
     }
 
     // Arch Corner Metals
     if (area.needArchCornerMetal === 'Yes' && typeof area.archCornerMetals === 'string') {
       try {
         const metals = JSON.parse(area.archCornerMetals);
-        metals.forEach((m: any) => {
+        metals.forEach((m: Loose) => {
           const qty = parseFloat(m.quantity) || 0;
           const height = parseFloat(m.height) || 0;
           const width = parseFloat(m.width) || 0;
@@ -289,7 +295,9 @@ export function calculateEstimate(
             });
           }
         });
-      } catch (e) { }
+      } catch {
+      // ignore malformed JSON
+    }
     }
 
     // Texture
@@ -483,7 +491,7 @@ export function calculateEstimate(
       // Paint material/labor tiers — tier-based, not a clean linear per-unit
       // rate, so these are intentionally left non-quantity-editable (flat).
       const tierList = isLinear ? PRICING.paint.linearFtTiers : PRICING.paint.sqftTiers;
-      const tier = tierList.find(t => isLinear ? qty <= (t as any).maxFt : qty <= (t as any).maxSqft);
+      const tier = tierList.find(t => isLinear ? qty <= (t as Loose).maxFt : qty <= (t as Loose).maxSqft);
       if (tier) {
         const paintCost = tier.gallons * PRICING.paint.gallonPrice;
         addItem(areaName, `Paint Materials (${tier.gallons} gal)`, 'Behr Paint', paintCost);

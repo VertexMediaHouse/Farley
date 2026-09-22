@@ -22,9 +22,9 @@ interface Props {
   drywall: AreaValues[];
   // trim: AreaValues[];
   paint: AreaValues[];
-  customQuestions?: any[];
+  customQuestions?: unknown[];
   productPrices?: import('../lib/productPricesStore').ProductPriceMap;
-  contact?: any;
+  contact?: unknown;
 }
 
 /** An area counts once the user has actually answered something in it. */

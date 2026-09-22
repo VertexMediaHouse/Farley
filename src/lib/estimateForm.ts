@@ -1,3 +1,4 @@
+import type { Loose } from '../types/loose';
 import type { AreaValues } from '../types/form';
 import { calculateEstimate } from './estimate';
 import { adaptV2ToV1Estimate } from '../utils/estimateAdapter';
@@ -139,14 +140,14 @@ export function deserializeAreas(areas: Record<string, unknown>[]): AreaValues[]
       if (Array.isArray(v)) {
         out[k] = v
           .map((item) => {
-            if (item && typeof item === 'object' && 'dataUrl' in item && typeof (item as any).dataUrl === 'string') {
-              return dataURLtoFile((item as any).dataUrl, (item as any).name || 'photo.jpg', (item as any).type);
+            if (item && typeof item === 'object' && 'dataUrl' in item && typeof (item as Loose).dataUrl === 'string') {
+              return dataURLtoFile((item as Loose).dataUrl, (item as Loose).name || 'photo.jpg', (item as Loose).type);
             }
             return item;
           })
           .filter((item): item is NonNullable<typeof item> => item !== null);
       } else {
-        out[k] = v as any;
+        out[k] = v as Loose;
       }
     }
     return out;
@@ -380,7 +381,7 @@ export async function submitEstimate(
   // Build scope of work dynamically based on area configurations
   const scopeOfWork: { id: string; areaName?: string; question: string; answer: string; photos: string[] }[] = [];
   
-  const buildScopeForArea = async (areas: AreaValues[], configs: any[], prefix: string) => {
+  const buildScopeForArea = async (areas: AreaValues[], configs: Loose[], prefix: string) => {
     for (let i = 0; i < areas.length; i++) {
       const area = areas[i];
       const areaPrefix = `${prefix} Area ${i + 1}`;

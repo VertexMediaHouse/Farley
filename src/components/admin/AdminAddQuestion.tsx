@@ -1,3 +1,4 @@
+import type { Loose } from '../../types/loose';
 import { useState, useEffect } from 'react';
 import { STEP_CONFIGS } from '../../data/stepConfig';
 import { input as inp, btnPrimary, btnGhost, label as lbl } from '../theme';
@@ -19,7 +20,7 @@ export default function AdminAddQuestion() {
   const [path, setPath] = useState<'drywall' | 'paint'>('drywall');
   const [insertAfter, setInsertAfter] = useState<string>('');
   
-  const [id, setId] = useState(`custom_${Date.now()}`);
+  const [id, setId] = useState(() => `custom_${Date.now()}`);
   const [label, setLabel] = useState('');
   const [type, setType] = useState<'dropdown' | 'number' | 'text' | 'photoUpload'>('dropdown');
   const [required, setRequired] = useState(false);
@@ -40,23 +41,24 @@ export default function AdminAddQuestion() {
   const customPathQuestions = questions.filter(q => q.path === path).map(q => q.config);
   const currentQuestions = [...baseQuestions, ...customPathQuestions];
 
-  useEffect(() => {
-    loadQuestions();
-  }, []);
-
   const loadQuestions = async () => {
-    setLoading(true);
     const data = await fetchCustomQuestions();
     setQuestions(data);
     setLoading(false);
   };
+
+  // Initial fetch on mount only.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadQuestions();
+  }, []);
 
   const handleDelete = async (recordId: string) => {
     if (!window.confirm("Are you sure you want to delete this custom question?")) return;
     try {
       await deleteCustomQuestion(recordId);
       loadQuestions();
-    } catch (e: any) {
+    } catch (e: Loose) {
       alert(`Error deleting: ${e.message}`);
     }
   };
@@ -67,7 +69,7 @@ export default function AdminAddQuestion() {
     setInsertAfter(q.insert_after_id || '');
     setId(q.config.id);
     setLabel(q.config.label || '');
-    setType(q.config.type as any);
+    setType(q.config.type as Loose);
     setRequired(!!q.config.required);
     
     if (q.config.type === 'dropdown' && q.config.options) {
@@ -158,7 +160,7 @@ export default function AdminAddQuestion() {
       setMessage(editingId ? 'Question updated successfully!' : 'Question added successfully!');
       resetForm();
       loadQuestions();
-    } catch (e: any) {
+    } catch (e: Loose) {
       setMessage(`Error: ${e.message}`);
     } finally {
       setSaving(false);
@@ -214,7 +216,7 @@ export default function AdminAddQuestion() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={lbl}>Service Page</label>
-            <select className={inp} value={path} onChange={(e: any) => setPath(e.target.value)}>
+            <select className={inp} value={path} onChange={(e: Loose) => setPath(e.target.value)}>
               <option value="drywall">Drywall</option>
               {/* <option value="trim">Trim & Baseboard</option> */}
               <option value="paint">Painting</option>
@@ -242,7 +244,7 @@ export default function AdminAddQuestion() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={lbl}>Type</label>
-            <select className={inp} value={type} onChange={(e: any) => setType(e.target.value)}>
+            <select className={inp} value={type} onChange={(e: Loose) => setType(e.target.value)}>
               <option value="dropdown">Dropdown Options</option>
               <option value="number">Numeric Input</option>
               <option value="text">Text Input</option>
@@ -291,7 +293,7 @@ export default function AdminAddQuestion() {
                 
                 <div className="w-32">
                   <label className="text-xs text-slate-500">Price Type</label>
-                  <select className={inp} value={pricing[opt]?.type || 'flat'} onChange={e => handlePriceChange(opt, e.target.value as any, pricing[opt]?.amount || 0)}>
+                  <select className={inp} value={pricing[opt]?.type || 'flat'} onChange={e => handlePriceChange(opt, e.target.value as Loose, pricing[opt]?.amount || 0)}>
                     <option value="flat">Flat Fee ($)</option>
                     <option value="per_unit">Per Sqft/Lft</option>
                   </select>

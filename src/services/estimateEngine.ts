@@ -1,3 +1,4 @@
+import type { Loose } from '../types/loose';
 /**
  * estimateEngine.ts
  *
@@ -104,13 +105,13 @@ function finishLabel(finishLevel: string): string {
 // ---------------------------------------------------------------------------
 
 export function calculateEstimate(
-  formData: any,
+  formData: Loose,
   rawArrays: {
-    trim: any; drywall?: any[], /* trim?: any[], */ paint?: any[] 
+    trim: Loose; drywall?: Loose[], /* trim?: Loose[], */ paint?: Loose[] 
 } = {
   trim: undefined
 },
-  customQuestions: any[] = []
+  customQuestions: Loose[] = []
 ): EstimateResult {
   // ── 1. Parse dimensions ──────────────────────────────────────────────────
   // const length = safeParseFloat(formData.length);
@@ -131,8 +132,6 @@ export function calculateEstimate(
   if (formData.has_photos === 'No') requiresPhotos = true;
 
   // ── 3. DRYWALL ────────────────────────────────────────────────────────────
-  let drywallArea = 0;
-
   if (formData.services?.drywall) {
     const texture = formData.drywall_texture || 'Orange Peel';
     const finishLevel = texture.toLowerCase();
@@ -143,7 +142,7 @@ export function calculateEstimate(
     const bathWallSqft = safeParseFloat(formData.drywall_bathroom_wall_sqft);
     const bathCeilSqft = safeParseFloat(formData.drywall_bathroom_ceiling_sqft);
 
-    drywallArea = wallSqft + ceilingSqft + bathWallSqft + bathCeilSqft;
+    const drywallArea = wallSqft + ceilingSqft + bathWallSqft + bathCeilSqft;
 
     if (finishLevel === 'match existing texture') {
       isPendingReview = true;
@@ -767,7 +766,7 @@ export function calculateEstimate(
 
 /*
   if (rawArrays.trim) {
-    rawArrays.trim.forEach((area: any) => {
+    rawArrays.trim.forEach((area: Loose) => {
       customQuestions.filter(q => q.path === 'trim').forEach(cq => {
         const val = area[cq.config.id];
         if (!val) return;

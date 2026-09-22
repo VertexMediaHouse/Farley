@@ -1,3 +1,4 @@
+import type { Loose } from '../types/loose';
 import React, { useState, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { calculateEstimate } from '../services/estimateEngine'
@@ -99,7 +100,7 @@ interface FormAnswers {
   contact_phone?: string
   contact_email?: string
   contact_address?: string
-  [key: string]: any
+  [key: string]: Loose
 }
 
 const initialAnswers: FormAnswers = {
@@ -208,7 +209,7 @@ function getBaseboardProductsForSelection(height: string) {
   )
 }
 
-function normalizeApifyPriceItem(item: any) {
+function normalizeApifyPriceItem(item: Loose) {
   const url = item?.url ?? item?.originalUrl ?? item?.startUrl ?? item?.pageUrl ?? ''
   const rawResult =
     item?.result_from_js_script ??
@@ -344,34 +345,6 @@ export default function EstimateWizard() {
     setTimeout(() => galleryInputRef.current?.click(), 30)
   }, [])
 
-  const handleCameraChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    e.target.value = ''
-    if (pendingUploadCtx.current) {
-      const { stepId, index } = pendingUploadCtx.current
-      if (index === -1) {
-        setUploadedFiles((prev) => [...prev, { file, stepId }])
-      } else {
-        updatePhoto(stepId, index, file)
-      }
-    }
-  }, [])
-
-  const handleGalleryChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files ? Array.from(e.target.files) : []
-    if (!files.length) return
-    e.target.value = ''
-    if (pendingUploadCtx.current) {
-      const { stepId, index } = pendingUploadCtx.current
-      if (index === -1) {
-        setUploadedFiles((prev) => [...prev, ...files.map(f => ({ file: f, stepId }))])
-      } else {
-        updatePhoto(stepId, index, files[0])
-      }
-    }
-  }, [])
-
   // ─── File handling ───────────────────────────────────────────────────────────
 
   const removeFile = (index: number) => {
@@ -437,7 +410,9 @@ export default function EstimateWizard() {
           return initialItems
         }
       }
-    } catch (e) { }
+    } catch {
+      // ignore malformed JSON
+    }
     return {}
   })
 
@@ -483,7 +458,7 @@ export default function EstimateWizard() {
     })
   }
 
-  const updatePhoto = (stepId: string, index: number, file: File | null) => {
+  const updatePhoto = useCallback((stepId: string, index: number, file: File | null) => {
     setCombinedItems((prev) => {
       const current = prev[stepId] || [{ photo: null, sqft: '' }]
       return {
@@ -500,16 +475,45 @@ export default function EstimateWizard() {
       return next
     })
     if (file) setUploadedFiles((prev) => [...prev, { file, stepId }])
-  }
+  }, [])
 
-  const clearRowPhoto = (stepId: string, index: number, _dimensionId: string) => {
+  const handleCameraChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    if (pendingUploadCtx.current) {
+      const { stepId, index } = pendingUploadCtx.current
+      if (index === -1) {
+        setUploadedFiles((prev) => [...prev, { file, stepId }])
+      } else {
+        updatePhoto(stepId, index, file)
+      }
+    }
+  }, [updatePhoto])
+
+  const handleGalleryChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : []
+    if (!files.length) return
+    e.target.value = ''
+    if (pendingUploadCtx.current) {
+      const { stepId, index } = pendingUploadCtx.current
+      if (index === -1) {
+        setUploadedFiles((prev) => [...prev, ...files.map(f => ({ file: f, stepId }))])
+      } else {
+        updatePhoto(stepId, index, files[0])
+      }
+    }
+  }, [updatePhoto])
+
+
+  const clearRowPhoto = (stepId: string, index: number) => {
     updatePhoto(stepId, index, null)
   }
 
   // ─── Dynamic Steps ───────────────────────────────────────────────────────────
 
   const getDynamicSteps = () => {
-    const stepsList: any[] = []
+    const stepsList: Loose[] = []
     const multiService =
       [answers.services.drywall, answers.services.paint, answers.services.trim].filter(Boolean)
         .length > 1
@@ -1310,7 +1314,7 @@ export default function EstimateWizard() {
         } else if (step.type === 'demolition_combined') {
             const items: string[] = [];
             (step.options || []).forEach((opt: string) => {
-                const map: any = {
+                const map: Loose = {
                     'Remove Existing Wall Drywall': 'drywall_demo_wall_sqft',
                     'Remove Existing Ceiling Drywall': 'drywall_demo_ceiling_sqft',
                     'Remove Insulation (sqft)': 'drywall_demo_insulation_sqft',
@@ -1856,7 +1860,7 @@ export default function EstimateWizard() {
                           ].map((f) => (
                             <div key={f.id} className="input-group">
                               <label htmlFor={f.id} style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '4px' }}>{f.label}</label>
-                              <input id={f.id} type="number" max={f.max} placeholder={f.placeholder} value={(answers as any)[f.id] || ''} onChange={(e) => {
+                              <input id={f.id} type="number" max={f.max} placeholder={f.placeholder} value={(answers as Loose)[f.id] || ''} onChange={(e) => {
                                 let val = e.target.value;
                                 if (f.max && Number(val) > f.max) val = f.max.toString();
                                 handleTextChange(f.id, val);
@@ -1995,7 +1999,7 @@ export default function EstimateWizard() {
                                     <img src={thumbUrl} alt="preview" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: '8px', border: '2px solid var(--blue)' }} />
                                     <button
                                       type="button"
-                                      onClick={() => clearRowPhoto(currentStep.id, index, currentStep.fields.dimension.id)}
+                                      onClick={() => clearRowPhoto(currentStep.id, index)}
                                       style={{ position: 'absolute', top: -6, right: -6, width: 18, height: 18, borderRadius: '50%', background: '#ef4444', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                     >✕</button>
                                   </div>

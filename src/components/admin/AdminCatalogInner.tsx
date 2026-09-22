@@ -53,29 +53,29 @@ export default function AdminCatalogInner() {
           ? `Saved ${saved} price(s) to catalog.`
           : `Saved ${saved}, but ${failed.length} failed (check RLS/update permissions).`
       );
-    } catch (e: any) {
-      setSaveMsg(`Save failed: ${e.message}`);
+    } catch (e) {
+      setSaveMsg(`Save failed: ${(e as Error).message}`);
     } finally {
       setSaving(false);
     }
   };
 
   const load = async () => {
-    setLoading(true);
-    setError(null);
     try {
       const prices = await fetchLastRunPrices();
       setRows(mergeCatalogWithPrices(prices));
       setDebugRaw(prices);
       setLastFetched(new Date());
       await saveToCatalog(prices);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
+  // Initial fetch on mount only.
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
 
   const runNew = async () => {
@@ -88,8 +88,8 @@ export default function AdminCatalogInner() {
       setDebugRaw(prices);
       setLastFetched(new Date());
       await saveToCatalog(prices);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      setError((e as Error).message);
     } finally {
       setScraping(false);
     }
@@ -108,7 +108,7 @@ export default function AdminCatalogInner() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button className={btnGhost} onClick={load} disabled={loading || scraping || saving}>
+          <button className={btnGhost} onClick={() => { setLoading(true); setError(null); load(); }} disabled={loading || scraping || saving}>
             {loading ? 'Loading…' : 'Reload last run'}
           </button>
           <button className={btnPrimary} onClick={runNew} disabled={loading || scraping || saving}>

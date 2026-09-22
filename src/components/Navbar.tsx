@@ -5,9 +5,12 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const location = useLocation()
 
-  useEffect(() => {
+  // Close the menu when the route changes.
+  const [lastPath, setLastPath] = useState(location.pathname)
+  if (lastPath !== location.pathname) {
+    setLastPath(location.pathname)
     setOpen(false)
-  }, [location.pathname])
+  }
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''

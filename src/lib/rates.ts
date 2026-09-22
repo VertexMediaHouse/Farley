@@ -1,3 +1,4 @@
+import type { Loose } from '../types/loose';
 import type { PricingRule, FormSnapshot, Submission } from './pricing';
 import { calculateEstimate } from './estimate';
 
@@ -56,7 +57,7 @@ export function flattenRates(
 
 /** Write an edited number back into the rule's config. */
 export function setRate(rule: PricingRule, path: string, amount: number): PricingRule {
-  const next = structuredClone(rule) as any;
+  const next: Loose = structuredClone(rule);
   const keys = path.split('.');
   let cur = next;
   for (const k of keys.slice(0, -1)) {
@@ -100,7 +101,7 @@ export function previewImpact(
     // Wait, `calculateEstimate(draftSnapshot, s.answers)` is what they provided.
     // Let's implement it as they provided.
 
-    // @ts-ignore - The user's prompt passes draftSnapshot and s.answers
+    // @ts-expect-error - The user's prompt passes draftSnapshot and s.answers
     const estimate = calculateEstimate(draftSnapshot, s.answers);
     const now = estimate?.subtotal ?? 0;
 

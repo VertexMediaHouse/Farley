@@ -1,3 +1,4 @@
+import type { Loose } from '../types/loose';
 import homeDepotStoreByZip from '../data/homeDepotStoreByZip.json'; // confirm this file exists in System A too — if not, copy it over from EstimateWizard's folder
 
 const HOME_DEPOT_APIFY_ACTOR = 'automation-lab~home-depot-product-scraper';
@@ -8,7 +9,7 @@ export interface LiveScrapeResult {
   outOfStock: boolean;
 }
 
-function normalizeApifyPriceItem(item: any): LiveScrapeResult {
+function normalizeApifyPriceItem(item: Loose): LiveScrapeResult {
   const url =
     item?.url ?? item?.sourceUrl ?? item?.originalUrl ?? item?.startUrl ?? item?.pageUrl ?? '';
 

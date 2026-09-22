@@ -28,7 +28,7 @@ export async function saveScrapedPrices(prices: ScrapedPrice[]): Promise<{ saved
   // product_prices.url has no guaranteed unique constraint for upsert, so update row-by-row matched on url.
   await Promise.all(prices.map(async p => {
     const status = p.outOfStock ? 'out_of_stock' : p.price != null ? 'ok' : 'error';
-    const patch: Record<string, any> = {
+    const patch: Record<string, unknown> = {
       last_checked_at: now,
       status,
       error_msg: status === 'error' ? 'No price parsed from last scrape' : null,

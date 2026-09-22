@@ -11,7 +11,6 @@ function PriceLookupOverlay() {
   const [secondsLeft, setSecondsLeft] = useState(PRICE_LOOKUP_SECONDS);
 
   useEffect(() => {
-    setSecondsLeft(PRICE_LOOKUP_SECONDS);
     const interval = setInterval(() => {
       setSecondsLeft((s) => (s > 0 ? s - 1 : 0));
     }, 1000);

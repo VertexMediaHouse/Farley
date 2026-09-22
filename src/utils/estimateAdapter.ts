@@ -1,8 +1,9 @@
+import type { Loose } from '../types/loose';
 
 export function adaptV2ToV1Estimate(
-drywall: any[], paint: any[], contact: { isCommercial: string; isSubcontractor: string; areaCode: string; fullName: string; companyName: string; phoneNumber: string; emailAddress: string; clientName: string; clientAddress: string; clientEmail: string; clientPhone: string; sameWorkArea: string; },
+drywall: Loose[], paint: Loose[], contact: { isCommercial: string; isSubcontractor: string; areaCode: string; fullName: string; companyName: string; phoneNumber: string; emailAddress: string; clientName: string; clientAddress: string; clientEmail: string; clientPhone: string; sameWorkArea: string; },
 ) {
-  const formData: any = {
+  const formData: Loose = {
     length: '0',
     width: '0',
     height: '0',
@@ -28,15 +29,16 @@ drywall: any[], paint: any[], contact: { isCommercial: string; isSubcontractor: 
 
   drywall.forEach(area => {
     const type = area.repairType;
-    const sqft = parseFloat(area.crackSquareFootage) || parseFloat(area.demolitionSquareFootage) || 0;
+    const sqft = parseFloat(area.crackSquareFootage) || parseFloat(area.squareFootage) || 0;
     if (type === 'Walls' || type === 'Crack Repair Wall') wallSqft += sqft;
     if (type === 'Ceiling' || type === 'Crack Repair Ceiling') ceilSqft += sqft;
     if (type === 'Bathroom Walls') bathWallSqft += sqft;
     if (type === 'Bathroom Ceiling') bathCeilSqft += sqft;
 
     const demo = area.needDemolition;
-    const demoSqft = parseFloat(area.demolitionSquareFootage) || 0;
-    const demoFt = parseFloat(area.demolitionLinearFeet) || 0;
+    const sameArea = area.demolitionSameArea === 'Yes';
+    const demoSqft = sameArea ? parseFloat(area.squareFootage) || 0 : 0;
+    const demoFt = sameArea ? parseFloat(area.linearFeet) || 0 : 0;
 
     if (demo === 'Remove Existing Wall Drywall') demoWallSqft += demoSqft;
     if (demo === 'Remove Existing Ceiling Drywall') demoCeilSqft += demoSqft;

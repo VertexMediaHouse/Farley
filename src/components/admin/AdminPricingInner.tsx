@@ -1,3 +1,4 @@
+import type { Loose } from '../../types/loose';
 import { useState, useMemo, useEffect } from 'react';
 import { flattenRates, setRate, bulkAdjust } from '../../lib/rates';
 import type { RateRow } from '../../lib/rates';
@@ -90,14 +91,27 @@ interface RateInputProps {
   onChange: (newAmount: number) => void;
 }
 
+const OPTION_LABELS: Record<string, Record<string, string>> = {
+  crack_repair_wall_extra_lft: {
+    '5-8': '5ft–8ft', '9': '9ft', '10': '10ft', '12': '12ft',
+  },
+  crack_repair_ceiling_extra_lft: {
+    '5-8': '5ft–8ft', '9': '9ft', '10': '10ft', '11': '11ft', '12': '12ft',
+  },
+  ceiling_height_surcharge: {
+    '9': '9ft', '10': '10ft', '11': '11ft', 'Infinity': '12ft+',
+  },
+};
+
 function RateInput({ row, originalAmount, onChange }: RateInputProps) {
   const initialVal = typeof row.amount === 'number' ? row.amount.toFixed(2) : '';
   const [val, setVal] = useState(initialVal);
 
-  useEffect(() => {
-    const newVal = typeof row.amount === 'number' ? row.amount.toFixed(2) : '';
-    setVal(newVal);
-  }, [row.amount]);
+  const [lastAmount, setLastAmount] = useState(row.amount);
+  if (lastAmount !== row.amount) {
+    setLastAmount(row.amount);
+    setVal(initialVal);
+  }
 
   const handleBlur = () => {
     const parsed = parseFloat(val);
@@ -166,7 +180,7 @@ export default function AdminPricingInner() {
   const [showBulkAdjust, setShowBulkAdjust] = useState<string | null>(null);
   const [bulkPct, setBulkPct] = useState(5);
   const [bulkRound, setBulkRound] = useState<'none' | 'nearest' | 'up'>('nearest');
-  const [preview, setPreview] = useState<{ avgDelta: number; rows: any[] } | null>(null);
+  const [preview, setPreview] = useState<{ avgDelta: number; rows: Loose[] } | null>(null);
   const [saving, setSaving] = useState(false);
 
 
@@ -190,17 +204,6 @@ export default function AdminPricingInner() {
       .finally(() => setLoading(false));
   }, []);
 
-  const OPTION_LABELS: Record<string, Record<string, string>> = {
-    crack_repair_wall_extra_lft: {
-      '5-8': '5ft–8ft', '9': '9ft', '10': '10ft', '12': '12ft',
-    },
-    crack_repair_ceiling_extra_lft: {
-      '5-8': '5ft–8ft', '9': '9ft', '10': '10ft', '11': '11ft', '12': '12ft',
-    },
-    ceiling_height_surcharge: {
-      '9': '9ft', '10': '10ft', '11': '11ft', 'Infinity': '12ft+',
-    },
-  };
 
   // Flat rows for current section
   const originalRows = useMemo(() =>
@@ -459,7 +462,7 @@ export default function AdminPricingInner() {
             <div className="mb-6">
               <label className="block text-sm font-medium text-slate-700 mb-1">Rounding</label>
               <select className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 focus:outline-none text-slate-900"
-                value={bulkRound} onChange={e => setBulkRound(e.target.value as any)}>
+                value={bulkRound} onChange={e => setBulkRound(e.target.value as Loose)}>
                 <option value="none">No rounding</option>
                 <option value="nearest">Nearest quarter ($.25, $.50, $.75…)</option>
                 <option value="up">Round up to whole dollar</option>

@@ -1,3 +1,4 @@
+import type { Loose } from '../types/loose';
 export type PricingRule =
   | { shape: 'none' }
   | { shape: 'flat_if'; amount: number }
@@ -15,7 +16,7 @@ export interface FormSnapshot {
 
 export interface Submission {
   id: string;
-  answers: any;
+  answers: Loose;
   subtotal: number;
   created_at: string;
 }
