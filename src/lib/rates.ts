@@ -1,4 +1,3 @@
-import type { Loose } from '../types/loose';
 import type { PricingRule, FormSnapshot, Submission } from './pricing';
 import { calculateEstimate } from './estimate';
 
@@ -57,7 +56,7 @@ export function flattenRates(
 
 /** Write an edited number back into the rule's config. */
 export function setRate(rule: PricingRule, path: string, amount: number): PricingRule {
-  const next: Loose = structuredClone(rule);
+  const next: any = structuredClone(rule);
   const keys = path.split('.');
   let cur = next;
   for (const k of keys.slice(0, -1)) {
@@ -86,22 +85,7 @@ export function previewImpact(
   if (!recent.length) return { avgDelta: 0, rows: [] };
 
   const rows = recent.map(s => {
-    // Note: calculateEstimate needs to support FormSnapshot rules if implemented dynamically.
-    // For now we assume calculateEstimate might be adapted or we use it directly
-    // based on user's instruction that they don't want us to rewrite calculateEstimate yet.
-    // Since the prompt asks to implement previewImpact like this, we'll write it as requested.
-
-    // In a real scenario where calculateEstimate reads global pricing.ts, 
-    // it wouldn't inherently use draftSnapshot unless passed. 
-    // We pass it here assuming calculateEstimate accepts it or handles it globally during this scope.
-
-    // Wait, let's use a workaround if calculateEstimate doesn't take it.
-    // The prompt says: "calculateEstimate is already a pure function, so you're just calling it with a different snapshot."
-    // This implies calculateEstimate *does* or *should* take it.
-    // Wait, `calculateEstimate(draftSnapshot, s.answers)` is what they provided.
-    // Let's implement it as they provided.
-
-    // @ts-expect-error - The user's prompt passes draftSnapshot and s.answers
+    // @ts-expect-error - calculateEstimate doesn't take a snapshot yet; it reads global pricing
     const estimate = calculateEstimate(draftSnapshot, s.answers);
     const now = estimate?.subtotal ?? 0;
 

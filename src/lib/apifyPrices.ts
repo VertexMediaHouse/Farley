@@ -1,5 +1,4 @@
 // lib/apifyPrices.ts
-import type { Loose } from '../types/loose';
 
 const ACTOR_ID = 'ecomscrape~cloudflare-web-scraper-ppe';
 const TOKEN = import.meta.env.VITE_APIFY_TOKEN as string;
@@ -11,7 +10,7 @@ export interface ScrapedPrice {
   raw: unknown;                  // keep the raw dataset item around for debugging
 }
 
-function normalizeItem(item: Loose): ScrapedPrice {
+function normalizeItem(item: any): ScrapedPrice {
   const url: string =
     item.url ?? item.originalUrl ?? item.startUrl ?? item.pageUrl ?? '';
 

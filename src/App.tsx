@@ -7,8 +7,7 @@ import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
 import ServicesPage from './pages/ServicesPage'
 import EstimatePage from './pages/EstimatePage'
-import PriceEstimatorPage from './pages/PriceEstimatorPage'
-import PriceEstimatorDevPage from './pages/PriceEstimatorDevPage'
+import PriceEstimatorPage, { PriceEstimatorInner } from './pages/PriceEstimatorPage'
 import AdminDashboard from './pages/AdminDashboard'
 import RequireAuth from './components/RequireAuth'
 import { CopyProvider } from './context/CopyProvider'
@@ -91,7 +90,7 @@ export default function App({ helmetContext }: { helmetContext?: object }) {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/estimate" element={<EstimatePage />} />
           <Route path="/priceestimator" element={<PriceEstimatorPage />} />
-          <Route path="/priceestimatordevelopment" element={<PriceEstimatorDevPage />} />
+          <Route path="/priceestimatordevelopment" element={<PriceEstimatorInner />} />
           <Route path="/admin/*" element={<RequireAuth><AdminDashboard /></RequireAuth>} />
         </Routes>
         <BackToTopButton />

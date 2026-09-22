@@ -70,3 +70,8 @@ Desktop.ini
 # Uncomment the ones you do NOT use:
 # yarn.lock
 # pnpm-lock.yaml
+
+# ── local tool state ─────────────────────────────────
+.wrangler/
+.openpost/
+scratch/

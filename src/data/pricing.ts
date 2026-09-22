@@ -7,22 +7,22 @@ export const PRICING = {
       bathroomWalls: DRYWALL_RATES['Bathroom Walls'] || 6.00,
       bathroomCeiling: DRYWALL_RATES['Bathroom Ceiling'] || 8.50,
       arch: DRYWALL_RATES['Arch'] || 75.00,
-      dividingWall: DIVIDING_WALL_SURCHARGE,
-      dividingBathroomWall: DIVIDING_WALL_SURCHARGE,
+      dividingWall: RATES.DIVIDING_WALL_SURCHARGE,
+      dividingBathroomWall: RATES.DIVIDING_WALL_SURCHARGE,
     };
   },
 
   // Crack Repair
   get crackRepairWall() {
     return {
-      under5: CRACK_REPAIR_WALL_UNDER_5,
+      under5: RATES.CRACK_REPAIR_WALL_UNDER_5,
       perLft: CRACK_REPAIR_WALL_PER_LFT,
       calc: (lft: number) => calcCrackRepair(lft, 'wall'),
     };
   },
   get crackRepairCeiling() {
     return {
-      under5: CRACK_REPAIR_CEILING_UNDER_5,
+      under5: RATES.CRACK_REPAIR_CEILING_UNDER_5,
       perLft: CRACK_REPAIR_CEILING_PER_LFT,
       calc: (lft: number) => calcCrackRepair(lft, 'ceiling'),
     };
@@ -30,8 +30,8 @@ export const PRICING = {
 
   // Floor surcharges (flat fees)
   get floors() { return FLOOR_SURCHARGE as Record<string, number>; },
-  get staircase() { return STAIRCASE_FEE; },
-  get tripCharge() { return TRIP_CHARGE; },
+  get staircase() { return RATES.STAIRCASE_FEE; },
+  get tripCharge() { return RATES.TRIP_CHARGE; },
 
   // Demolition
   get demolition() {
@@ -50,16 +50,16 @@ export const PRICING = {
 
   get haulAway() {
     return {
-      baseFeeUnder50: HAUL_AWAY_UNDER_50_FLAT,
-      perSqftAbove50: HAUL_AWAY_ABOVE_50_PER_SQFT,
+      baseFeeUnder50: RATES.HAUL_AWAY_UNDER_50_FLAT,
+      perSqftAbove50: RATES.HAUL_AWAY_ABOVE_50_PER_SQFT,
     };
   },
 
   // Insulation
   get insulation() {
     return {
-      'Wall Insulation': { price: INSULATION_PER_SQFT, minSqft: 50 },
-      'Ceiling Insulation': { price: INSULATION_PER_SQFT, minSqft: 40 },
+      'Wall Insulation': { price: RATES.INSULATION_PER_SQFT, minSqft: 50 },
+      'Ceiling Insulation': { price: RATES.INSULATION_PER_SQFT, minSqft: 40 },
     } as Record<string, { price: number, minSqft: number }>;
   },
 
@@ -67,8 +67,8 @@ export const PRICING = {
   get cornerMetal() {
     return {
       ...CORNER_METAL,
-      arch90: ARCH_CORNER_METAL_PER_LFT,
-      archBullnose: ARCH_CORNER_METAL_PER_LFT,
+      arch90: RATES.ARCH_CORNER_METAL_PER_LFT,
+      archBullnose: RATES.ARCH_CORNER_METAL_PER_LFT,
     } as Record<string, number>;
   },
 
@@ -86,7 +86,7 @@ export const PRICING = {
   get trim() {
     return {
       baseboard: BASEBOARD_LFT as Record<string, number>,
-      doorCasing: DOOR_CASING_LFT,
+      doorCasing: RATES.DOOR_CASING_LFT,
     };
   },
 
@@ -113,8 +113,22 @@ export const PRICING = {
 
 // ============================================================
 // Individual named exports for pricingMapper.ts (admin editor)
-// Objects are mutable (Object.assign); primitives use let + setter.
+// All exports are mutable in place (Object.assign / RATES.x = v).
 // ============================================================
+
+// Admin-editable scalar rates (mutated in place by pricingMapper).
+export const RATES = {
+  DIVIDING_WALL_SURCHARGE: 3.00,
+  CRACK_REPAIR_WALL_UNDER_5: 850,
+  CRACK_REPAIR_CEILING_UNDER_5: 1200,
+  STAIRCASE_FEE: 450,
+  HAUL_AWAY_UNDER_50_FLAT: 350.00,
+  HAUL_AWAY_ABOVE_50_PER_SQFT: 2.50,
+  INSULATION_PER_SQFT: 3.50,
+  ARCH_CORNER_METAL_PER_LFT: 75,
+  DOOR_CASING_LFT: 7.00,
+  TRIP_CHARGE: 75,
+};
 
 // -- Drywall base rates (per sqft, keyed by repair-type dropdown value) --
 export const DRYWALL_RATES: Record<string, number> = {
@@ -125,13 +139,9 @@ export const DRYWALL_RATES: Record<string, number> = {
   'Arch': 75.00,
 };
 
-export let DIVIDING_WALL_SURCHARGE = 3.00;
-export function setDividingWallSurcharge(v: number) { DIVIDING_WALL_SURCHARGE = v; }
 
 // -- Crack Repair Wall --
 // Under 5ft: flat fee. Above 5ft: per-lft rate keyed by crack length.
-export let CRACK_REPAIR_WALL_UNDER_5 = 850;
-export function setCrackRepairWallUnder5(v: number) { CRACK_REPAIR_WALL_UNDER_5 = v; }
 
 export const CRACK_REPAIR_WALL_PER_LFT: Record<string, number> = {
   '5-8': 50,
@@ -141,8 +151,6 @@ export const CRACK_REPAIR_WALL_PER_LFT: Record<string, number> = {
 };
 
 // -- Crack Repair Ceiling --
-export let CRACK_REPAIR_CEILING_UNDER_5 = 1200;
-export function setCrackRepairCeilingUnder5(v: number) { CRACK_REPAIR_CEILING_UNDER_5 = v; }
 
 export const CRACK_REPAIR_CEILING_PER_LFT: Record<string, number> = {
   '5-8': 75,
@@ -164,7 +172,7 @@ function getCrackPerLftRate(lft: number, rates: Record<string, number>): number 
 export function calcCrackRepair(lft: number, kind: 'wall' | 'ceiling'): { total: number; rate: number; isFlat: boolean } {
   if (!(lft > 0)) return { total: 0, rate: 0, isFlat: true };
   if (lft <= 5) {
-    const flat = kind === 'wall' ? CRACK_REPAIR_WALL_UNDER_5 : CRACK_REPAIR_CEILING_UNDER_5;
+    const flat = kind === 'wall' ? RATES.CRACK_REPAIR_WALL_UNDER_5 : RATES.CRACK_REPAIR_CEILING_UNDER_5;
     return { total: flat, rate: 0, isFlat: true };
   }
   const rates = kind === 'wall' ? CRACK_REPAIR_WALL_PER_LFT : CRACK_REPAIR_CEILING_PER_LFT;
@@ -181,8 +189,6 @@ export const FLOOR_SURCHARGE: Record<string, number> = {
   'Garage': 0,
 };
 
-export let STAIRCASE_FEE = 450;
-export function setStaircaseFee(v: number) { STAIRCASE_FEE = v; }
 
 // -- Demolition (sqft items) --
 export const DEMOLITION_SQFT: Record<string, number> = {
@@ -213,17 +219,6 @@ export function calcPopcornRate(sqft: number): number {
   return tier.price;
 }
 
-// -- Haul Away --
-export let HAUL_AWAY_UNDER_50_FLAT = 350.00;
-export function setHaulAwayUnder50(v: number) { HAUL_AWAY_UNDER_50_FLAT = v; }
-
-export let HAUL_AWAY_ABOVE_50_PER_SQFT = 2.50;
-export function setHaulAwayAbove50(v: number) { HAUL_AWAY_ABOVE_50_PER_SQFT = v; }
-
-// -- Insulation --
-export let INSULATION_PER_SQFT = 3.50;
-export function setInsulationPerSqft(v: number) { INSULATION_PER_SQFT = v; }
-
 // -- Corner Metal (keyed by dropdown value) --
 export const CORNER_METAL: Record<string, number> = {
   'Standard 90 degree corner metal 8ft': 100,
@@ -232,8 +227,6 @@ export const CORNER_METAL: Record<string, number> = {
   'Bullnose corner metal 10ft': 150,
 };
 
-export let ARCH_CORNER_METAL_PER_LFT = 75;
-export function setArchCornerMetal(v: number) { ARCH_CORNER_METAL_PER_LFT = v; }
 
 // -- Ceiling Height Surcharge (per sqft, keyed by ceiling height in ft) --
 // -- Ceiling Height Surcharge: per-sqft rate by ceiling height --
@@ -267,8 +260,6 @@ export const BASEBOARD_LFT: Record<string, number> = {
   '10': 7.50,
 };
 
-export let DOOR_CASING_LFT = 7.00;
-export function setDoorCasingLft(v: number) { DOOR_CASING_LFT = v; }
 
 // -- Paint (per sqft, keyed by paint area dropdown value) --
 export const PAINT_SQFT: Record<string, number> = {
@@ -283,10 +274,6 @@ export const PAINT_LINEAR: Record<string, number> = {
   'Baseboards': 5.00,
   'Door Casing': 5.00,
 };
-
-// -- Trip Charge --
-export let TRIP_CHARGE = 75;
-export function setTripCharge(v: number) { TRIP_CHARGE = v; }
 
 // -- Paint gallon tiers (base labor per gallon, keyed by tier label) --
 export const PAINT_SQFT_TIERS: Record<string, number> = {

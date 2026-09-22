@@ -1,4 +1,3 @@
-import type { Loose } from '../types/loose';
 import { useEffect, useState } from 'react';
 import type { QuestionConfig, AreaValues } from '../types/form';
 import UploadBox from './UploadBox';
@@ -23,7 +22,7 @@ export function validateConfig(config: QuestionConfig[], values: AreaValues): Re
         // For simplicity, just checking if first record is missing a required child field
         children.forEach(c => {
           if (c.required) {
-            records.forEach((rec: Loose, idx: number) => {
+            records.forEach((rec: any, idx: number) => {
               if (!rec[c.id]) {
                 errs[`${q.id}_${idx}_${c.id}`] = 'Required';
                 errs[q.id] = 'Required fields missing in group';
@@ -119,11 +118,11 @@ function Field({
         q={q}
         rawValue={val}
         errors={errors}
-        savedPhotos={(values[`${q.id}_photos_map`] as Loose) || {}}
+        savedPhotos={(values[`${q.id}_photos_map`] as any) || {}}
         onChange={(v) => onChange(q.id, v)}
         onPhotosMapChange={(map) => {
-          onChange(`${q.id}_photos_map`, map as Loose);
-          onChange(`${q.id}_photos`, Object.values(map).flat() as Loose);
+          onChange(`${q.id}_photos_map`, map as any);
+          onChange(`${q.id}_photos`, Object.values(map).flat() as any);
         }}
       />
     );

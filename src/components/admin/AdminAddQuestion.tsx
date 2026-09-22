@@ -1,4 +1,3 @@
-import type { Loose } from '../../types/loose';
 import { useState, useEffect } from 'react';
 import { STEP_CONFIGS } from '../../data/stepConfig';
 import { input as inp, btnPrimary, btnGhost, label as lbl } from '../theme';
@@ -58,7 +57,7 @@ export default function AdminAddQuestion() {
     try {
       await deleteCustomQuestion(recordId);
       loadQuestions();
-    } catch (e: Loose) {
+    } catch (e: any) {
       alert(`Error deleting: ${e.message}`);
     }
   };
@@ -69,7 +68,7 @@ export default function AdminAddQuestion() {
     setInsertAfter(q.insert_after_id || '');
     setId(q.config.id);
     setLabel(q.config.label || '');
-    setType(q.config.type as Loose);
+    setType(q.config.type as any);
     setRequired(!!q.config.required);
     
     if (q.config.type === 'dropdown' && q.config.options) {
@@ -160,7 +159,7 @@ export default function AdminAddQuestion() {
       setMessage(editingId ? 'Question updated successfully!' : 'Question added successfully!');
       resetForm();
       loadQuestions();
-    } catch (e: Loose) {
+    } catch (e: any) {
       setMessage(`Error: ${e.message}`);
     } finally {
       setSaving(false);
@@ -216,7 +215,7 @@ export default function AdminAddQuestion() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={lbl}>Service Page</label>
-            <select className={inp} value={path} onChange={(e: Loose) => setPath(e.target.value)}>
+            <select className={inp} value={path} onChange={(e: any) => setPath(e.target.value)}>
               <option value="drywall">Drywall</option>
               {/* <option value="trim">Trim & Baseboard</option> */}
               <option value="paint">Painting</option>
@@ -244,7 +243,7 @@ export default function AdminAddQuestion() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={lbl}>Type</label>
-            <select className={inp} value={type} onChange={(e: Loose) => setType(e.target.value)}>
+            <select className={inp} value={type} onChange={(e: any) => setType(e.target.value)}>
               <option value="dropdown">Dropdown Options</option>
               <option value="number">Numeric Input</option>
               <option value="text">Text Input</option>
@@ -293,7 +292,7 @@ export default function AdminAddQuestion() {
                 
                 <div className="w-32">
                   <label className="text-xs text-slate-500">Price Type</label>
-                  <select className={inp} value={pricing[opt]?.type || 'flat'} onChange={e => handlePriceChange(opt, e.target.value as Loose, pricing[opt]?.amount || 0)}>
+                  <select className={inp} value={pricing[opt]?.type || 'flat'} onChange={e => handlePriceChange(opt, e.target.value as any, pricing[opt]?.amount || 0)}>
                     <option value="flat">Flat Fee ($)</option>
                     <option value="per_unit">Per Sqft/Lft</option>
                   </select>

@@ -1,4 +1,3 @@
-import type { Loose } from '../types/loose';
 import { useState } from 'react'
 import type { EstimateResult, LineItem } from '../lib/estimate'
 import { Link } from 'react-router-dom'
@@ -33,13 +32,13 @@ interface EstimateData {
     paintSheen?: string;
     additional_info?: string;
     paint_additional_info?: string;
-    [key: string]: Loose;
+    [key: string]: any;
   };
   estimate: EstimateResult;
   thumbnails?: string[];
   scopeOfWork?: { id: string; question: string; answer: string; photos: string[] }[];
   areaThumbnails?: Record<string, string[]>;
-  rawAreas?: Loose;
+  rawAreas?: any;
   contact?: ContactInfo;
 }
 const BASE_SERVICE_FEE_MIN = 1250;
@@ -71,7 +70,7 @@ function loadStoredEstimate(): EstimateData | null {
 export default function EstimatePage() {
   const [data] = useState<EstimateData | null>(loadStoredEstimate)
   const [editedItems, setEditedItems] = useState<LineItem[] | null>(
-    () => loadStoredEstimate()?.estimate.lineItems.map(i => ({ ...i })) ?? null,
+    () => data?.estimate.lineItems.map(i => ({ ...i })) ?? null,
   )
   const [isEditing, setIsEditing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -191,7 +190,7 @@ export default function EstimatePage() {
   const isEdited = editedItems !== null &&
     JSON.stringify(editedItems) !== JSON.stringify(estimate.lineItems);
 
-  const hasPaintMatch = data.rawAreas?.paint?.some((p: Loose) => p.paintMatchRequested === 'Yes — Match my existing paint color');
+  const hasPaintMatch = data.rawAreas?.paint?.some((p: any) => p.paintMatchRequested === 'Yes — Match my existing paint color');
   // Decode paint color: stored as "Name (Number)|#hex" or separately in paintColorExplorer_hex
   // (supports both new pipe-encoded format and legacy split format)
   const rawPaintColor = answers.paintColorExplorer ?? '';
@@ -605,7 +604,7 @@ export default function EstimatePage() {
                     if (match) {
                       const type = match[1].toLowerCase();
                       const idx = parseInt(match[2]) - 1;
-                      const areaObj = (data.rawAreas as Loose)[type]?.[idx];
+                      const areaObj = (data.rawAreas as any)[type]?.[idx];
                       if (areaObj) {
                         description = areaObj.repairDescription || areaObj.projectDescription || '';
                       }
@@ -946,8 +945,8 @@ export default function EstimatePage() {
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {data.scopeOfWork
-                    .filter((entry: Loose) => entry.answer || (entry.photos && entry.photos.length > 0))
-                    .map((entry: Loose, idx: number) => (
+                    .filter((entry: any) => entry.answer || (entry.photos && entry.photos.length > 0))
+                    .map((entry: any, idx: number) => (
                     <div key={entry.id || idx} style={{
                       padding: '14px 16px',
                       background: '#ffffff',

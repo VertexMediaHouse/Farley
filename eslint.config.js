@@ -18,6 +18,8 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    // Untyped JSON (form answers, scraper payloads, stored rules) is typed as any on purpose.
+    rules: { '@typescript-eslint/no-explicit-any': 'off' },
   },
   {
     // These modules deliberately export hooks/helpers next to components.

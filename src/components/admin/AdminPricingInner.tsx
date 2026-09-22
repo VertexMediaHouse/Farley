@@ -1,4 +1,3 @@
-import type { Loose } from '../../types/loose';
 import { useState, useMemo, useEffect } from 'react';
 import { flattenRates, setRate, bulkAdjust } from '../../lib/rates';
 import type { RateRow } from '../../lib/rates';
@@ -180,7 +179,7 @@ export default function AdminPricingInner() {
   const [showBulkAdjust, setShowBulkAdjust] = useState<string | null>(null);
   const [bulkPct, setBulkPct] = useState(5);
   const [bulkRound, setBulkRound] = useState<'none' | 'nearest' | 'up'>('nearest');
-  const [preview, setPreview] = useState<{ avgDelta: number; rows: Loose[] } | null>(null);
+  const [preview, setPreview] = useState<{ avgDelta: number; rows: any[] } | null>(null);
   const [saving, setSaving] = useState(false);
 
 
@@ -462,7 +461,7 @@ export default function AdminPricingInner() {
             <div className="mb-6">
               <label className="block text-sm font-medium text-slate-700 mb-1">Rounding</label>
               <select className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 focus:outline-none text-slate-900"
-                value={bulkRound} onChange={e => setBulkRound(e.target.value as Loose)}>
+                value={bulkRound} onChange={e => setBulkRound(e.target.value as any)}>
                 <option value="none">No rounding</option>
                 <option value="nearest">Nearest quarter ($.25, $.50, $.75…)</option>
                 <option value="up">Round up to whole dollar</option>

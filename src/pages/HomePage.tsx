@@ -129,11 +129,6 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-
-          {/* <div className="hero-img-wrap fade-in-right">
-            <EstimateWizard />
-          </div> */}
-
         </div>
       </section>
 

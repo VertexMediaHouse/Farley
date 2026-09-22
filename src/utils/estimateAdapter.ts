@@ -1,9 +1,8 @@
-import type { Loose } from '../types/loose';
 
 export function adaptV2ToV1Estimate(
-drywall: Loose[], paint: Loose[], contact: { isCommercial: string; isSubcontractor: string; areaCode: string; fullName: string; companyName: string; phoneNumber: string; emailAddress: string; clientName: string; clientAddress: string; clientEmail: string; clientPhone: string; sameWorkArea: string; },
+drywall: any[], paint: any[], contact: { isCommercial: string; isSubcontractor: string; areaCode: string; fullName: string; companyName: string; phoneNumber: string; emailAddress: string; clientName: string; clientAddress: string; clientEmail: string; clientPhone: string; sameWorkArea: string; },
 ) {
-  const formData: Loose = {
+  const formData: any = {
     length: '0',
     width: '0',
     height: '0',
