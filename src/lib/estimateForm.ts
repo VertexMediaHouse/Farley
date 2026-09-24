@@ -139,8 +139,9 @@ export function deserializeAreas(areas: Record<string, unknown>[]): AreaValues[]
       if (Array.isArray(v)) {
         out[k] = v
           .map((item) => {
-            if (item && typeof item === 'object' && 'dataUrl' in item && typeof (item as any).dataUrl === 'string') {
-              return dataURLtoFile((item as any).dataUrl, (item as any).name || 'photo.jpg', (item as any).type);
+            const it = item as any;
+            if (it && typeof it === 'object' && typeof it.dataUrl === 'string') {
+              return dataURLtoFile(it.dataUrl, it.name || 'photo.jpg', it.type);
             }
             return item;
           })

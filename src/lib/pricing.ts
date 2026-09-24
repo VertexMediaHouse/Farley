@@ -13,13 +13,6 @@ export interface FormSnapshot {
   created_at: string;
 }
 
-export interface Submission {
-  id: string;
-  answers: any;
-  subtotal: number;
-  created_at: string;
-}
-
 import { supabase } from './supabase';
 
 export async function fetchLatestSnapshot(): Promise<FormSnapshot | null> {

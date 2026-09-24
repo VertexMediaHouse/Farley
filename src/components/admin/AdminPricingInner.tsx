@@ -179,7 +179,6 @@ export default function AdminPricingInner() {
   const [showBulkAdjust, setShowBulkAdjust] = useState<string | null>(null);
   const [bulkPct, setBulkPct] = useState(5);
   const [bulkRound, setBulkRound] = useState<'none' | 'nearest' | 'up'>('nearest');
-  const [preview, setPreview] = useState<{ avgDelta: number; rows: any[] } | null>(null);
   const [saving, setSaving] = useState(false);
 
 
@@ -251,11 +250,6 @@ export default function AdminPricingInner() {
     setShowBulkAdjust(null);
   };
 
-  const handlePreview = () => {
-    // Mock preview — real implementation would replay recent submissions
-    setPreview({ avgDelta: 4.2, rows: [{ id: 'a91f', was: 2840, now: 3410 }] });
-  };
-
   const handlePublish = async () => {
     if (changedCount === 0) return;
 
@@ -275,7 +269,6 @@ export default function AdminPricingInner() {
 
       // 3. Promote draft → published baseline
       setPublishedRules({ ...draftRules });
-      setPreview(null);
       showToast('✓ Prices published and saved');
     } catch (err) {
       console.error('Failed to save price overrides:', err);
@@ -415,17 +408,9 @@ export default function AdminPricingInner() {
             {changedCount === 0 ? (
               <span className="text-sm text-slate-400">No unsaved changes</span>
             ) : (
-              <>
-                <span className="text-sm font-medium text-slate-600">
-                  <span className="font-bold text-[#12294A]">{changedCount}</span> rate{changedCount !== 1 ? 's' : ''} changed
-                </span>
-                <button
-                  onClick={handlePreview}
-                  className="text-sm font-medium text-[#2F9BF0] hover:text-[#1e7bc4] underline underline-offset-2"
-                >
-                  Preview impact
-                </button>
-              </>
+              <span className="text-sm font-medium text-slate-600">
+                <span className="font-bold text-[#12294A]">{changedCount}</span> rate{changedCount !== 1 ? 's' : ''} changed
+              </span>
             )}
           </div>
           <button
@@ -475,49 +460,6 @@ export default function AdminPricingInner() {
               <button onClick={() => applyBulk(showBulkAdjust)}
                 className="px-4 py-2 text-sm font-semibold bg-[#12294A] text-white rounded-lg hover:bg-[#1C3A64] transition">
                 Apply
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Impact Preview modal */}
-      {preview && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
-          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden">
-            <div className="bg-slate-50 border-b border-slate-100 px-6 py-4 flex items-center justify-between">
-              <h3 className="font-semibold text-slate-900">Impact of these changes</h3>
-              <button onClick={() => setPreview(null)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
-            </div>
-            <div className="p-6">
-              <p className="text-slate-700 mb-1">
-                Average quote{' '}
-                <strong className={preview.avgDelta > 0 ? 'text-emerald-600' : 'text-rose-600'}>
-                  {preview.avgDelta > 0 ? '+' : ''}{preview.avgDelta.toFixed(1)}%
-                </strong>{' '}
-                across your last 30 estimates.
-              </p>
-              {preview.rows[0] && (
-                <p className="text-sm text-slate-600 mt-1">
-                  Largest swing: #{preview.rows[0].id} —{' '}
-                  <span className="line-through text-slate-400">${preview.rows[0].was}</span>
-                  {' → '}
-                  <span className="font-semibold">${preview.rows[0].now}</span>
-                </p>
-              )}
-              <div className="mt-5 bg-amber-50 text-amber-800 rounded-lg p-4 text-sm flex gap-3 border border-amber-200/50">
-                <span className="text-amber-500 text-base leading-none shrink-0">ℹ</span>
-                <p>Publishing applies to all new estimates immediately. You can always revert by republishing previous values.</p>
-              </div>
-            </div>
-            <div className="bg-slate-50 border-t border-slate-100 px-6 py-4 flex justify-end gap-3">
-              <button onClick={() => setPreview(null)}
-                className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200 rounded-lg transition">
-                Back to Editing
-              </button>
-              <button onClick={handlePublish}
-                className="px-5 py-2 text-sm font-semibold bg-[#12294A] text-white rounded-lg hover:bg-[#1C3A64] shadow-sm transition">
-                Confirm & Publish
               </button>
             </div>
           </div>

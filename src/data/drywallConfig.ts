@@ -53,7 +53,7 @@ export const drywallConfig: QuestionConfig[] = [
   },
   {
     id: 'needDemolition',
-    label: 'Do you need demolition?',
+    label: 'Do you need demolition/removal in the same area as mentioned above?',
     type: 'dropdown',
     required: true,
     options: [
@@ -70,14 +70,6 @@ export const drywallConfig: QuestionConfig[] = [
     ],
   },
   {
-    id: 'demolitionSameArea',
-    label: 'Is this the same area as above where you need demo?',
-    type: 'dropdown',
-    required: true,
-    options: ['', 'Yes', 'No'],
-    condition: { field: 'needDemolition', notNo: true },
-  },
-  {
     id: 'needHaulAway',
     label: 'Do you need Haul Away?',
     type: 'dropdown',
@@ -86,34 +78,12 @@ export const drywallConfig: QuestionConfig[] = [
     options: ['', 'Yes', 'No'],
   },
   {
-    id: 'haulAwaySquareFootage',
-    label: 'How many square feet?',
-    type: 'number',
-    placeholder: 'sq ft',
-    condition: { field: 'needHaulAway', is: 'Yes' },
-  },
-  {
     id: 'needInsulation',
     label: 'Do you need insulation?',
     type: 'dropdown',
     required: true,
     helpText: 'Minimum area: 50 sq ft.',
     options: ['', 'No', 'Wall Insulation', 'Ceiling Insulation'],
-  },
-  {
-    id: 'insulationSquareFootage',
-    label: 'Add square footage',
-    type: 'number',
-    placeholder: 'sq ft',
-    condition: { field: 'needInsulation', notIn: ['No', ''] },
-  },
-  {
-    id: 'insulationPhotos',
-    label: 'Add photo',
-    type: 'photoUpload',
-    multiple: true,
-    condition: { field: 'needInsulation', notNo: true },
-    required: true,
   },
   {
     id: 'haveSoffits',

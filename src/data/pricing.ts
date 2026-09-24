@@ -8,25 +8,12 @@ export const PRICING = {
       bathroomCeiling: DRYWALL_RATES['Bathroom Ceiling'] || 8.50,
       arch: DRYWALL_RATES['Arch'] || 75.00,
       dividingWall: RATES.DIVIDING_WALL_SURCHARGE,
-      dividingBathroomWall: RATES.DIVIDING_WALL_SURCHARGE,
     };
   },
 
   // Crack Repair
-  get crackRepairWall() {
-    return {
-      under5: RATES.CRACK_REPAIR_WALL_UNDER_5,
-      perLft: CRACK_REPAIR_WALL_PER_LFT,
-      calc: (lft: number) => calcCrackRepair(lft, 'wall'),
-    };
-  },
-  get crackRepairCeiling() {
-    return {
-      under5: RATES.CRACK_REPAIR_CEILING_UNDER_5,
-      perLft: CRACK_REPAIR_CEILING_PER_LFT,
-      calc: (lft: number) => calcCrackRepair(lft, 'ceiling'),
-    };
-  },
+  crackRepairWall: { calc: (lft: number) => calcCrackRepair(lft, 'wall') },
+  crackRepairCeiling: { calc: (lft: number) => calcCrackRepair(lft, 'ceiling') },
 
   // Floor surcharges (flat fees)
   get floors() { return FLOOR_SURCHARGE as Record<string, number>; },
@@ -41,12 +28,7 @@ export const PRICING = {
     } as Record<string, number>;
   },
 
-  get popcornScraping() {
-    return {
-      tiers: POPCORN_SCRAPING_TIERS,
-      rateFor: (sqft: number) => calcPopcornRate(sqft),
-    };
-  },
+  popcornScraping: { rateFor: calcPopcornRate },
 
   get haulAway() {
     return {
@@ -73,12 +55,7 @@ export const PRICING = {
   },
 
   // Ceiling Height Surcharge (per sqft, keyed by height in ft)
-  get ceilingHeightSurcharge() {
-    return {
-      tiers: CEILING_HEIGHT_TIERS,
-      rateFor: (ft: number) => calcCeilingHeightRate(ft),
-    };
-  },
+  ceilingHeightSurcharge: { rateFor: calcCeilingHeightRate },
   // Texture
   get texture() { return TEXTURE_RATES as Record<string, number>; },
 
@@ -95,7 +72,6 @@ export const PRICING = {
     return {
       gallonPrice: 45, // Behr paint
       wallsCeiling: PAINT_SQFT['Room Walls'] || 9.00,
-      doorCasing: PAINT_LINEAR['Door Casing'] || 5.00,
       baseboard: PAINT_LINEAR['Baseboards'] || 5.00,
 
       sqftTiers: [

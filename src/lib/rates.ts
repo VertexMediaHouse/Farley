@@ -1,5 +1,4 @@
-import type { PricingRule, FormSnapshot, Submission } from './pricing';
-import { calculateEstimate } from './estimate';
+import type { PricingRule } from './pricing';
 
 export interface RateRow {
   questionId: string;
@@ -77,29 +76,3 @@ export function bulkAdjust(rows: RateRow[], pct: number, round: 'none' | 'neares
   });
 }
 
-/** Preview the impact of new rates against recent submissions */
-export function previewImpact(
-  draftSnapshot: FormSnapshot,
-  recent: Submission[],           // last 30, with their frozen answers
-): { avgDelta: number; rows: Array<{ id: string; was: number; now: number }> } {
-  if (!recent.length) return { avgDelta: 0, rows: [] };
-
-  const rows = recent.map(s => {
-    // @ts-expect-error - calculateEstimate doesn't take a snapshot yet; it reads global pricing
-    const estimate = calculateEstimate(draftSnapshot, s.answers);
-    const now = estimate?.subtotal ?? 0;
-
-    return {
-      id: s.id,
-      was: s.subtotal,
-      now: now,
-    };
-  });
-
-  const avgDelta = rows.reduce((a, r) => {
-    if (r.was === 0) return a;
-    return a + ((r.now - r.was) / r.was);
-  }, 0) / rows.length * 100;
-
-  return { avgDelta, rows };
-}

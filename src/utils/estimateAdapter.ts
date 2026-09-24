@@ -35,9 +35,8 @@ drywall: any[], paint: any[], contact: { isCommercial: string; isSubcontractor: 
     if (type === 'Bathroom Ceiling') bathCeilSqft += sqft;
 
     const demo = area.needDemolition;
-    const sameArea = area.demolitionSameArea === 'Yes';
-    const demoSqft = sameArea ? parseFloat(area.squareFootage) || 0 : 0;
-    const demoFt = sameArea ? parseFloat(area.linearFeet) || 0 : 0;
+    const demoSqft = parseFloat(area.squareFootage) || 0;
+    const demoFt = parseFloat(area.linearFeet) || 0;
 
     if (demo === 'Remove Existing Wall Drywall') demoWallSqft += demoSqft;
     if (demo === 'Remove Existing Ceiling Drywall') demoCeilSqft += demoSqft;

@@ -1,98 +1,83 @@
 import type { PricingRule } from '../lib/pricing';
 import * as P from './pricing';
 
+type Rate = keyof typeof P.RATES;
+
+// Every admin-editable rule, in display order, and the pricing.ts value it edits in place.
+type Source =
+  | { flat: Rate }                                                   // flat_if → RATES[flat]
+  | { rate: Rate; unit: string }                                     // per_unit → RATES[rate]
+  | { prices: Record<string, number> }                               // per_option → object
+  | { byOption: Record<string, number>; unit: string }               // per_unit rateByOption → object
+  | { tiers: Record<string, number>[]; tierKey: string; unit: string }; // per_unit rateByOption → tier prices
+
+const SOURCES: Record<string, Source> = {
+  drywall: { prices: P.DRYWALL_RATES },
+  dividing_wall: { flat: 'DIVIDING_WALL_SURCHARGE' },
+
+  crack_repair_wall_under_5: { flat: 'CRACK_REPAIR_WALL_UNDER_5' },
+  crack_repair_ceiling_under_5: { flat: 'CRACK_REPAIR_CEILING_UNDER_5' },
+  crack_repair_wall_extra_lft: { prices: P.CRACK_REPAIR_WALL_PER_LFT },
+  crack_repair_ceiling_extra_lft: { prices: P.CRACK_REPAIR_CEILING_PER_LFT },
+
+  floor_surcharge: { prices: P.FLOOR_SURCHARGE },
+  staircase_fee: { flat: 'STAIRCASE_FEE' },
+
+  ceiling_height_surcharge: { tiers: P.CEILING_HEIGHT_TIERS, tierKey: 'maxFt', unit: 'sqft' },
+
+  demolition_sqft: { prices: P.DEMOLITION_SQFT },
+  demolition_lft: { prices: P.DEMOLITION_LFT },
+  popcorn_scraping: { tiers: P.POPCORN_SCRAPING_TIERS, tierKey: 'maxSqft', unit: 'sqft' },
+  haul_away_under_50: { flat: 'HAUL_AWAY_UNDER_50_FLAT' },
+  haul_away_above_50: { rate: 'HAUL_AWAY_ABOVE_50_PER_SQFT', unit: 'sqft' },
+
+  insulation_per_sqft: { rate: 'INSULATION_PER_SQFT', unit: 'sqft' },
+
+  corner_metal: { prices: P.CORNER_METAL },
+  arch_corner_metal: { rate: 'ARCH_CORNER_METAL_PER_LFT', unit: 'lft' },
+
+  texture_rates: { prices: P.TEXTURE_RATES },
+
+  baseboard_lft: { byOption: P.BASEBOARD_LFT, unit: 'lft' },
+  door_casing_lft: { rate: 'DOOR_CASING_LFT', unit: 'lft' },
+
+  paint_sqft: { prices: P.PAINT_SQFT },
+  paint_linear: { prices: P.PAINT_LINEAR },
+
+  paint_sqft_tiers: { prices: P.PAINT_SQFT_TIERS },
+  paint_linear_tiers: { prices: P.PAINT_LINEAR_TIERS },
+
+  trip_charge: { flat: 'TRIP_CHARGE' },
+};
+
+function toRule(s: Source): PricingRule {
+  if ('flat' in s) return { shape: 'flat_if', amount: P.RATES[s.flat] };
+  if ('rate' in s) return { shape: 'per_unit', unit: s.unit, rate: P.RATES[s.rate] };
+  if ('prices' in s) return { shape: 'per_option', prices: { ...s.prices } };
+  if ('byOption' in s) return { shape: 'per_unit', unit: s.unit, rate: 0, rateByOption: { ...s.byOption } };
+  return { shape: 'per_unit', unit: s.unit, rate: 0, rateByOption: Object.fromEntries(s.tiers.map(t => [String(t[s.tierKey]), t.price])) };
+}
+
 export function getInitialPricingRules(): Record<string, PricingRule> {
-  return {
-    'drywall': { shape: 'per_option', prices: { ...P.DRYWALL_RATES } },
-    'dividing_wall': { shape: 'flat_if', amount: P.RATES.DIVIDING_WALL_SURCHARGE },
-
-    'crack_repair_wall_under_5': { shape: 'flat_if', amount: P.RATES.CRACK_REPAIR_WALL_UNDER_5 },
-    'crack_repair_ceiling_under_5': { shape: 'flat_if', amount: P.RATES.CRACK_REPAIR_CEILING_UNDER_5 },
-    'crack_repair_wall_extra_lft': { shape: 'per_option', prices: { ...P.CRACK_REPAIR_WALL_PER_LFT } },
-    'crack_repair_ceiling_extra_lft': { shape: 'per_option', prices: { ...P.CRACK_REPAIR_CEILING_PER_LFT } },
-
-    'floor_surcharge': { shape: 'per_option', prices: { ...P.FLOOR_SURCHARGE } },
-    'staircase_fee': { shape: 'flat_if', amount: P.RATES.STAIRCASE_FEE },
-
-    'ceiling_height_surcharge': { shape: 'per_unit', unit: 'sqft', rate: 0, rateByOption: Object.fromEntries(P.CEILING_HEIGHT_TIERS.map(t => [String(t.maxFt), t.price])) },
-
-    'demolition_sqft': { shape: 'per_option', prices: { ...P.DEMOLITION_SQFT } },
-    'demolition_lft': { shape: 'per_option', prices: { ...P.DEMOLITION_LFT } },
-    'popcorn_scraping': { shape: 'per_unit', unit: 'sqft', rate: 0, rateByOption: Object.fromEntries(P.POPCORN_SCRAPING_TIERS.map(t => [String(t.maxSqft), t.price])) },
-    'haul_away_under_50': { shape: 'flat_if', amount: P.RATES.HAUL_AWAY_UNDER_50_FLAT },
-    'haul_away_above_50': { shape: 'per_unit', unit: 'sqft', rate: P.RATES.HAUL_AWAY_ABOVE_50_PER_SQFT },
-
-    'insulation_per_sqft': { shape: 'per_unit', unit: 'sqft', rate: P.RATES.INSULATION_PER_SQFT },
-
-    'corner_metal': { shape: 'per_option', prices: { ...P.CORNER_METAL } },
-    'arch_corner_metal': { shape: 'per_unit', unit: 'lft', rate: P.RATES.ARCH_CORNER_METAL_PER_LFT },
-
-    'texture_rates': { shape: 'per_option', prices: { ...P.TEXTURE_RATES } },
-
-    'baseboard_lft': { shape: 'per_unit', unit: 'lft', rate: 0, rateByOption: { ...P.BASEBOARD_LFT } },
-    'door_casing_lft': { shape: 'per_unit', unit: 'lft', rate: P.RATES.DOOR_CASING_LFT },
-
-    'paint_sqft': { shape: 'per_option', prices: { ...P.PAINT_SQFT } },
-    'paint_linear': { shape: 'per_option', prices: { ...P.PAINT_LINEAR } },
-
-    'paint_sqft_tiers': { shape: 'per_option', prices: { ...P.PAINT_SQFT_TIERS } },
-    'paint_linear_tiers': { shape: 'per_option', prices: { ...P.PAINT_LINEAR_TIERS } },
-
-    'trip_charge': { shape: 'flat_if', amount: P.RATES.TRIP_CHARGE },
-  };
+  return Object.fromEntries(Object.entries(SOURCES).map(([id, s]) => [id, toRule(s)]));
 }
 
 export function applyPricingRules(rules: Record<string, PricingRule> = {}) {
   if (!rules) return;
-  if (rules.drywall?.shape === 'per_option' && rules.drywall.prices) Object.assign(P.DRYWALL_RATES, rules.drywall.prices);
-  if (rules.dividing_wall?.shape === 'flat_if' && typeof rules.dividing_wall.amount === 'number') P.RATES.DIVIDING_WALL_SURCHARGE = rules.dividing_wall.amount;
-
-  // Crack Repair
-  if (rules.crack_repair_wall_under_5?.shape === 'flat_if' && typeof rules.crack_repair_wall_under_5.amount === 'number') P.RATES.CRACK_REPAIR_WALL_UNDER_5 = rules.crack_repair_wall_under_5.amount;
-  if (rules.crack_repair_ceiling_under_5?.shape === 'flat_if' && typeof rules.crack_repair_ceiling_under_5.amount === 'number') P.RATES.CRACK_REPAIR_CEILING_UNDER_5 = rules.crack_repair_ceiling_under_5.amount;
-  if (rules.crack_repair_wall_extra_lft?.shape === 'per_option' && rules.crack_repair_wall_extra_lft.prices) Object.assign(P.CRACK_REPAIR_WALL_PER_LFT, rules.crack_repair_wall_extra_lft.prices);
-  if (rules.crack_repair_ceiling_extra_lft?.shape === 'per_option' && rules.crack_repair_ceiling_extra_lft.prices) Object.assign(P.CRACK_REPAIR_CEILING_PER_LFT, rules.crack_repair_ceiling_extra_lft.prices);
-
-  if (rules.floor_surcharge?.shape === 'per_option' && rules.floor_surcharge.prices) Object.assign(P.FLOOR_SURCHARGE, rules.floor_surcharge.prices);
-  if (rules.staircase_fee?.shape === 'flat_if' && typeof rules.staircase_fee.amount === 'number') P.RATES.STAIRCASE_FEE = rules.staircase_fee.amount;
-
-  if (rules.ceiling_height_surcharge?.shape === 'per_unit' && rules.ceiling_height_surcharge.rateByOption) {
-    for (const t of P.CEILING_HEIGHT_TIERS) {
-      const v = rules.ceiling_height_surcharge.rateByOption[String(t.maxFt)];
-      if (typeof v === 'number') t.price = v;
+  for (const [id, s] of Object.entries(SOURCES)) {
+    const r = rules[id];
+    if ('flat' in s) {
+      if (r?.shape === 'flat_if' && typeof r.amount === 'number') P.RATES[s.flat] = r.amount;
+    } else if ('rate' in s) {
+      if (r?.shape === 'per_unit' && typeof r.rate === 'number') P.RATES[s.rate] = r.rate;
+    } else if ('prices' in s) {
+      if (r?.shape === 'per_option' && r.prices) Object.assign(s.prices, r.prices);
+    } else if (r?.shape === 'per_unit' && r.rateByOption) {
+      if ('byOption' in s) Object.assign(s.byOption, r.rateByOption);
+      else for (const t of s.tiers) {
+        const v = r.rateByOption[String(t[s.tierKey])];
+        if (typeof v === 'number') t.price = v;
+      }
     }
   }
-
-  if (rules.demolition_sqft?.shape === 'per_option' && rules.demolition_sqft.prices) Object.assign(P.DEMOLITION_SQFT, rules.demolition_sqft.prices);
-  if (rules.demolition_lft?.shape === 'per_option' && rules.demolition_lft.prices) Object.assign(P.DEMOLITION_LFT, rules.demolition_lft.prices);
-
-  if (rules.popcorn_scraping?.shape === 'per_unit' && rules.popcorn_scraping.rateByOption) {
-    for (const t of P.POPCORN_SCRAPING_TIERS) {
-      const v = rules.popcorn_scraping.rateByOption[String(t.maxSqft)];
-      if (typeof v === 'number') t.price = v;
-    }
-  }
-
-  if (rules.haul_away_under_50?.shape === 'flat_if' && typeof rules.haul_away_under_50.amount === 'number') P.RATES.HAUL_AWAY_UNDER_50_FLAT = rules.haul_away_under_50.amount;
-  if (rules.haul_away_above_50?.shape === 'per_unit' && typeof rules.haul_away_above_50.rate === 'number') P.RATES.HAUL_AWAY_ABOVE_50_PER_SQFT = rules.haul_away_above_50.rate;
-
-  if (rules.insulation_per_sqft?.shape === 'per_unit' && typeof rules.insulation_per_sqft.rate === 'number') P.RATES.INSULATION_PER_SQFT = rules.insulation_per_sqft.rate;
-
-  if (rules.corner_metal?.shape === 'per_option' && rules.corner_metal.prices) Object.assign(P.CORNER_METAL, rules.corner_metal.prices);
-  if (rules.arch_corner_metal?.shape === 'per_unit' && typeof rules.arch_corner_metal.rate === 'number') P.RATES.ARCH_CORNER_METAL_PER_LFT = rules.arch_corner_metal.rate;
-
-  if (rules.texture_rates?.shape === 'per_option' && rules.texture_rates.prices) Object.assign(P.TEXTURE_RATES, rules.texture_rates.prices);
-
-  if (rules.baseboard_lft?.shape === 'per_unit' && rules.baseboard_lft.rateByOption) {
-    Object.assign(P.BASEBOARD_LFT, rules.baseboard_lft.rateByOption);
-  }
-  if (rules.door_casing_lft?.shape === 'per_unit' && typeof rules.door_casing_lft.rate === 'number') P.RATES.DOOR_CASING_LFT = rules.door_casing_lft.rate;
-
-  if (rules.paint_sqft?.shape === 'per_option' && rules.paint_sqft.prices) Object.assign(P.PAINT_SQFT, rules.paint_sqft.prices);
-  if (rules.paint_linear?.shape === 'per_option' && rules.paint_linear.prices) Object.assign(P.PAINT_LINEAR, rules.paint_linear.prices);
-
-  if (rules.paint_sqft_tiers?.shape === 'per_option' && rules.paint_sqft_tiers.prices) Object.assign(P.PAINT_SQFT_TIERS, rules.paint_sqft_tiers.prices);
-  if (rules.paint_linear_tiers?.shape === 'per_option' && rules.paint_linear_tiers.prices) Object.assign(P.PAINT_LINEAR_TIERS, rules.paint_linear_tiers.prices);
-
-  if (rules.trip_charge?.shape === 'flat_if' && typeof rules.trip_charge.amount === 'number') P.RATES.TRIP_CHARGE = rules.trip_charge.amount;
 }

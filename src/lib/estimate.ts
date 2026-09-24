@@ -211,37 +211,32 @@ export function calculateEstimate(
       }
     }
 
-    // Demolition
-    // ponytail: "same area" reuses the area's own sqft/lft; a "No" answer means a different
-    // area was demoed and we have no qty for it, so it prices as 0 — add a qty prompt if "No" is common.
-    const sameArea = area.demolitionSameArea === 'Yes';
-    const demoSqft = sameArea ? parseFloat(area.squareFootage) || 0 : 0;
+    // Demolition, haul away and insulation all cover the same area as the drywall repair,
+    // so they're priced off this area's own sqft/lft.
     if (area.needDemolition && PRICING.demolition[area.needDemolition]) {
       const demoRate = PRICING.demolition[area.needDemolition];
       const isLinear = area.needDemolition === 'Base board' || area.needDemolition === 'Door casing';
-      const demoQty = isLinear ? (sameArea ? parseFloat(area.linearFeet) || 0 : 0) : demoSqft;
+      const demoQty = isLinear ? lft : sqft;
       addItem(areaName, `Demolition: ${area.needDemolition}`, `${demoQty} unit(s)`, demoQty * demoRate, {
         quantity: demoQty, rate: demoRate, unit: isLinear ? 'lft' : 'sqft',
       });
     } else if (area.needDemolition === 'Popcorn Ceiling scraping') {
-      const rate = PRICING.popcornScraping.rateFor(demoSqft);
-      addItem(areaName, 'Popcorn Ceiling Scraping', `${demoSqft} sqft`, demoSqft * rate, {
-        quantity: demoSqft, rate, unit: 'sqft',
+      const rate = PRICING.popcornScraping.rateFor(sqft);
+      addItem(areaName, 'Popcorn Ceiling Scraping', `${sqft} sqft`, sqft * rate, {
+        quantity: sqft, rate, unit: 'sqft',
       });
     }
 
     // Haul Away
     if (area.needHaulAway === 'Yes') {
-      let hSqft = parseFloat(area.haulAwaySquareFootage);
-      if (isNaN(hSqft)) hSqft = demoSqft;
-      if (hSqft > 0) {
-        if (hSqft <= 50) {
+      if (sqft > 0) {
+        if (sqft <= 50) {
           // Flat fee up to 50 sqft — no clean per-unit rate to edit against
           addItem(areaName, 'Haul Away', 'Up to 50 sqft', PRICING.haulAway.baseFeeUnder50);
         } else {
-          const extraSqft = hSqft - 50;
+          const extraSqft = sqft - 50;
           const totalCost = PRICING.haulAway.baseFeeUnder50 + (extraSqft * PRICING.haulAway.perSqftAbove50);
-          addItem(areaName, 'Haul Away', `${hSqft} sqft`, totalCost);
+          addItem(areaName, 'Haul Away', `${sqft} sqft`, totalCost);
         }
       }
     }
@@ -249,10 +244,10 @@ export function calculateEstimate(
     // Insulation
     if (area.needInsulation && PRICING.insulation[area.needInsulation]) {
       const ins = PRICING.insulation[area.needInsulation];
-      let insSqft = parseFloat(area.insulationSquareFootage) || 0;
-      if (insSqft > 0) {
-        if (insSqft < ins.minSqft) insSqft = ins.minSqft;
-        addItem(areaName, `Insulation: ${area.needInsulation}`, `${insSqft} sqft (min applied)`, insSqft * ins.price, {
+      if (sqft > 0) {
+        const insSqft = Math.max(sqft, ins.minSqft);
+        const detail = insSqft > sqft ? `${insSqft} sqft (min applied)` : `${insSqft} sqft`;
+        addItem(areaName, `Insulation: ${area.needInsulation}`, detail, insSqft * ins.price, {
           quantity: insSqft, rate: ins.price, unit: 'sqft',
         });
       }
