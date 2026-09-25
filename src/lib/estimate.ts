@@ -1,4 +1,4 @@
-import { PRICING } from '../data/pricing';
+import { PRICING } from '../price-estimator/pricing/prices';
 import type { CustomQuestionRecord } from './customQuestionsStore';
 // import { trimConfig } from '../price-estimator/questions/trimConfig';
 

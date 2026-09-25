@@ -1,4 +1,4 @@
-import type { PricingRule } from './pricing';
+import type { PricingRule } from './pricingRules';
 
 export interface RateRow {
   questionId: string;

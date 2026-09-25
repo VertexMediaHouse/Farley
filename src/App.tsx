@@ -57,8 +57,8 @@ function BackToTopButton() {
   );
 }
 
-import { fetchPriceOverrides } from './lib/priceOverrides'
-import { applyPricingRules } from './data/pricingMapper'
+import { fetchPriceOverrides } from './price-estimator/pricing/priceOverrides'
+import { applyPricingRules } from './price-estimator/pricing/pricingMapper'
 import { HelmetProvider } from 'react-helmet-async'
 
 export default function App({ helmetContext }: { helmetContext?: object }) {

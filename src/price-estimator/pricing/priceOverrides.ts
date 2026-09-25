@@ -15,8 +15,8 @@
  *   create policy "auth write" on price_overrides for all    using (auth.role() = 'authenticated');
  */
 
-import type { PricingRule } from './pricing';
-import { supabase } from '../price-estimator/supabase';
+import type { PricingRule } from './pricingRules';
+import { supabase } from '../supabase';
 
 export type PriceOverrideMap = Record<string, PricingRule>;
 

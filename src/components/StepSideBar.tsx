@@ -23,7 +23,7 @@ interface Props {
   // trim: AreaValues[];
   paint: AreaValues[];
   customQuestions?: unknown[];
-  productPrices?: import('../lib/productPricesStore').ProductPriceMap;
+  productPrices?: import('../price-estimator/pricing/productPricesStore').ProductPriceMap;
   contact?: unknown;
 }
 

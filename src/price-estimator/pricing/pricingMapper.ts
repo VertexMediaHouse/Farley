@@ -1,9 +1,9 @@
-import type { PricingRule } from '../lib/pricing';
-import * as P from './pricing';
+import type { PricingRule } from './pricingRules';
+import * as P from './prices';
 
 type Rate = keyof typeof P.RATES;
 
-// Every admin-editable rule, in display order, and the pricing.ts value it edits in place.
+// Every admin-editable rule, in display order, and the prices.ts value it edits in place.
 type Source =
   | { flat: Rate }                                                   // flat_if → RATES[flat]
   | { rate: Rate; unit: string }                                     // per_unit → RATES[rate]
