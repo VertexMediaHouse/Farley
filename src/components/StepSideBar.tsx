@@ -2,8 +2,8 @@
 // import { FaTools, FaPaintRoller, FaAddressCard, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FaTools, FaPaintRoller, FaAddressCard,} from 'react-icons/fa';
 import type { AreaValues } from '../price-estimator/questions/form';
-// import { calculateEstimate } from '../lib/estimate';
-// import type { LineItem } from '../lib/estimate';
+// import { calculateEstimate } from '../price-estimator/calculation/estimate';
+// import type { LineItem } from '../price-estimator/calculation/estimate';
 
 const STEPS = [
   { label: 'Referral', hint: 'Commercial & Subcontractor info', Icon: FaAddressCard },

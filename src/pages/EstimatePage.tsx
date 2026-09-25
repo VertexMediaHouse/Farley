@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { EstimateResult, LineItem } from '../lib/estimate'
+import type { EstimateResult, LineItem } from '../price-estimator/calculation/estimate'
 import { Link } from 'react-router-dom'
 
 interface ContactInfo {

@@ -1,6 +1,6 @@
 import type { AreaValues } from '../price-estimator/questions/form';
-import { calculateEstimate } from './estimate';
-import { adaptV2ToV1Estimate } from '../utils/estimateAdapter';
+import { calculateEstimate } from '../price-estimator/calculation/estimate';
+import { adaptV2ToV1Estimate } from '../price-estimator/calculation/estimateAdapter';
 import { evalCondition } from '../utils/formUtils';
 import { drywallConfig } from '../price-estimator/questions/drywallConfig';
 import { paintConfig } from '../price-estimator/questions/paintConfig';
@@ -285,7 +285,7 @@ const generateAreaThumbnails = async (areas: AreaValues[], prefix: string): Prom
 
 /** Runs the live Home Depot scrape for every trim area that has a catalog
  *  product selected, and writes the returned price back onto each area as
- *  `baseboardCatalog_userPrice` — the exact field lib/estimate.ts reads. */
+ *  `baseboardCatalog_userPrice` — the exact field calculation/estimate.ts reads. */
 // async function enrichTrimWithLivePrices(
 //   trim: AreaValues[],
 //   zipcode: string,

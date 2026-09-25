@@ -1,6 +1,6 @@
-import { PRICING } from '../price-estimator/pricing/prices';
-import type { CustomQuestionRecord } from './customQuestionsStore';
-// import { trimConfig } from '../price-estimator/questions/trimConfig';
+import { PRICING } from '../pricing/prices';
+import type { CustomQuestionRecord } from '../../lib/customQuestionsStore';
+// import { trimConfig } from '../questions/trimConfig';
 
 export interface HomeDepotProduct {
   image: string;
