@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { fetchOverrides, saveOverride, resetOverride, type OverrideMap } from '../../lib/overrides';
-import { drywallConfig } from '../../data/drywallConfig';
-import { trimConfig } from '../../data/trimConfig';
-import { paintConfig } from '../../data/paintConfig';
-import type { QuestionConfig } from '../../types/form';
+import { drywallConfig } from '../../price-estimator/questions/drywallConfig';
+import { trimConfig } from '../../price-estimator/questions/trimConfig';
+import { paintConfig } from '../../price-estimator/questions/paintConfig';
+import type { QuestionConfig } from '../../price-estimator/questions/form';
 import { input as inp, btnPrimary, btnGhost } from '../../price-estimator/theme';
 
 const SECTIONS = [

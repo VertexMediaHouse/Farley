@@ -1,4 +1,4 @@
-import type { QuestionConfig } from '../types/form';
+import type { QuestionConfig } from './form';
 
 export const drywallConfig: QuestionConfig[] = [
   {

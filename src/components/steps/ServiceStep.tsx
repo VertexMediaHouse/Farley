@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import type { AreaValues } from '../../types/form';
-import type { ServicePath } from '../../data/stepConfig';
-import { STEP_CONFIGS, STEP_META, TOTAL_STEPS } from '../../data/stepConfig';
+import type { AreaValues } from '../../price-estimator/questions/form';
+import type { ServicePath } from '../../price-estimator/questions/stepConfig';
+import { STEP_CONFIGS, STEP_META, TOTAL_STEPS } from '../../price-estimator/questions/stepConfig';
 import StepHeader from '../StepHeader';
 import NavigationButtons from '../NavigationButtons';
 import AreaManager from '../AreaManager';

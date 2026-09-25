@@ -1,4 +1,4 @@
-import type { QuestionConfig } from '../types/form';
+import type { QuestionConfig } from '../price-estimator/questions/form';
 import { supabase } from '../price-estimator/supabase';
 
 export interface QuestionOverride {

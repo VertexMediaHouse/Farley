@@ -1,5 +1,5 @@
 import { supabase } from '../price-estimator/supabase';
-import type { QuestionConfig } from '../types/form';
+import type { QuestionConfig } from '../price-estimator/questions/form';
 
 export interface PricingRule {
   type: 'flat' | 'per_unit';

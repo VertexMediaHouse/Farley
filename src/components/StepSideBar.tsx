@@ -1,7 +1,7 @@
 // import { useState } from 'react';
 // import { FaTools, FaPaintRoller, FaAddressCard, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FaTools, FaPaintRoller, FaAddressCard,} from 'react-icons/fa';
-import type { AreaValues } from '../types/form';
+import type { AreaValues } from '../price-estimator/questions/form';
 // import { calculateEstimate } from '../lib/estimate';
 // import type { LineItem } from '../lib/estimate';
 

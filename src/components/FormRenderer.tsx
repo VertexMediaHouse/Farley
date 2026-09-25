@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { QuestionConfig, AreaValues } from '../types/form';
+import type { QuestionConfig, AreaValues } from '../price-estimator/questions/form';
 import UploadBox from './UploadBox';
 import InfoButton from './InfoButton';
 import { input as inp, label as lbl, errorText } from '../price-estimator/theme';

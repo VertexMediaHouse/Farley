@@ -1,9 +1,9 @@
-import type { AreaValues } from '../types/form';
+import type { AreaValues } from '../price-estimator/questions/form';
 import { calculateEstimate } from './estimate';
 import { adaptV2ToV1Estimate } from '../utils/estimateAdapter';
 import { evalCondition } from '../utils/formUtils';
-import { drywallConfig } from '../data/drywallConfig';
-import { paintConfig } from '../data/paintConfig';
+import { drywallConfig } from '../price-estimator/questions/drywallConfig';
+import { paintConfig } from '../price-estimator/questions/paintConfig';
 import type { CustomQuestionRecord } from './customQuestionsStore';
 
 export const ESTIMATE_DRAFT_KEY = 'fcd_estimate_v2';

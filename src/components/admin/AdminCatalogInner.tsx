@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchLastRunPrices, runFreshScrape, type ScrapedPrice } from '../../lib/apifyPrices';
-import { baseboardCasingCatalog, SCRAPE_ACTOR_INPUT } from '../../data/baseboardCasingCatalog';
+import { baseboardCasingCatalog, SCRAPE_ACTOR_INPUT } from '../../price-estimator/questions/baseboardCasingCatalog';
 import { btnPrimary, btnGhost } from '../../price-estimator/theme';
 import { saveScrapedPrices } from '../../lib/productPricesStore';
 

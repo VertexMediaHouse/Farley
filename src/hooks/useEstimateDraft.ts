@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { AreaValues } from '../types/form';
+import type { AreaValues } from '../price-estimator/questions/form';
 import {
   DEFAULT_CONTACT,
   loadDraft,
