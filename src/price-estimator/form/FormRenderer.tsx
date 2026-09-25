@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import type { QuestionConfig, AreaValues } from '../price-estimator/questions/form';
+import type { QuestionConfig, AreaValues } from '../questions/form';
 import UploadBox from './UploadBox';
 import InfoButton from './InfoButton';
-import { input as inp, label as lbl, errorText } from '../price-estimator/theme';
-import PaintExplorer from '../price-estimator/paint-explorer/paintexplorer';
-import type { PaintColor } from '../price-estimator/paint-explorer/types';
+import { input as inp, label as lbl, errorText } from '../theme';
+import PaintExplorer from '../paint-explorer/paintexplorer';
+import type { PaintColor } from '../paint-explorer/types';
 
-import { evalCondition } from '../utils/formUtils';
+import { evalCondition } from './formUtils';
 
 export function validateConfig(config: QuestionConfig[], values: AreaValues): Record<string, string> {
   const errs: Record<string, string> = {};

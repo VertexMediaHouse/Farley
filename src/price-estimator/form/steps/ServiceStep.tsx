@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import type { AreaValues } from '../../price-estimator/questions/form';
-import type { ServicePath } from '../../price-estimator/questions/stepConfig';
-import { STEP_CONFIGS, STEP_META, TOTAL_STEPS } from '../../price-estimator/questions/stepConfig';
+import type { AreaValues } from '../../questions/form';
+import type { ServicePath } from '../../questions/stepConfig';
+import { STEP_CONFIGS, STEP_META, TOTAL_STEPS } from '../../questions/stepConfig';
 import StepHeader from '../StepHeader';
 import NavigationButtons from '../NavigationButtons';
 import AreaManager from '../AreaManager';
 import { validateConfig } from '../FormRenderer';
-import { useQuestionCopy } from '../../price-estimator/content/CopyProvider';
+import { useQuestionCopy } from '../../content/CopyProvider';
 
 type AreaValuesUpdater = AreaValues[] | ((prev: AreaValues[]) => AreaValues[]);
 

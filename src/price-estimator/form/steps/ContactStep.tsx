@@ -1,8 +1,8 @@
 import { useState } from "react";
 import StepHeader from "../StepHeader";
 import NavigationButtons from "../NavigationButtons";
-import { input as inp, label as lbl, errorText } from "../../price-estimator/theme";
-import { TOTAL_STEPS } from "../../price-estimator/questions/stepConfig";
+import { input as inp, label as lbl, errorText } from "../../theme";
+import { TOTAL_STEPS } from "../../questions/stepConfig";
 
 interface ContactData {
   isCommercial: string;

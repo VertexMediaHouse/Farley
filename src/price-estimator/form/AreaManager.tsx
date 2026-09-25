@@ -1,6 +1,6 @@
-import type { AreaValues, QuestionConfig } from '../price-estimator/questions/form';
+import type { AreaValues, QuestionConfig } from '../questions/form';
 import FormRenderer from './FormRenderer';
-import { card } from '../price-estimator/theme';
+import { card } from '../theme';
 
 interface AreaManagerProps {
   areaLabel: string;

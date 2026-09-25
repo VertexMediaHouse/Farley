@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { AreaValues } from '../price-estimator/questions/form';
+import type { AreaValues } from '../questions/form';
 import {
   DEFAULT_CONTACT,
   loadDraft,
@@ -9,8 +9,8 @@ import {
   ESTIMATE_DRAFT_KEY,
   ESTIMATE_RESULT_KEY,
   type ContactData,
-} from '../lib/estimateForm';
-import { useCustomQuestions } from '../price-estimator/content/CopyProvider';
+} from './estimateForm';
+import { useCustomQuestions } from '../content/CopyProvider';
 
 export function useEstimateDraft() {
   const customQuestions = useCustomQuestions();

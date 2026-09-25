@@ -1,10 +1,10 @@
-import type { AreaValues } from '../price-estimator/questions/form';
-import { calculateEstimate } from '../price-estimator/calculation/estimate';
-import { adaptV2ToV1Estimate } from '../price-estimator/calculation/estimateAdapter';
-import { evalCondition } from '../utils/formUtils';
-import { drywallConfig } from '../price-estimator/questions/drywallConfig';
-import { paintConfig } from '../price-estimator/questions/paintConfig';
-import type { CustomQuestionRecord } from '../price-estimator/content/customQuestionsStore';
+import type { AreaValues } from '../questions/form';
+import { calculateEstimate } from '../calculation/estimate';
+import { adaptV2ToV1Estimate } from '../calculation/estimateAdapter';
+import { evalCondition } from './formUtils';
+import { drywallConfig } from '../questions/drywallConfig';
+import { paintConfig } from '../questions/paintConfig';
+import type { CustomQuestionRecord } from '../content/customQuestionsStore';
 
 export const ESTIMATE_DRAFT_KEY = 'fcd_estimate_v2';
 export const ESTIMATE_RESULT_KEY = 'fcd_estimate_data';

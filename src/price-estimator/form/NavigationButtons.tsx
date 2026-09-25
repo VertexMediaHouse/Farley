@@ -1,4 +1,4 @@
-import { btnGhost, btnPrimary, btnSubmit } from '../price-estimator/theme';
+import { btnGhost, btnPrimary, btnSubmit } from '../theme';
 
 interface NavigationButtonsProps {
   step: number;

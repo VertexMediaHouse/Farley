@@ -1,4 +1,4 @@
-import type { AreaValues, Condition } from '../price-estimator/questions/form';
+import type { AreaValues, Condition } from '../questions/form';
 
 export function evalCondition(cond: Condition, values: AreaValues): boolean {
   const raw = values[cond.field];

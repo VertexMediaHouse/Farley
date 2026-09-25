@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import StepSidebar from '../components/StepSideBar';
-import ContactStep from '../components/steps/ContactStep';
-import ClientInfoStep from '../components/steps/ClientInfoStep';
-import ServiceStep from '../components/steps/ServiceStep';
-import { useEstimateDraft } from '../hooks/useEstimateDraft';
+import StepSidebar from './StepSideBar';
+import ContactStep from './steps/ContactStep';
+import ClientInfoStep from './steps/ClientInfoStep';
+import ServiceStep from './steps/ServiceStep';
+import { useEstimateDraft } from './useEstimateDraft';
 
 const PRICE_LOOKUP_SECONDS = 120;
 

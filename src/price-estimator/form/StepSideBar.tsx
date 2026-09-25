@@ -1,9 +1,9 @@
 // import { useState } from 'react';
 // import { FaTools, FaPaintRoller, FaAddressCard, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { FaTools, FaPaintRoller, FaAddressCard,} from 'react-icons/fa';
-import type { AreaValues } from '../price-estimator/questions/form';
-// import { calculateEstimate } from '../price-estimator/calculation/estimate';
-// import type { LineItem } from '../price-estimator/calculation/estimate';
+import type { AreaValues } from '../questions/form';
+// import { calculateEstimate } from '../calculation/estimate';
+// import type { LineItem } from '../calculation/estimate';
 
 const STEPS = [
   { label: 'Referral', hint: 'Commercial & Subcontractor info', Icon: FaAddressCard },
@@ -23,7 +23,7 @@ interface Props {
   // trim: AreaValues[];
   paint: AreaValues[];
   customQuestions?: unknown[];
-  productPrices?: import('../price-estimator/pricing/productPricesStore').ProductPriceMap;
+  productPrices?: import('../pricing/productPricesStore').ProductPriceMap;
   contact?: unknown;
 }
 
