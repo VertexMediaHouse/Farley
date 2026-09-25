@@ -3,8 +3,8 @@ import type { QuestionConfig, AreaValues } from '../price-estimator/questions/fo
 import UploadBox from './UploadBox';
 import InfoButton from './InfoButton';
 import { input as inp, label as lbl, errorText } from '../price-estimator/theme';
-import PaintExplorer from './paintexplorer/paintexplorer';
-import type { PaintColor } from './paintexplorer/types';
+import PaintExplorer from '../price-estimator/paint-explorer/paintexplorer';
+import type { PaintColor } from '../price-estimator/paint-explorer/types';
 
 import { evalCondition } from '../utils/formUtils';
 
