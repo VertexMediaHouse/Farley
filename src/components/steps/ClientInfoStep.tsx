@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { input as inp, label as lbl, errorText } from "../theme";
+import { input as inp, label as lbl, errorText } from "../../price-estimator/theme";
 
 interface ContactData {
   isCommercial: string;

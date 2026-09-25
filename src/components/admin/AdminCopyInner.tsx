@@ -4,7 +4,7 @@ import { drywallConfig } from '../../data/drywallConfig';
 import { trimConfig } from '../../data/trimConfig';
 import { paintConfig } from '../../data/paintConfig';
 import type { QuestionConfig } from '../../types/form';
-import { input as inp, btnPrimary, btnGhost } from '../theme';
+import { input as inp, btnPrimary, btnGhost } from '../../price-estimator/theme';
 
 const SECTIONS = [
   { title: 'Drywall',  questions: drywallConfig },

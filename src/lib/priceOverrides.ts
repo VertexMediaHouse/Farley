@@ -16,7 +16,7 @@
  */
 
 import type { PricingRule } from './pricing';
-import { supabase } from './supabase';
+import { supabase } from '../price-estimator/supabase';
 
 export type PriceOverrideMap = Record<string, PricingRule>;
 

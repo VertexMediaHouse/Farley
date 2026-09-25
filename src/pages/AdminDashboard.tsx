@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../price-estimator/supabase';
 import AdminCopyInner from '../components/admin/AdminCopyInner';
 import AdminPricingInner from '../components/admin/AdminPricingInner';
 import AdminAddQuestion from '../components/admin/AdminAddQuestion';

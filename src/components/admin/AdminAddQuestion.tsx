@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { STEP_CONFIGS } from '../../data/stepConfig';
-import { input as inp, btnPrimary, btnGhost, label as lbl } from '../theme';
+import { input as inp, btnPrimary, btnGhost, label as lbl } from '../../price-estimator/theme';
 import { saveCustomQuestion, fetchCustomQuestions, deleteCustomQuestion, type CustomQuestionConfig, type PricingRule, type CustomQuestionRecord } from '../../lib/customQuestionsStore';
 import type { QuestionConfig } from '../../types/form';
 

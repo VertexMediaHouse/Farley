@@ -13,7 +13,7 @@ export interface FormSnapshot {
   created_at: string;
 }
 
-import { supabase } from './supabase';
+import { supabase } from '../price-estimator/supabase';
 
 export async function fetchLatestSnapshot(): Promise<FormSnapshot | null> {
   const { data, error } = await supabase

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import StepHeader from "../StepHeader";
 import NavigationButtons from "../NavigationButtons";
-import { input as inp, label as lbl, errorText } from "../theme";
+import { input as inp, label as lbl, errorText } from "../../price-estimator/theme";
 import { TOTAL_STEPS } from "../../data/stepConfig";
 
 interface ContactData {

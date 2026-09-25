@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from '../price-estimator/supabase';
 import type { ScrapedPrice } from './apifyPrices';
 
 export interface ProductPrice {

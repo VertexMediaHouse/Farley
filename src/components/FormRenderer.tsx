@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { QuestionConfig, AreaValues } from '../types/form';
 import UploadBox from './UploadBox';
 import InfoButton from './InfoButton';
-import { input as inp, label as lbl, errorText } from './theme';
+import { input as inp, label as lbl, errorText } from '../price-estimator/theme';
 import PaintExplorer from './paintexplorer/paintexplorer';
 import type { PaintColor } from './paintexplorer/types';
 

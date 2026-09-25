@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from '../price-estimator/supabase';
 import type { QuestionConfig } from '../types/form';
 
 export interface PricingRule {
