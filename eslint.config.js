@@ -23,7 +23,7 @@ export default defineConfig([
   },
   {
     // These modules deliberately export hooks/helpers next to components.
-    files: ['src/utils.tsx', 'src/price-estimator/content/CopyProvider.tsx', 'src/price-estimator/form/FormRenderer.tsx'],
+    files: ['src/website/utils.tsx', 'src/price-estimator/content/CopyProvider.tsx', 'src/price-estimator/form/FormRenderer.tsx'],
     rules: { 'react-refresh/only-export-components': 'off' },
   },
 ])
