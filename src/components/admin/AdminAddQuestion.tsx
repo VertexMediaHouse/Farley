@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { STEP_CONFIGS } from '../../price-estimator/questions/stepConfig';
 import { input as inp, btnPrimary, btnGhost, label as lbl } from '../../price-estimator/theme';
-import { saveCustomQuestion, fetchCustomQuestions, deleteCustomQuestion, type CustomQuestionConfig, type PricingRule, type CustomQuestionRecord } from '../../lib/customQuestionsStore';
+import { saveCustomQuestion, fetchCustomQuestions, deleteCustomQuestion, type CustomQuestionConfig, type PricingRule, type CustomQuestionRecord } from '../../price-estimator/content/customQuestionsStore';
 import type { QuestionConfig } from '../../price-estimator/questions/form';
 
 const PATH_MAP = STEP_CONFIGS;

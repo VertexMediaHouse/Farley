@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchOverrides, saveOverride, resetOverride, type OverrideMap } from '../../lib/overrides';
+import { fetchOverrides, saveOverride, resetOverride, type OverrideMap } from '../../price-estimator/content/overrides';
 import { drywallConfig } from '../../price-estimator/questions/drywallConfig';
 import { trimConfig } from '../../price-estimator/questions/trimConfig';
 import { paintConfig } from '../../price-estimator/questions/paintConfig';

@@ -1,5 +1,5 @@
 import { PRICING } from '../pricing/prices';
-import type { CustomQuestionRecord } from '../../lib/customQuestionsStore';
+import type { CustomQuestionRecord } from '../content/customQuestionsStore';
 // import { trimConfig } from '../questions/trimConfig';
 
 export interface HomeDepotProduct {

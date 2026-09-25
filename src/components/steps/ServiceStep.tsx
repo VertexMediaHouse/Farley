@@ -6,7 +6,7 @@ import StepHeader from '../StepHeader';
 import NavigationButtons from '../NavigationButtons';
 import AreaManager from '../AreaManager';
 import { validateConfig } from '../FormRenderer';
-import { useQuestionCopy } from '../../context/CopyProvider';
+import { useQuestionCopy } from '../../price-estimator/content/CopyProvider';
 
 type AreaValuesUpdater = AreaValues[] | ((prev: AreaValues[]) => AreaValues[]);
 

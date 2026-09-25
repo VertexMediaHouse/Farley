@@ -1,5 +1,5 @@
-import type { QuestionConfig } from '../price-estimator/questions/form';
-import { supabase } from '../price-estimator/supabase';
+import type { QuestionConfig } from '../questions/form';
+import { supabase } from '../supabase';
 
 export interface QuestionOverride {
   label?: string | null;

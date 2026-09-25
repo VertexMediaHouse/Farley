@@ -4,7 +4,7 @@ import { adaptV2ToV1Estimate } from '../price-estimator/calculation/estimateAdap
 import { evalCondition } from '../utils/formUtils';
 import { drywallConfig } from '../price-estimator/questions/drywallConfig';
 import { paintConfig } from '../price-estimator/questions/paintConfig';
-import type { CustomQuestionRecord } from './customQuestionsStore';
+import type { CustomQuestionRecord } from '../price-estimator/content/customQuestionsStore';
 
 export const ESTIMATE_DRAFT_KEY = 'fcd_estimate_v2';
 export const ESTIMATE_RESULT_KEY = 'fcd_estimate_data';

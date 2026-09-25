@@ -10,7 +10,7 @@ import EstimatePage from './pages/EstimatePage'
 import PriceEstimatorPage, { PriceEstimatorInner } from './pages/PriceEstimatorPage'
 import AdminDashboard from './pages/AdminDashboard'
 import RequireAuth from './components/RequireAuth'
-import { CopyProvider } from './context/CopyProvider'
+import { CopyProvider } from './price-estimator/content/CopyProvider'
 import FCDChatbot from './components/FCDChatbot'
 
 function ScrollToTop() {

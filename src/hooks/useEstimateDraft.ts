@@ -10,7 +10,7 @@ import {
   ESTIMATE_RESULT_KEY,
   type ContactData,
 } from '../lib/estimateForm';
-import { useCustomQuestions } from '../context/CopyProvider';
+import { useCustomQuestions } from '../price-estimator/content/CopyProvider';
 
 export function useEstimateDraft() {
   const customQuestions = useCustomQuestions();

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { applyOverrides, fetchOverrides, type OverrideMap } from '../lib/overrides';
-import { fetchCustomQuestions, type CustomQuestionRecord } from '../lib/customQuestionsStore';
-import type { QuestionConfig } from '../price-estimator/questions/form';
+import { applyOverrides, fetchOverrides, type OverrideMap } from './overrides';
+import { fetchCustomQuestions, type CustomQuestionRecord } from './customQuestionsStore';
+import type { QuestionConfig } from '../questions/form';
 
 interface ContextType {
   overrides: OverrideMap;
