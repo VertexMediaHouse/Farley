@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { supabase } from '../price-estimator/supabase';
-import AdminCopyInner from '../components/admin/AdminCopyInner';
-import AdminPricingInner from '../components/admin/AdminPricingInner';
-import AdminAddQuestion from '../components/admin/AdminAddQuestion';
-import AdminCatalogInner from '../components/admin/AdminCatalogInner';
-import ErrorBoundary from '../components/ErrorBoundary';
+import { supabase } from '../supabase';
+import AdminCopyInner from './AdminCopyInner';
+import AdminPricingInner from './AdminPricingInner';
+import AdminAddQuestion from './AdminAddQuestion';
+import AdminCatalogInner from './AdminCatalogInner';
+import ErrorBoundary from './ErrorBoundary';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'questions' | 'pricing' | 'custom_questions' | 'catalog'>('pricing');

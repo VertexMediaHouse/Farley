@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { fetchOverrides, saveOverride, resetOverride, type OverrideMap } from '../../price-estimator/content/overrides';
-import { drywallConfig } from '../../price-estimator/questions/drywallConfig';
-import { trimConfig } from '../../price-estimator/questions/trimConfig';
-import { paintConfig } from '../../price-estimator/questions/paintConfig';
-import type { QuestionConfig } from '../../price-estimator/questions/form';
-import { input as inp, btnPrimary, btnGhost } from '../../price-estimator/theme';
+import { fetchOverrides, saveOverride, resetOverride, type OverrideMap } from '../content/overrides';
+import { drywallConfig } from '../questions/drywallConfig';
+import { trimConfig } from '../questions/trimConfig';
+import { paintConfig } from '../questions/paintConfig';
+import type { QuestionConfig } from '../questions/form';
+import { input as inp, btnPrimary, btnGhost } from '../theme';
 
 const SECTIONS = [
   { title: 'Drywall',  questions: drywallConfig },

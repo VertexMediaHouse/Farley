@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { fetchLastRunPrices, runFreshScrape, type ScrapedPrice } from '../../price-estimator/pricing/apifyPrices';
-import { baseboardCasingCatalog, SCRAPE_ACTOR_INPUT } from '../../price-estimator/questions/baseboardCasingCatalog';
-import { btnPrimary, btnGhost } from '../../price-estimator/theme';
-import { saveScrapedPrices } from '../../price-estimator/pricing/productPricesStore';
+import { fetchLastRunPrices, runFreshScrape, type ScrapedPrice } from '../pricing/apifyPrices';
+import { baseboardCasingCatalog, SCRAPE_ACTOR_INPUT } from '../questions/baseboardCasingCatalog';
+import { btnPrimary, btnGhost } from '../theme';
+import { saveScrapedPrices } from '../pricing/productPricesStore';
 
 interface Row {
   url: string;

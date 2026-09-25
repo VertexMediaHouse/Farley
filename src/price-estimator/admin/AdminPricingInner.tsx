@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
-import { flattenRates, setRate, bulkAdjust } from '../../price-estimator/pricing/rates';
-import type { RateRow } from '../../price-estimator/pricing/rates';
-import type { PricingRule } from '../../price-estimator/pricing/pricingRules';
-import { fetchPriceOverrides, savePriceOverrides } from '../../price-estimator/pricing/priceOverrides';
-import { getInitialPricingRules, applyPricingRules } from '../../price-estimator/pricing/pricingMapper';
+import { flattenRates, setRate, bulkAdjust } from '../pricing/rates';
+import type { RateRow } from '../pricing/rates';
+import type { PricingRule } from '../pricing/pricingRules';
+import { fetchPriceOverrides, savePriceOverrides } from '../pricing/priceOverrides';
+import { getInitialPricingRules, applyPricingRules } from '../pricing/pricingMapper';
 
 // ─── Label maps ───────────────────────────────────────────────────────────────
 

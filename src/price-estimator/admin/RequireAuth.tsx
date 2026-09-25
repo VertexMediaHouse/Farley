@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { supabase } from '../price-estimator/supabase';
-import { input as inp, btnPrimary } from '../price-estimator/theme';
+import { supabase } from '../supabase';
+import { input as inp, btnPrimary } from '../theme';
 
 export default function RequireAuth({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
